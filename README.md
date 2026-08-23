@@ -19,7 +19,7 @@ An agent-neutral, conversation-first development kit—from context to verified 
 2. Read [`docs/getting-started.md`](docs/getting-started.md).
 3. Fill the project context in [`.context/project/`](.context/project/).
 4. Select a workflow in [`.context/workflows/`](.context/workflows/).
-5. Copy the relevant templates into `.context/work/<id>/` and complete `work-item.json`.
+5. Describe the work to the orchestrator; it creates `.context/work/<id>/`, selects templates and writes `work-item.json`.
 6. Run `python3 scripts/validate_context.py --strict`.
 
 ## Start a conversation

@@ -18,7 +18,7 @@ Complete `.context/config.json` and the files under `.context/project/`. Replace
 
 ## 4. Create a work item
 
-Copy templates into `.context/work/<id>/`, create `work-item.json`, and set its profile, track, type, phase and status. Keep `progress.md` local; use `handoff.md` only for durable transfer context.
+Tell the orchestrator the outcome and startup decisions. It creates `.context/work/<id>/`, selects and copies templates, and writes `work-item.json` with profile, track, type, phase and status. Create files manually only when operating without an orchestrator. Keep `progress.md` local; use `handoff.md` only for durable transfer context.
 
 Before execution, make `plan.md` a small dependency graph: one owner and acceptance evidence per subtask, ordered into waves. Delegate only bounded subtasks; parent agent integrates and verifies results.
 
