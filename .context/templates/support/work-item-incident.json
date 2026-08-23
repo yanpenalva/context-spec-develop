@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0",
+  "id": "INC-0001",
+  "title": "<SHORT_TITLE>",
+  "track": "support",
+  "type": "incident",
+  "phase": "triage",
+  "status": "draft",
+  "risk": "high",
+  "owner": "<OWNER>",
+  "conversation_profile": "support-incident-engineer",
+  "last_updated": "YYYY-MM-DD",
+  "severity": "sev2",
+  "implementation_required": false,
+  "policy_exceptions": []
+}

@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/yanpenalva/context-spec-develop/schemas/work-item.schema.json",
+  "title": "context-spec-develop work item",
+  "type": "object",
+  "required": ["schema_version", "id", "title", "track", "type", "phase", "status", "risk", "owner", "conversation_profile", "last_updated"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "id": {"type": "string", "minLength": 1},
+    "title": {"type": "string", "minLength": 1},
+    "track": {"enum": ["product", "support"]},
+    "type": {"enum": ["feature", "bug", "incident", "hotfix"]},
+    "phase": {"enum": ["discover", "triage", "contain", "specify", "plan", "preflight", "execute", "verify", "release", "observe", "learn", "close"]},
+    "status": {"enum": ["draft", "ready", "active", "blocked", "completed", "cancelled"]},
+    "risk": {"enum": ["low", "medium", "high", "critical"]},
+    "owner": {"type": "string", "minLength": 1},
+    "conversation_profile": {"type": "string", "minLength": 1},
+    "last_updated": {"type": "string", "format": "date"},
+    "severity": {"enum": ["sev1", "sev2", "sev3", "sev4"]},
+    "implementation_required": {"type": "boolean"},
+    "phase_history": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+    "policy_exceptions": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+  },
+  "allOf": [
+    {"if": {"properties": {"track": {"const": "product"}}}, "then": {"properties": {"type": {"const": "feature"}}}},
+    {"if": {"properties": {"type": {"enum": ["incident", "hotfix"]}}}, "then": {"required": ["severity"]}},
+    {"if": {"properties": {"type": {"const": "incident"}}}, "then": {"properties": {"track": {"const": "support"}}}},
+    {"if": {"properties": {"type": {"const": "hotfix"}}}, "then": {"properties": {"track": {"const": "support"}}}}
+  ],
+  "additionalProperties": false
+}

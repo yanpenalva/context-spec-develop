@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/yanpenalva/context-spec-develop/schemas/orchestration.schema.json",
+  "title": "context-spec-develop orchestration configuration",
+  "type": "object",
+  "required": ["schema_version", "config_version", "mode", "startup", "assignments", "subagents", "git"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "config_version": {"type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$"},
+    "mode": {"enum": ["single-agent", "multi-agent"]},
+    "startup": {
+      "type": "object",
+      "required": ["selection_required", "ask_only_missing", "questions", "auto_create_work_item", "auto_create_directories", "auto_copy_templates"],
+      "properties": {
+        "selection_required": {"type": "boolean"},
+        "ask_only_missing": {"type": "boolean"},
+        "questions": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+        "auto_create_work_item": {"type": "boolean"},
+        "auto_create_directories": {"type": "boolean"},
+        "auto_copy_templates": {"type": "boolean"}
+      },
+      "additionalProperties": false
+    },
+    "assignments": {"type": "object", "minProperties": 4},
+    "subagents": {
+      "type": "object",
+      "required": ["enabled", "max_parallel", "strategy", "least_privilege", "parent_integrates", "stop_on_scope_change"],
+      "properties": {
+        "enabled": {"type": "boolean"},
+        "max_parallel": {"type": "integer", "minimum": 1},
+        "strategy": {"type": "string", "minLength": 1},
+        "least_privilege": {"const": true},
+        "parent_integrates": {"const": true},
+        "stop_on_scope_change": {"const": true}
+      },
+      "additionalProperties": false
+    },
+    "git": {"type": "object", "required": ["agent_may_prepare", "human_approval_required_before_push", "commands"]}
+  },
+  "additionalProperties": false
+}

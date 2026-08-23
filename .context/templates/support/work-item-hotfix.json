@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0",
+  "id": "HOT-0001",
+  "title": "<SHORT_TITLE>",
+  "track": "support",
+  "type": "hotfix",
+  "phase": "triage",
+  "status": "draft",
+  "risk": "critical",
+  "owner": "<OWNER>",
+  "conversation_profile": "devops-release-engineer",
+  "last_updated": "YYYY-MM-DD",
+  "severity": "sev1",
+  "implementation_required": true,
+  "policy_exceptions": []
+}

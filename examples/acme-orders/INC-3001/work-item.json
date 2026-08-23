@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0",
+  "id": "INC-3001",
+  "title": "Order notifications delayed by provider outage",
+  "track": "support",
+  "type": "incident",
+  "phase": "close",
+  "status": "completed",
+  "risk": "high",
+  "owner": "incident-commander",
+  "conversation_profile": "support-incident-engineer",
+  "last_updated": "2026-08-22",
+  "severity": "sev2",
+  "implementation_required": false,
+  "phase_history": ["triage", "contain", "observe", "close"],
+  "policy_exceptions": []
+}

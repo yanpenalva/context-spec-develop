@@ -1,0 +1,43 @@
+{
+  "schema_version": "1.0",
+  "kit_version": "0.1.0",
+  "project": {
+    "name": "Adopting project",
+    "repository": "organization/repository"
+  },
+  "tracks": ["product", "support"],
+  "governance_mode": "starter",
+  "policy_baseline": "core",
+  "enabled_profiles": [],
+  "agent_profiles": {
+    "selection_required": true,
+    "default": "senior-software-engineer",
+    "available": [
+      "senior-software-engineer",
+      "delivery-orchestrator",
+      "technical-planner",
+      "product-engineer",
+      "support-incident-engineer",
+      "devops-release-engineer",
+      "quality-engineer",
+      "security-privacy-reviewer"
+    ]
+  },
+  "orchestration_config": ".context/orchestration/config.json",
+  "work_item_id_pattern": "^[A-Z]+-[0-9]+$",
+  "default_observation_window": "NOT FOUND",
+  "quality": {
+    "baseline": "no-regression",
+    "static_analysis_command": "NOT FOUND",
+    "test_command": "NOT FOUND",
+    "cognitive_complexity_max": null,
+    "cyclomatic_complexity_max": null,
+    "changed_code_coverage_min": null,
+    "new_code_duplication_max": null
+  },
+  "ai": {
+    "approved_tools": "NOT FOUND",
+    "data_classification": "NOT FOUND",
+    "human_approval_required": true
+  }
+}

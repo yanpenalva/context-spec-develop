@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0",
+  "id": "FEAT-0001",
+  "title": "<SHORT_TITLE>",
+  "track": "product",
+  "type": "feature",
+  "phase": "discover",
+  "status": "draft",
+  "risk": "medium",
+  "owner": "<OWNER>",
+  "conversation_profile": "senior-software-engineer",
+  "last_updated": "YYYY-MM-DD",
+  "policy_exceptions": []
+}

@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0",
+  "id": "BUG-2001",
+  "title": "Order status page loses timezone label",
+  "track": "support",
+  "type": "bug",
+  "phase": "close",
+  "status": "completed",
+  "risk": "low",
+  "owner": "support-engineering",
+  "conversation_profile": "support-incident-engineer",
+  "last_updated": "2026-08-21",
+  "phase_history": ["triage", "specify", "plan", "preflight", "execute", "verify", "release", "observe", "close"],
+  "policy_exceptions": []
+}

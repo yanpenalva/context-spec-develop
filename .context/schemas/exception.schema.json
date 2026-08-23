@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/yanpenalva/context-spec-develop/schemas/exception.schema.json",
+  "title": "context-spec-develop policy exception",
+  "type": "object",
+  "required": ["schema_version", "id", "policy", "scope", "rationale", "risk", "compensating_controls", "owner", "approver", "created_at", "expires_at", "status"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "id": {"type": "string", "pattern": "^EXC-[0-9]+$"},
+    "policy": {"type": "string", "minLength": 1},
+    "scope": {"type": "string", "minLength": 1},
+    "rationale": {"type": "string", "minLength": 1},
+    "risk": {"enum": ["low", "medium", "high", "critical"]},
+    "compensating_controls": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+    "owner": {"type": "string", "minLength": 1},
+    "approver": {"type": "string", "minLength": 1},
+    "created_at": {"type": "string", "format": "date"},
+    "expires_at": {"type": "string", "format": "date"},
+    "status": {"enum": ["proposed", "approved", "expired", "revoked"]}
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,80 @@
+{
+  "schema_version": "1.0",
+  "config_version": "0.1.0",
+  "mode": "multi-agent",
+  "startup": {
+    "selection_required": true,
+    "ask_only_missing": true,
+    "questions": [
+      "conversation_profile",
+      "orchestrator",
+      "planner",
+      "executor",
+      "reviewer",
+      "track",
+      "type",
+      "title",
+      "owner",
+      "risk"
+    ],
+    "auto_create_work_item": true,
+    "auto_create_directories": true,
+    "auto_copy_templates": true
+  },
+  "assignments": {
+    "orchestrator": {
+      "actor": "agent",
+      "agent": "codex",
+      "profile": "delivery-orchestrator",
+      "selection": "user_or_default"
+    },
+    "planner": {
+      "actor": "agent",
+      "agent": "codex",
+      "profile": "technical-planner",
+      "selection": "user_or_default"
+    },
+    "executor": {
+      "actor": "agent_pool",
+      "selection": "orchestrator_or_user",
+      "pool": [
+        {"agent": "codex", "profile": "senior-software-engineer"},
+        {"agent": "codex", "profile": "product-engineer"},
+        {"agent": "codex", "profile": "support-incident-engineer"},
+        {"agent": "codex", "profile": "devops-release-engineer"}
+      ]
+    },
+    "reviewer": {
+      "actor": "agent_or_human",
+      "agent": "codex",
+      "profile": "quality-engineer",
+      "independent": true,
+      "selection": "user_or_default"
+    },
+    "security_reviewer": {
+      "actor": "agent_or_human",
+      "agent": "codex",
+      "profile": "security-privacy-reviewer",
+      "independent": true,
+      "required_when": "security_or_sensitive_data_impact"
+    },
+    "release_approver": {
+      "actor": "human",
+      "selection": "project",
+      "required": true
+    }
+  },
+  "subagents": {
+    "enabled": true,
+    "max_parallel": 3,
+    "strategy": "dependency_ordered_waves",
+    "least_privilege": true,
+    "parent_integrates": true,
+    "stop_on_scope_change": true
+  },
+  "git": {
+    "agent_may_prepare": true,
+    "human_approval_required_before_push": true,
+    "commands": ["git add", "git commit", "git push"]
+  }
+}

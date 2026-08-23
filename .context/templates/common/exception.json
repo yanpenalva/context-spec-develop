@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0",
+  "id": "EXC-0001",
+  "policy": "core.code-quality.no-regression",
+  "scope": "<PROJECT_OR_WORK_ITEM_SCOPE>",
+  "rationale": "<WHY_THE_POLICY_CANNOT_BE_MET_NOW>",
+  "risk": "medium",
+  "compensating_controls": ["<CONTROL>"],
+  "owner": "<OWNER>",
+  "approver": "<APPROVER>",
+  "created_at": "YYYY-MM-DD",
+  "expires_at": "YYYY-MM-DD",
+  "status": "proposed"
+}

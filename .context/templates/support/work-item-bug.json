@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0",
+  "id": "BUG-0001",
+  "title": "<SHORT_TITLE>",
+  "track": "support",
+  "type": "bug",
+  "phase": "triage",
+  "status": "draft",
+  "risk": "medium",
+  "owner": "<OWNER>",
+  "conversation_profile": "support-incident-engineer",
+  "last_updated": "YYYY-MM-DD",
+  "policy_exceptions": []
+}

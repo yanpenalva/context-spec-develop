@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0",
+  "id": "FEAT-1001",
+  "title": "Show delivery window on order status",
+  "track": "product",
+  "type": "feature",
+  "phase": "close",
+  "status": "completed",
+  "risk": "low",
+  "owner": "product-team",
+  "conversation_profile": "product-engineer",
+  "last_updated": "2026-08-20",
+  "phase_history": ["discover", "specify", "plan", "preflight", "execute", "verify", "release", "observe", "learn", "close"],
+  "policy_exceptions": []
+}

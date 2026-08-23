@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0",
+  "id": "HOT-4001",
+  "title": "Prevent duplicate shipment webhook processing",
+  "track": "support",
+  "type": "hotfix",
+  "phase": "close",
+  "status": "completed",
+  "risk": "critical",
+  "owner": "on-call-engineer",
+  "conversation_profile": "devops-release-engineer",
+  "last_updated": "2026-08-22",
+  "severity": "sev1",
+  "implementation_required": true,
+  "phase_history": ["triage", "contain", "specify", "plan", "preflight", "execute", "verify", "release", "observe", "close"],
+  "policy_exceptions": []
+}
