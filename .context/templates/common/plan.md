@@ -16,7 +16,7 @@ Describe the smallest viable change and why it fits the existing system.
 
 ## Subtasks and waves
 
-| Subtask | Owner | Dependencies | Acceptance evidence | Wave |
+| Subtask ID | Owner | Dependencies | Acceptance evidence | Wave |
 | --- | --- | --- | --- | --- |
 | `<SUBTASK>` | `<OWNER>` | `<DEPENDENCIES>` | `<EVIDENCE>` | `1` |
 

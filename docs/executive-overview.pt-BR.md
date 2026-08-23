@@ -196,7 +196,7 @@ git commit -m "type(scope): describe the approved change"
 git push
 ```
 
-O agente pode preparar arquivos e commit conforme a configuração. `git push`, deploy, comandos destrutivos e comunicação externa exigem aprovação humana. O processo de release e rollback está em [`templates/common/release.md`](../.context/templates/common/release.md).
+O agente pode preparar a alteração, mas deve apresentar evidências e sugerir uma mensagem Conventional Commit antes de perguntar se pode executar o commit. Depois do commit, faz uma segunda pergunta explícita antes do push para a branch verificada. Push negado não desfaz o commit autorizado. Force push, deploy, comandos destrutivos e comunicação externa exigem aprovação humana separada. O processo de release e rollback está em [`templates/common/release.md`](../.context/templates/common/release.md), e o contrato detalhado está em [`docs/agent-orchestration.md`](agent-orchestration.md).
 
 ## 11. Governança e controles
 

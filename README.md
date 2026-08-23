@@ -17,14 +17,21 @@ An agent-neutral, conversation-first development kit—from context to verified 
 
 1. Use this repository as a GitHub template or copy it into a project.
 2. Read [`docs/getting-started.md`](docs/getting-started.md).
-3. Fill the project context in [`.context/project/`](.context/project/).
-4. Select a workflow in [`.context/workflows/`](.context/workflows/).
-5. Describe the work to the orchestrator; it creates `.context/work/<id>/`, selects templates and writes `work-item.json`.
-6. Run `python3 scripts/validate_context.py --strict`.
+3. Portuguese-speaking teams can start with [`docs/quickstart.pt-BR.md`](docs/quickstart.pt-BR.md).
+4. Fill the project context in [`.context/project/`](.context/project/).
+5. Select a workflow in [`.context/workflows/`](.context/workflows/).
+6. Describe the work to the orchestrator; it creates `.context/work/<id>/`, selects templates and writes `work-item.json`.
+7. Run `python3 scripts/validate_context.py --strict`.
 
 ## Start a conversation
 
 You do not need to know the folder structure. Point your agent at `AGENTS.md` and describe the outcome in plain language. The orchestrator reads the JSON assignments, asks only missing decisions, creates the work-item directory, copies templates and reports the path.
+
+```text
+Read AGENTS.md and start the context-spec-develop workflow.
+Ask only the missing startup questions, create the work item automatically,
+and do not modify implementation files before preflight approval.
+```
 
 | You provide | The orchestrator creates and coordinates |
 | --- | --- |
@@ -50,7 +57,7 @@ The common sequence is `Specify → Plan → Preflight → Execute/Test → Veri
 
 Do not choose Product or Support from programming language, repository folder or implementation preference. Choose from the request's outcome and operational impact. If unclear, ask whether it is new value, a reproducible defect, active degradation or an urgent correction.
 
-## Create a work item
+## Create a work item manually (fallback)
 
 ```bash
 mkdir -p .context/work/FEAT-0001
@@ -84,6 +91,7 @@ The repository is published at [github.com/yanpenalva/context-spec-develop](http
 ## Documentation map
 
 - [`docs/getting-started.md`](docs/getting-started.md) — first installation.
+- [`docs/quickstart.pt-BR.md`](docs/quickstart.pt-BR.md) — português, primeira conversa e troubleshooting.
 - [`docs/concepts-and-glossary.md`](docs/concepts-and-glossary.md) — vocabulary and boundaries.
 - [`docs/methodology.md`](docs/methodology.md) — delivery model.
 - [`docs/enterprise-adoption.md`](docs/enterprise-adoption.md) — governance, rollout and metrics.
@@ -110,7 +118,7 @@ There is no deployment workflow or CI configuration in this kit. Configure deplo
 
 ## Git delivery
 
-After the required gates and local validation pass, commit the versioned artifacts with the implementation using the consuming project's normal review process:
+After the required gates and local validation pass, the agent presents evidence and a proposed Conventional Commit message, then asks separately for commit and push approval. It must verify the worktree and upstream branch and must never force-push. If you perform the operations manually, use the consuming project's normal review process:
 
 ```bash
 git add .context/work/<id> path/to/changed/files

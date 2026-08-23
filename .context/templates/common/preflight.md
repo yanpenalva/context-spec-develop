@@ -19,6 +19,10 @@
 
 -
 
+## Evidence record
+
+For every required check, record the exact command, scope, exit code, date, applicable metric and limitation. `NOT FOUND` is not evidence; in Managed/Enterprise it is a blocking finding.
+
 ## Verdict
 
 `READY` or `NOT READY`

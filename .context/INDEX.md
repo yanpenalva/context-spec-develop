@@ -13,6 +13,8 @@
 7. `workflows/product.md` or `workflows/support.md`, selected by intake
 8. The active work item under `work/`
 
+For any uncertainty, read `policies/core/questioning-and-evidence.md` before asking the user or delegating a subtask.
+
 ## Map
 
 | Path | Purpose |

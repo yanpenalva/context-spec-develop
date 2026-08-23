@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "kit_version": "0.1.0",
+  "kit_version": "0.2.0",
   "project": {
     "name": "Adopting project",
     "repository": "organization/repository"

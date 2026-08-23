@@ -22,7 +22,10 @@ class ContextValidatorTest(unittest.TestCase):
         directory.mkdir(parents=True)
         (directory / "work-item.json").write_text(json.dumps(item), encoding="utf-8")
         for artifact in artifacts or []:
-            (directory / artifact).write_text(f"# {artifact}\nEvidence.", encoding="utf-8")
+            content = f"# {artifact}\nEvidence."
+            if artifact == "plan.md":
+                content += "\n\n## Subtasks and waves\n\n| Subtask ID | Owner | Dependencies | Acceptance evidence | Wave |\n| --- | --- | --- | --- | --- |\n| S1 | team | none | Tests pass | 1 |"
+            (directory / artifact).write_text(content, encoding="utf-8")
 
     def configure_enterprise(self, root: Path) -> None:
         config_path = root / ".context/config.json"
@@ -157,6 +160,59 @@ class ContextValidatorTest(unittest.TestCase):
         validator = Validator(root, strict=True)
         self.assertEqual(validator.run(), 1)
         self.assertTrue(any("human_approval_required_before_push" in error for error in validator.errors))
+
+    def test_orchestration_requires_separate_commit_and_push_approval(self):
+        temp, root = self.make_repo()
+        self.addCleanup(temp.cleanup)
+        path = root / ".context/orchestration/config.json"
+        config = json.loads(path.read_text(encoding="utf-8"))
+        config["git"]["ask_before_commit"] = False
+        path.write_text(json.dumps(config), encoding="utf-8")
+        validator = Validator(root, strict=True)
+        self.assertEqual(validator.run(), 1)
+        self.assertTrue(any("ask_before_commit" in error for error in validator.errors))
+
+    def test_orchestration_rejects_force_git_command(self):
+        temp, root = self.make_repo()
+        self.addCleanup(temp.cleanup)
+        path = root / ".context/orchestration/config.json"
+        config = json.loads(path.read_text(encoding="utf-8"))
+        config["git"]["commands"].append("git push --force")
+        path.write_text(json.dumps(config), encoding="utf-8")
+        validator = Validator(root, strict=True)
+        self.assertEqual(validator.run(), 1)
+        self.assertTrue(any("destructive or force" in error for error in validator.errors))
+
+    def test_execution_phase_requires_subtask_table(self):
+        temp, root = self.make_repo()
+        self.addCleanup(temp.cleanup)
+        item = {
+            "schema_version": "1.0", "id": "BUG-1010", "title": "Bug",
+            "track": "support", "type": "bug", "phase": "execute",
+            "status": "active", "risk": "low", "owner": "team", "conversation_profile": "support-incident-engineer", "last_updated": "2026-08-23",
+        }
+        self.write_item(root, item, ["triage.md", "reproduction.md", "spec.md", "plan.md"])
+        (root / ".context/work/BUG-1010/plan.md").write_text("# Plan\nNo decomposition.", encoding="utf-8")
+        validator = Validator(root, strict=True)
+        self.assertEqual(validator.run(), 1)
+        self.assertTrue(any("Subtasks and waves" in error for error in validator.errors))
+
+    def test_subtask_dependency_must_precede_wave(self):
+        temp, root = self.make_repo()
+        self.addCleanup(temp.cleanup)
+        item = {
+            "schema_version": "1.0", "id": "BUG-1011", "title": "Bug",
+            "track": "support", "type": "bug", "phase": "execute",
+            "status": "active", "risk": "low", "owner": "team", "conversation_profile": "support-incident-engineer", "last_updated": "2026-08-23",
+        }
+        self.write_item(root, item, ["triage.md", "reproduction.md", "spec.md", "plan.md"])
+        (root / ".context/work/BUG-1011/plan.md").write_text(
+            "# Plan\n\n## Subtasks and waves\n\n| Subtask ID | Owner | Dependencies | Acceptance evidence | Wave |\n| --- | --- | --- | --- | --- |\n| S1 | team | S2 | Tests pass | 1 |\n| S2 | team | none | Tests pass | 2 |",
+            encoding="utf-8",
+        )
+        validator = Validator(root, strict=True)
+        self.assertEqual(validator.run(), 1)
+        self.assertTrue(any("earlier wave" in error for error in validator.errors))
 
     def test_incident_without_code_can_close_with_postmortem(self):
         temp, root = self.make_repo()

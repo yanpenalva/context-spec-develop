@@ -29,3 +29,14 @@
 - Window:
 - Healthy signals:
 - Escalation path:
+
+## Git finalization
+
+- Validation summary and exact commands:
+- Proposed commit message:
+- Commit approval: `PENDING` / `APPROVED` / `DENIED`
+- Commit hash:
+- Push target:
+- Push approval: `PENDING` / `APPROVED` / `DENIED`
+- Push result:
+- Tag approval/result (if applicable):

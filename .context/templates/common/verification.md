@@ -2,9 +2,12 @@
 
 ## Evidence
 
-- Commands and checks:
-- Results:
-- Environment:
+- Exact commands and checks:
+- Scope analyzed:
+- Results and exit codes:
+- Date and environment:
+- Metrics and thresholds:
+- Limitations or `NOT APPLICABLE` rationale:
 
 ## Review
 

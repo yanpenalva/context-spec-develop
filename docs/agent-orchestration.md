@@ -32,7 +32,11 @@ Edit [`.context/orchestration/config.json`](../.context/orchestration/config.jso
 - `assignments.release_approver`: human authorization boundary;
 - `subagents.max_parallel`: maximum parallel assignments per wave;
 - `startup.auto_create_*`: whether the orchestrator creates work-item directories and copies templates;
-- `git.human_approval_required_before_push`: push authorization.
+- `git.ask_before_commit` and `git.ask_before_push`: separate final Git approvals;
+- `git.allow_force_push`: must remain `false`;
+- `git.require_clean_worktree`: unrelated changes stop finalization;
+- `git.commit_message_style`: `conventional_commits`;
+- `git.tag_requires_explicit_approval`: tags are never implicit.
 
 Agents and profiles are separate choices. `agent` identifies the tool/runtime; `profile` identifies the collaboration role. A project can use Codex as orchestrator, another compatible agent as executor and a human as release approver.
 
@@ -57,4 +61,4 @@ The graph may live in a review-graph tool or the dependency table in `plan.md`. 
 
 ## Git and release boundary
 
-Agents may prepare changes and commits according to project policy. `git push`, production deployment, destructive commands and external communication require the configured human approval. Deployment implementation remains outside this kit.
+Agents may prepare a diff, but must present validation evidence and a proposed Conventional Commit message before asking for commit approval. After a successful commit they ask again before pushing to the verified upstream branch. A denied push is recorded without retrying or reverting the approved commit. Force push, hard reset, clean operations, production deployment and external communication require explicit human authorization; deployment implementation remains outside this kit.

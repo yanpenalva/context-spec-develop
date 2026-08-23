@@ -28,6 +28,7 @@ REQUIRED_FILES = (
     ".context/policies/core/security-privacy.md",
     ".context/policies/core/ai-governance.md",
     ".context/policies/core/decomposition.md",
+    ".context/policies/core/questioning-and-evidence.md",
     ".context/policies/core/review-release.md",
     ".context/policies/exceptions.md",
     ".context/workflows/core.md",
@@ -327,8 +328,21 @@ class Validator:
             commands = git.get("commands")
             if not isinstance(commands, list) or not {"git add", "git commit", "git push"}.issubset(commands):
                 self.error("orchestration.git.commands must include git add, git commit and git push")
-            if git.get("human_approval_required_before_push") is not True:
-                self.error("orchestration.git.human_approval_required_before_push must be true")
+            required_flags = {
+                "ask_before_commit": True,
+                "ask_before_push": True,
+                "human_approval_required_before_push": True,
+                "allow_force_push": False,
+                "require_clean_worktree": True,
+                "tag_requires_explicit_approval": True,
+            }
+            for field, expected in required_flags.items():
+                if git.get(field) is not expected:
+                    self.error(f"orchestration.git.{field} must be {str(expected).lower()}")
+            if git.get("commit_message_style") != "conventional_commits":
+                self.error("orchestration.git.commit_message_style must be conventional_commits")
+            if any(isinstance(command, str) and ("--force" in command or "reset --hard" in command or "clean -" in command) for command in git.get("commands", [])):
+                self.error("orchestration.git.commands must not contain destructive or force Git operations")
 
     def check_quality_and_governance(self, config: dict[str, Any]) -> None:
         if self.mode == "starter":
@@ -586,6 +600,47 @@ class Validator:
         for artifact in sorted(required):
             if not (directory / artifact).is_file():
                 self.error(f"{directory.name}: missing required artifact {artifact} for phase {phase}")
+        if implementation_required and phase in {"execute", "verify", "release", "observe", "close"}:
+            self.check_plan_subtasks(directory)
+
+    def check_plan_subtasks(self, directory: Path) -> None:
+        path = directory / "plan.md"
+        if not path.is_file():
+            return
+        content = path.read_text(encoding="utf-8")
+        if "## Subtasks and waves" not in content:
+            self.error(f"{directory.name}: plan.md must contain a Subtasks and waves section")
+            return
+        table_rows = [line for line in content.splitlines() if line.startswith("|") and line.count("|") >= 5]
+        data_rows = [line for line in table_rows if "---" not in line and "Subtask" not in line]
+        if not data_rows:
+            self.error(f"{directory.name}: plan.md must contain at least one subtask row")
+            return
+        marker = re.compile(r"<[^>]+>|^-$")
+        parsed: list[tuple[str, list[str], int]] = []
+        for row in data_rows:
+            cells = [cell.strip() for cell in row.strip("|").split("|")]
+            if len(cells) < 5 or any(not cell or marker.search(cell) for cell in cells[:5]):
+                self.error(f"{directory.name}: every subtask row needs id, owner, dependencies, evidence and wave")
+                continue
+            try:
+                wave = int(cells[4])
+                if wave < 1:
+                    raise ValueError
+            except ValueError:
+                self.error(f"{directory.name}: subtask wave must be a positive integer")
+                continue
+            dependencies = [] if cells[2].lower() == "none" else [value.strip() for value in cells[2].split(",") if value.strip()]
+            parsed.append((cells[0], dependencies, wave))
+        known = {subtask_id: wave for subtask_id, _, wave in parsed}
+        if len(known) != len(parsed):
+            self.error(f"{directory.name}: subtask IDs must be unique")
+        for subtask_id, dependencies, wave in parsed:
+            for dependency in dependencies:
+                if dependency not in known:
+                    self.error(f"{directory.name}: subtask {subtask_id} references unknown dependency {dependency}")
+                elif known[dependency] >= wave:
+                    self.error(f"{directory.name}: dependency {dependency} must be in an earlier wave than {subtask_id}")
 
     def check_item_placeholders(self, directory: Path) -> None:
         marker = re.compile(r"<[A-Z][A-Z0-9_ /.-]*>")

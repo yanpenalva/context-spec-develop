@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "config_version": "0.1.0",
+  "config_version": "0.2.0",
   "mode": "multi-agent",
   "startup": {
     "selection_required": true,
@@ -74,7 +74,13 @@
   },
   "git": {
     "agent_may_prepare": true,
+    "ask_before_commit": true,
+    "ask_before_push": true,
     "human_approval_required_before_push": true,
+    "allow_force_push": false,
+    "require_clean_worktree": true,
+    "commit_message_style": "conventional_commits",
+    "tag_requires_explicit_approval": true,
     "commands": ["git add", "git commit", "git push"]
   }
 }

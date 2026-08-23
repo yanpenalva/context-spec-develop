@@ -18,6 +18,10 @@ Use `.context/prompts/intake.md` for the startup questions and `.context/prompts
 
 The agent may prepare artifacts and implementation, but humans own scope approval, risk acceptance, production authorization and incident closure.
 
+Before asking a question, inspect the repository and consult `.context/policies/core/questioning-and-evidence.md`. Ask only a decision-changing question, distinguish fact/inference/unknown, and stop when a required decision or `MUST` evidence is unresolved.
+
+At closure, present validation evidence and a proposed Conventional Commit message. Ask separately before commit and before push; never force-push or infer approval from an earlier answer.
+
 Do not invent requirements, contracts, architecture, permissions, operational procedures or test evidence. Record unknowns as `NOT FOUND`, ask when they change scope or risk, and preserve existing behavior unless the approved work item says otherwise.
 
 The canonical instructions live in `.context/`; this file is intentionally a small adapter for tools that discover `AGENTS.md` automatically.

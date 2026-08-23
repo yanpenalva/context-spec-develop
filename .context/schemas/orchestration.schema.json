@@ -35,7 +35,22 @@
       },
       "additionalProperties": false
     },
-    "git": {"type": "object", "required": ["agent_may_prepare", "human_approval_required_before_push", "commands"]}
+    "git": {
+      "type": "object",
+      "required": ["agent_may_prepare", "ask_before_commit", "ask_before_push", "human_approval_required_before_push", "allow_force_push", "require_clean_worktree", "commit_message_style", "tag_requires_explicit_approval", "commands"],
+      "properties": {
+        "agent_may_prepare": {"type": "boolean"},
+        "ask_before_commit": {"const": true},
+        "ask_before_push": {"const": true},
+        "human_approval_required_before_push": {"const": true},
+        "allow_force_push": {"const": false},
+        "require_clean_worktree": {"const": true},
+        "commit_message_style": {"const": "conventional_commits"},
+        "tag_requires_explicit_approval": {"const": true},
+        "commands": {"type": "array", "items": {"type": "string"}, "minItems": 3}
+      },
+      "additionalProperties": false
+    }
   },
   "additionalProperties": false
 }
