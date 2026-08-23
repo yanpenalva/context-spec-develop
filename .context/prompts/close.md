@@ -8,7 +8,7 @@ Release record, production evidence, declared signals and observation window.
 
 `outcome.md` with deployment result, smoke checks, observed signals, rollback/escalation decisions, residual risk and learning. Support incidents also require `postmortem.md` when applicable.
 
-Before closure, produce the Git finalization record in `release.md`: validation evidence, changed-file summary, proposed Conventional Commit message and the two separate human decisions for commit and push. Ask for commit approval first; after a successful commit, ask for push approval. Never use force push or destructive reset/clean commands.
+Before closure, produce the Git finalization record in `release.md`: validation evidence, changed-file summary and proposed Conventional Commit message. In `confirm_each` mode, ask separately before commit and push. In `automatic` mode, execute those two operations only for the startup-authorized work item, branch and remote. Never use force push or destructive reset/clean commands.
 
 ## Constraints
 

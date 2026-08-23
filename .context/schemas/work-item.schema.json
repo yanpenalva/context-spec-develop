@@ -15,6 +15,7 @@
     "risk": {"enum": ["low", "medium", "high", "critical"]},
     "owner": {"type": "string", "minLength": 1},
     "conversation_profile": {"type": "string", "minLength": 1},
+    "git_finalization_mode": {"enum": ["confirm_each", "automatic"]},
     "last_updated": {"type": "string", "format": "date"},
     "severity": {"enum": ["sev1", "sev2", "sev3", "sev4"]},
     "implementation_required": {"type": "boolean"},

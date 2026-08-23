@@ -26,6 +26,8 @@ Converse em português, mas mantenha os artefatos canônicos em inglês.
 
 O agente deve ler `AGENTS.md`, `.context/INDEX.md`, `.context/config.json` e a configuração de orquestração antes de perguntar. Consulte o contrato completo em [`docs/agent-orchestration.md`](agent-orchestration.md) e o prompt canônico em [`start-conversation.md`](../.context/prompts/start-conversation.md).
 
+Na mesma abertura, escolha o modo de Git: `confirm_each` pergunta antes do commit e antes do push; `automatic` executa ambos somente depois dos gates, no work item, branch e remoto registrados.
+
 ## 3. Escolha Product ou Support
 
 - **Product / feature:** novo valor, hipótese ou melhoria mensurável; começa em `discovery.md`.
@@ -54,7 +56,7 @@ O validador não substitui testes, análise estática ou revisão técnica. Regi
 
 ## 6. Git no encerramento
 
-Depois de todas as validações, o agente mostra o resumo e sugere uma mensagem Conventional Commit. Ele pergunta separadamente se pode executar o commit e, depois, se pode fazer o push. Negar o push não desfaz o commit autorizado. Force push, reset destrutivo e deploy automático não fazem parte do kit.
+Depois de todas as validações, o agente mostra o resumo e sugere uma mensagem Conventional Commit. Em `confirm_each`, pergunta separadamente se pode executar o commit e depois o push. Em `automatic`, executa ambos conforme a autorização registrada no início. Force push, reset destrutivo e deploy automático não fazem parte do kit.
 
 Leia a política em [`review-release.md`](../.context/policies/core/review-release.md) e o contrato de encerramento em [`close.md`](../.context/prompts/close.md).
 

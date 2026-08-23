@@ -14,6 +14,13 @@ Ask for:
 4. title, owner and risk;
 5. material constraints, approvals or sensitive-data boundaries.
 
+At the beginning of every conversation, ask for the Git finalization mode unless the user already stated it:
+
+- `confirm_each`: present the Conventional Commit message and ask separately before commit and push (the safe default);
+- `automatic`: after all gates pass, create the Conventional Commit and push to the verified upstream without repeating those two questions. This startup authorization is only for Git on the recorded work item; it never authorizes deployment, force push, reset, clean or a failed or changed scope.
+
+Record the choice as `git_finalization_mode` in `work-item.json`. If scope, branch, remote, risk or authorization changes, stop and ask again.
+
 Do not ask the user to create folders or copy templates. The orchestrator creates `.context/work/<id>/`, selects the overlay and writes the initial `work-item.json` automatically.
 
 ## Delegate
@@ -22,4 +29,4 @@ After intake and specification, split work into very small subtasks. Assign each
 
 ## Stop
 
-Stop before file creation when classification, ownership, authorization or risk cannot be determined. Stop before implementation when preflight is not `READY`. Stop before push when human approval is absent.
+Stop before file creation when classification, ownership, authorization or risk cannot be determined. Stop before implementation when preflight is not `READY`. Stop before push when the selected mode does not authorize it, the worktree/upstream is not verified, or a required gate has failed.

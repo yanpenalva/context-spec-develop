@@ -37,11 +37,12 @@
     },
     "git": {
       "type": "object",
-      "required": ["agent_may_prepare", "ask_before_commit", "ask_before_push", "human_approval_required_before_push", "allow_force_push", "require_clean_worktree", "commit_message_style", "tag_requires_explicit_approval", "commands"],
+      "required": ["agent_may_prepare", "finalization_mode", "ask_before_commit", "ask_before_push", "human_approval_required_before_push", "allow_force_push", "require_clean_worktree", "commit_message_style", "tag_requires_explicit_approval", "commands"],
       "properties": {
         "agent_may_prepare": {"type": "boolean"},
-        "ask_before_commit": {"const": true},
-        "ask_before_push": {"const": true},
+        "finalization_mode": {"enum": ["confirm_each", "automatic"]},
+        "ask_before_commit": {"type": "boolean"},
+        "ask_before_push": {"type": "boolean"},
         "human_approval_required_before_push": {"const": true},
         "allow_force_push": {"const": false},
         "require_clean_worktree": {"const": true},

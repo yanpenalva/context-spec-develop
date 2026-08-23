@@ -17,7 +17,7 @@ Keep `kit_version` in `.context/config.json`. A project must know which policy a
 7. Migrate conversation profiles, intake routing, subtask/wave guidance and adapter changes deliberately; do not overwrite local deployment configuration.
 8. Update `kit_version`, record exceptions affected and obtain the normal project approvals.
 
-For the `0.2.0` upgrade, add the required `git.ask_before_commit`, `git.ask_before_push`, `git.allow_force_push`, `git.require_clean_worktree`, `git.commit_message_style` and `git.tag_requires_explicit_approval` fields to the orchestration configuration. Existing work items must add the `Subtasks and waves` section before execution or closure.
+For the `0.2.0` upgrade, add the required `git.finalization_mode`, `git.ask_before_commit`, `git.ask_before_push`, `git.allow_force_push`, `git.require_clean_worktree`, `git.commit_message_style` and `git.tag_requires_explicit_approval` fields to the orchestration configuration. Add `git_finalization_mode` to new work items and ask for it at startup. Existing work items must add the `Subtasks and waves` section before execution or closure.
 
 ## Compatibility rules
 

@@ -9,6 +9,7 @@ User request, available project context and any existing work item.
 1. Which conversation profile should guide the work?
 2. Is the request new user or business value, a reproducible defect, active degradation/outage, or an urgent production change?
 3. Who owns the outcome, what is the impact, and what risk is known?
+4. For Git finalization, should this work item use `confirm_each` or `automatic` mode?
 
 Map the answers to exactly one pair:
 
@@ -21,7 +22,7 @@ Map the answers to exactly one pair:
 
 ## Produce
 
-Create or update `work-item.json` with profile, track, type, owner, risk, phase and status. Keep unknowns explicit. If answers conflict, stop at intake and ask the smallest clarifying question.
+Create or update `work-item.json` with profile, track, type, owner, risk, `git_finalization_mode`, phase and status. Keep unknowns explicit. If answers conflict, stop at intake and ask the smallest clarifying question.
 
 ## Constraints
 

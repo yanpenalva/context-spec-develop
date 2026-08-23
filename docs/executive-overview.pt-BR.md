@@ -43,7 +43,8 @@ AGENTS.md
   divide em subtasks e waves
   delega execução aos agentes escolhidos
   integra evidências
-  verifica, revisa, prepara Git e aguarda aprovação
+  verifica, revisa e escolhe o modo de finalização Git
+  confirma cada mutação ou executa Git automaticamente conforme autorização inicial
 ```
 
 ### 3.1 O que o usuário informa
@@ -57,6 +58,7 @@ O usuário não precisa conhecer a árvore de diretórios nem executar `mkdir` o
 5. título e resultado esperado;
 6. owner, risco, urgência e restrições;
 7. aprovações ou limites de dados relevantes.
+8. preferência de finalização Git: `confirm_each` ou `automatic`.
 
 O contrato está em [`.context/prompts/start-conversation.md`](../.context/prompts/start-conversation.md). O roteador inicial está em [`AGENTS.md`](../AGENTS.md). A visão completa da sequência está em [`docs/agent-orchestration.md`](agent-orchestration.md). Esses arquivos estão em inglês; leia-os com tradução assistida quando necessário.
 
@@ -67,7 +69,7 @@ Depois que as decisões mínimas são confirmadas, o orquestrador:
 1. deriva e confirma um ID compatível com `work_item_id_pattern`;
 2. cria `.context/work/<id>/`;
 3. seleciona templates comuns e do fluxo;
-4. escreve `work-item.json` com perfil, track, type, owner, risco, fase e status;
+4. escreve `work-item.json` com perfil, track, type, owner, risco, `git_finalization_mode`, fase e status;
 5. abre `discovery.md`, `triage.md`, `spec.md` ou o artefato inicial correspondente;
 6. apresenta o caminho criado e a próxima pergunta do gate;
 7. não sobrescreve work item existente sem confirmação;
@@ -196,7 +198,7 @@ git commit -m "type(scope): describe the approved change"
 git push
 ```
 
-O agente pode preparar a alteração, mas deve apresentar evidências e sugerir uma mensagem Conventional Commit antes de perguntar se pode executar o commit. Depois do commit, faz uma segunda pergunta explícita antes do push para a branch verificada. Push negado não desfaz o commit autorizado. Force push, deploy, comandos destrutivos e comunicação externa exigem aprovação humana separada. O processo de release e rollback está em [`templates/common/release.md`](../.context/templates/common/release.md), e o contrato detalhado está em [`docs/agent-orchestration.md`](agent-orchestration.md).
+O modo padrão `confirm_each` apresenta evidências e sugere uma mensagem Conventional Commit antes de perguntar separadamente pelo commit e pelo push. O modo `automatic`, escolhido no início, executa ambos somente após os gates e para o work item, branch e remoto registrados. Nenhum modo autoriza force push, deploy ou comandos destrutivos. O processo de release e rollback está em [`templates/common/release.md`](../.context/templates/common/release.md), e o contrato detalhado está em [`docs/agent-orchestration.md`](agent-orchestration.md).
 
 ## 11. Governança e controles
 

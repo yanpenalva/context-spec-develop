@@ -32,6 +32,8 @@
 
 ## Git finalization
 
+- Finalization mode: `confirm_each` / `automatic`
+- Startup authorization recorded in work item:
 - Validation summary and exact commands:
 - Proposed commit message:
 - Commit approval: `PENDING` / `APPROVED` / `DENIED`

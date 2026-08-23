@@ -9,6 +9,7 @@
   "risk": "medium",
   "owner": "<OWNER>",
   "conversation_profile": "support-incident-engineer",
+  "git_finalization_mode": "confirm_each",
   "last_updated": "YYYY-MM-DD",
   "policy_exceptions": []
 }

@@ -183,6 +183,39 @@ class ContextValidatorTest(unittest.TestCase):
         self.assertEqual(validator.run(), 1)
         self.assertTrue(any("destructive or force" in error for error in validator.errors))
 
+    def test_automatic_git_finalization_requires_no_interactive_prompts(self):
+        temp, root = self.make_repo()
+        self.addCleanup(temp.cleanup)
+        path = root / ".context/orchestration/config.json"
+        config = json.loads(path.read_text(encoding="utf-8"))
+        config["git"]["finalization_mode"] = "automatic"
+        config["git"]["ask_before_commit"] = False
+        config["git"]["ask_before_push"] = False
+        path.write_text(json.dumps(config), encoding="utf-8")
+        self.assertEqual(Validator(root, strict=True).run(), 0)
+
+    def test_automatic_git_finalization_rejects_interactive_mismatch(self):
+        temp, root = self.make_repo()
+        self.addCleanup(temp.cleanup)
+        path = root / ".context/orchestration/config.json"
+        config = json.loads(path.read_text(encoding="utf-8"))
+        config["git"]["finalization_mode"] = "automatic"
+        path.write_text(json.dumps(config), encoding="utf-8")
+        validator = Validator(root, strict=True)
+        self.assertEqual(validator.run(), 1)
+        self.assertTrue(any("automatic mode" in error for error in validator.errors))
+
+    def test_startup_requires_git_finalization_choice(self):
+        temp, root = self.make_repo()
+        self.addCleanup(temp.cleanup)
+        path = root / ".context/orchestration/config.json"
+        config = json.loads(path.read_text(encoding="utf-8"))
+        config["startup"]["questions"].remove("git_finalization_mode")
+        path.write_text(json.dumps(config), encoding="utf-8")
+        validator = Validator(root, strict=True)
+        self.assertEqual(validator.run(), 1)
+        self.assertTrue(any("git_finalization_mode" in error for error in validator.errors))
+
     def test_execution_phase_requires_subtask_table(self):
         temp, root = self.make_repo()
         self.addCleanup(temp.cleanup)

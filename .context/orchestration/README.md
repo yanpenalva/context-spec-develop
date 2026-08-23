@@ -17,4 +17,4 @@ Change `agent`, `profile`, `actor`, `pool`, `selection` or `max_parallel` to fit
 
 The orchestrator reads `AGENTS.md`, this file and the selected profile. It asks only missing startup questions, creates `.context/work/<id>/`, copies the appropriate templates, writes `work-item.json`, and starts the intake gate. The user should provide decisions, not shell commands for scaffolding.
 
-Agents may prepare Git changes. Push remains subject to the configured human approval. Deployment commands and infrastructure remain outside this repository.
+At startup, ask whether Git finalization should be `confirm_each` or `automatic`; record the answer in the work item. The default asks separately before commit and push. Automatic mode is limited to a validated work item and verified branch/remote. Deployment commands and infrastructure remain outside this repository.

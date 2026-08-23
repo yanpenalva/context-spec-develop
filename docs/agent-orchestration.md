@@ -33,6 +33,7 @@ Edit [`.context/orchestration/config.json`](../.context/orchestration/config.jso
 - `subagents.max_parallel`: maximum parallel assignments per wave;
 - `startup.auto_create_*`: whether the orchestrator creates work-item directories and copies templates;
 - `git.ask_before_commit` and `git.ask_before_push`: separate final Git approvals;
+- `git.finalization_mode`: default `confirm_each` or explicitly configured `automatic`;
 - `git.allow_force_push`: must remain `false`;
 - `git.require_clean_worktree`: unrelated changes stop finalization;
 - `git.commit_message_style`: `conventional_commits`;
@@ -61,4 +62,4 @@ The graph may live in a review-graph tool or the dependency table in `plan.md`. 
 
 ## Git and release boundary
 
-Agents may prepare a diff, but must present validation evidence and a proposed Conventional Commit message before asking for commit approval. After a successful commit they ask again before pushing to the verified upstream branch. A denied push is recorded without retrying or reverting the approved commit. Force push, hard reset, clean operations, production deployment and external communication require explicit human authorization; deployment implementation remains outside this kit.
+At startup, the orchestrator asks whether the user wants `confirm_each` or `automatic` Git finalization and records the choice in `work-item.json`. In `confirm_each`, the agent presents validation evidence and a proposed Conventional Commit message, then asks separately before commit and push. In `automatic`, it may execute both only after all gates pass and only for the recorded work item, branch and remote. Force push, hard reset, clean operations, production deployment and external communication remain outside that authorization.

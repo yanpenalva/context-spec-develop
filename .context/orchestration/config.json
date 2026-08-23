@@ -15,7 +15,8 @@
       "type",
       "title",
       "owner",
-      "risk"
+      "risk",
+      "git_finalization_mode"
     ],
     "auto_create_work_item": true,
     "auto_create_directories": true,
@@ -74,6 +75,7 @@
   },
   "git": {
     "agent_may_prepare": true,
+    "finalization_mode": "confirm_each",
     "ask_before_commit": true,
     "ask_before_push": true,
     "human_approval_required_before_push": true,

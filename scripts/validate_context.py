@@ -11,7 +11,6 @@ from datetime import date
 from pathlib import Path
 from typing import Any
 
-
 REQUIRED_FILES = (
     "README.md",
     "AGENTS.md",
@@ -56,6 +55,7 @@ ENUMS = {
     "risk": {"low", "medium", "high", "critical"},
     "severity": {"sev1", "sev2", "sev3", "sev4"},
 }
+GIT_FINALIZATION_MODES = {"confirm_each", "automatic"}
 MODES = {"starter", "managed", "enterprise"}
 QUALITY_FIELDS = (
     "static_analysis_command",
@@ -285,6 +285,8 @@ class Validator:
                 self.error("orchestration.startup.ask_only_missing must be true")
             if not isinstance(startup.get("questions"), list) or not startup.get("questions"):
                 self.error("orchestration.startup.questions must be a non-empty array")
+            elif "git_finalization_mode" not in startup.get("questions", []):
+                self.error("orchestration.startup.questions must include git_finalization_mode")
             for field in ("auto_create_work_item", "auto_create_directories", "auto_copy_templates"):
                 if startup.get(field) is not True:
                     self.error(f"orchestration.startup.{field} must be true")
@@ -325,12 +327,13 @@ class Validator:
         if not isinstance(git, dict):
             self.error("orchestration.git must be an object")
         else:
+            finalization_mode = git.get("finalization_mode")
+            if finalization_mode not in GIT_FINALIZATION_MODES:
+                self.error("orchestration.git.finalization_mode must be confirm_each or automatic")
             commands = git.get("commands")
             if not isinstance(commands, list) or not {"git add", "git commit", "git push"}.issubset(commands):
                 self.error("orchestration.git.commands must include git add, git commit and git push")
             required_flags = {
-                "ask_before_commit": True,
-                "ask_before_push": True,
                 "human_approval_required_before_push": True,
                 "allow_force_push": False,
                 "require_clean_worktree": True,
@@ -339,6 +342,14 @@ class Validator:
             for field, expected in required_flags.items():
                 if git.get(field) is not expected:
                     self.error(f"orchestration.git.{field} must be {str(expected).lower()}")
+            if finalization_mode == "confirm_each":
+                for field in ("ask_before_commit", "ask_before_push"):
+                    if git.get(field) is not True:
+                        self.error(f"orchestration.git.{field} must be true in confirm_each mode")
+            if finalization_mode == "automatic":
+                for field in ("ask_before_commit", "ask_before_push"):
+                    if git.get(field) is not False:
+                        self.error(f"orchestration.git.{field} must be false in automatic mode")
             if git.get("commit_message_style") != "conventional_commits":
                 self.error("orchestration.git.commit_message_style must be conventional_commits")
             if any(isinstance(command, str) and ("--force" in command or "reset --hard" in command or "clean -" in command) for command in git.get("commands", [])):
@@ -462,7 +473,7 @@ class Validator:
 
     def check_item_metadata(self, directory: Path, item: dict[str, Any], pattern: str) -> None:
         required = ("schema_version", "id", "title", "track", "type", "phase", "status", "risk", "owner", "conversation_profile", "last_updated")
-        allowed = set(required) | {"severity", "implementation_required", "phase_history", "policy_exceptions", "conversation_profile"}
+        allowed = set(required) | {"severity", "implementation_required", "phase_history", "policy_exceptions", "conversation_profile", "git_finalization_mode"}
         for field in item:
             if field not in allowed:
                 self.error(f"{directory.name}: unknown field {field}")
@@ -477,6 +488,8 @@ class Validator:
             self.error(f"{directory.name}: conversation_profile must be a non-empty string")
         elif "conversation_profile" in item and item["conversation_profile"] not in self.available_agent_profiles:
             self.error(f"{directory.name}: unknown conversation_profile={item['conversation_profile']}")
+        if "git_finalization_mode" in item and item["git_finalization_mode"] not in GIT_FINALIZATION_MODES:
+            self.error(f"{directory.name}: invalid git_finalization_mode={item['git_finalization_mode']}")
         item_id = item.get("id")
         if isinstance(item_id, str) and not re.fullmatch(pattern, item_id):
             self.error(f"{directory.name}: id does not match configured pattern")
