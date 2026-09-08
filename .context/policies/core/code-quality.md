@@ -22,6 +22,16 @@ Reference starting points, configurable per project:
 
 Exceeding a configured threshold requires refactoring, a documented risk decision or an approved exception. A metric is a signal for design review, not a substitute for human judgment.
 
-## Readability
+## Readability and language patterns
 
-Early returns, `match`, lookup tables, polymorphism or extraction MAY be used when they make intent clearer. They are not mandatory transformations. Reviewers should prefer the simplest representation that keeps the rule visible.
+- **String assembly**: Prefer string interpolation, template literals, or parameterized formatting over manual string concatenation operators. For database queries, always use parameter bindings instead of manual string assembly.
+- **Function syntax**: Prefer arrow functions and concise expressions for local functions, callbacks, event handlers and collection mappings when supported by the language. When altering an existing file, refactor legacy non-arrow callbacks or local functions in that file to maintain consistency.
+- **Global / native function resolution**: Where the language or compiler optimizes native/built-in function lookups via explicit namespace imports or root qualifiers, use them consistently according to project conventions.
+- **Control flow**: Early returns, `match`, lookup tables, polymorphism or extraction MAY be used when they make intent clearer. Reviewers should prefer the simplest representation that keeps the rule visible.
+
+## Changed-file quality gates
+
+Projects SHOULD enforce policies primarily on the set of altered files (`changed_files`):
+
+- When an altered production file exceeds configured size limits (e.g. 500 lines per file, 15 functions/methods, or 150 lines per function), it MUST be decomposed and refactored within the same task before completion.
+- Scoped verification scripts should run linters, formatters and structural checks against changed files before push or pull request, preventing regression without forcing refactors on unrelated files.

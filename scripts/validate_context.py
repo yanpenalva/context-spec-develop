@@ -45,6 +45,8 @@ REQUIRED_FILES = (
     ".context/tooling/code-review-graph.md",
     ".context/tooling/subtasks-and-waves.md",
     "adapters/codex/AGENTS.md",
+    "adapters/opencode/AGENTS.md",
+    "adapters/cursor/AGENTS.md",
     "scripts/validate_context.py",
 )
 ENUMS = {
@@ -115,10 +117,14 @@ class Validator:
     def run(self) -> int:
         self.check_required_files()
         config = self.load_json(self.root / ".context/config.json", "config")
-        schema = self.load_json(self.root / ".context/schemas/work-item.schema.json", "work-item schema")
-        exception_schema = self.load_json(self.root / ".context/schemas/exception.schema.json", "exception schema")
-        orchestration_schema = self.load_json(self.root / ".context/schemas/orchestration.schema.json", "orchestration schema")
-        orchestration = self.load_json(self.root / ".context/orchestration/config.json", "orchestration config")
+        schema = self.load_json(
+            self.root / ".context/schemas/work-item.schema.json", "work-item schema")
+        exception_schema = self.load_json(
+            self.root / ".context/schemas/exception.schema.json", "exception schema")
+        orchestration_schema = self.load_json(
+            self.root / ".context/schemas/orchestration.schema.json", "orchestration schema")
+        orchestration = self.load_json(
+            self.root / ".context/orchestration/config.json", "orchestration config")
         if schema and schema.get("$schema") is None:
             self.error("work-item schema must declare $schema")
         if exception_schema and exception_schema.get("$schema") is None:
@@ -177,7 +183,8 @@ class Validator:
         try:
             value = json.loads(path.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError) as exc:
-            self.error(f"invalid {label} JSON: {path.relative_to(self.root)} ({exc})")
+            self.error(
+                f"invalid {label} JSON: {path.relative_to(self.root)} ({exc})")
             return {}
         if not isinstance(value, dict):
             self.error(f"{label} must contain a JSON object")
@@ -198,20 +205,23 @@ class Validator:
             or not isinstance(project.get("repository"), str)
             or not project.get("repository")
         ):
-            self.error("config.project.name and config.project.repository are required")
+            self.error(
+                "config.project.name and config.project.repository are required")
         tracks = config.get("tracks")
         if not isinstance(tracks, list) or not tracks or not all(isinstance(track, str) for track in tracks) or not set(tracks).issubset(ENUMS["track"]):
             self.error("config.tracks must contain only product and support")
         configured_mode = config.get("governance_mode")
         if configured_mode not in MODES:
-            self.error("config.governance_mode must be starter, managed or enterprise")
+            self.error(
+                "config.governance_mode must be starter, managed or enterprise")
         self.mode = self.mode_override or configured_mode or "starter"
         if self.mode not in MODES:
             self.error("validation mode must be starter, managed or enterprise")
         if config.get("policy_baseline") != "core":
             self.error("config.policy_baseline must be core")
         if config.get("orchestration_config") != ".context/orchestration/config.json":
-            self.error("config.orchestration_config must point to .context/orchestration/config.json")
+            self.error(
+                "config.orchestration_config must point to .context/orchestration/config.json")
         profiles = config.get("enabled_profiles")
         if not isinstance(profiles, list) or not all(isinstance(profile, str) for profile in profiles):
             self.error("config.enabled_profiles must be a string array")
@@ -222,11 +232,14 @@ class Validator:
             available = agent_profiles.get("available")
             default_profile = agent_profiles.get("default")
             if not isinstance(agent_profiles.get("selection_required"), bool):
-                self.error("config.agent_profiles.selection_required must be boolean")
+                self.error(
+                    "config.agent_profiles.selection_required must be boolean")
             if not isinstance(available, list) or not available or not all(isinstance(profile, str) for profile in available):
-                self.error("config.agent_profiles.available must be a non-empty string array")
+                self.error(
+                    "config.agent_profiles.available must be a non-empty string array")
             elif default_profile not in available:
-                self.error("config.agent_profiles.default must reference an available profile")
+                self.error(
+                    "config.agent_profiles.default must reference an available profile")
             self.available_agent_profiles = set(available or [])
             for profile in available or []:
                 if not (self.root / ".context/profiles" / f"{profile}.md").is_file():
@@ -243,9 +256,11 @@ class Validator:
         if not isinstance(quality, dict) or quality.get("baseline") != "no-regression":
             self.error("config.quality.baseline must be no-regression")
         elif any(field not in quality for field in QUALITY_FIELDS):
-            self.error("config.quality is missing one or more configured gate fields")
+            self.error(
+                "config.quality is missing one or more configured gate fields")
         elif any(
-            quality.get(field) is not None and not isinstance(quality.get(field), str)
+            quality.get(field) is not None and not isinstance(
+                quality.get(field), str)
             for field in ("static_analysis_command", "test_command")
         ):
             self.error("config.quality commands must be strings or null")
@@ -253,7 +268,8 @@ class Validator:
             for field in ("cognitive_complexity_max", "cyclomatic_complexity_max", "changed_code_coverage_min", "new_code_duplication_max"):
                 value = quality.get(field)
                 if value is not None and (isinstance(value, bool) or not isinstance(value, (int, float)) or value < 0):
-                    self.error(f"config.quality.{field} must be a non-negative number or null")
+                    self.error(
+                        f"config.quality.{field} must be a non-negative number or null")
         ai = config.get("ai")
         if not isinstance(ai, dict) or not isinstance(ai.get("human_approval_required"), bool):
             self.error("config.ai.human_approval_required must be boolean")
@@ -265,14 +281,16 @@ class Validator:
             )
             for field in ("approved_tools", "data_classification")
         ):
-            self.error("config.ai.approved_tools and data_classification must be strings or string arrays")
+            self.error(
+                "config.ai.approved_tools and data_classification must be strings or string arrays")
 
     def check_orchestration(self, orchestration: dict[str, Any]) -> None:
         if orchestration.get("schema_version") != "1.0":
             self.error("orchestration.schema_version must be 1.0")
         version = orchestration.get("config_version")
         if not isinstance(version, str) or not re.fullmatch(r"\d+\.\d+\.\d+", version):
-            self.error("orchestration.config_version must use semantic version X.Y.Z")
+            self.error(
+                "orchestration.config_version must use semantic version X.Y.Z")
         if orchestration.get("mode") not in {"single-agent", "multi-agent"}:
             self.error("orchestration.mode must be single-agent or multi-agent")
         startup = orchestration.get("startup")
@@ -280,13 +298,17 @@ class Validator:
             self.error("orchestration.startup must be an object")
         else:
             if startup.get("selection_required") is not True:
-                self.error("orchestration.startup.selection_required must be true")
+                self.error(
+                    "orchestration.startup.selection_required must be true")
             if startup.get("ask_only_missing") is not True:
-                self.error("orchestration.startup.ask_only_missing must be true")
+                self.error(
+                    "orchestration.startup.ask_only_missing must be true")
             if not isinstance(startup.get("questions"), list) or not startup.get("questions"):
-                self.error("orchestration.startup.questions must be a non-empty array")
+                self.error(
+                    "orchestration.startup.questions must be a non-empty array")
             elif "git_finalization_mode" not in startup.get("questions", []):
-                self.error("orchestration.startup.questions must include git_finalization_mode")
+                self.error(
+                    "orchestration.startup.questions must include git_finalization_mode")
             for field in ("auto_create_work_item", "auto_create_directories", "auto_copy_templates"):
                 if startup.get(field) is not True:
                     self.error(f"orchestration.startup.{field} must be true")
@@ -296,30 +318,37 @@ class Validator:
         else:
             for role in ("orchestrator", "planner", "executor", "reviewer", "release_approver"):
                 if not isinstance(assignments.get(role), dict):
-                    self.error(f"orchestration.assignments.{role} must be configured")
+                    self.error(
+                        f"orchestration.assignments.{role} must be configured")
             for role, assignment in assignments.items():
                 if not isinstance(assignment, dict):
                     continue
                 profile = assignment.get("profile")
                 if profile and profile not in self.available_agent_profiles:
-                    self.error(f"orchestration.assignments.{role} references unknown profile: {profile}")
+                    self.error(
+                        f"orchestration.assignments.{role} references unknown profile: {profile}")
                 for executor in assignment.get("pool", []):
                     if isinstance(executor, dict) and executor.get("profile") not in self.available_agent_profiles:
-                        self.error(f"orchestration.assignments.{role} references unknown pool profile: {executor.get('profile')}")
+                        self.error(
+                            f"orchestration.assignments.{role} references unknown pool profile: {executor.get('profile')}")
             reviewer = assignments.get("reviewer", {})
             if isinstance(reviewer, dict) and reviewer.get("independent") is not True:
-                self.error("orchestration.assignments.reviewer.independent must be true")
+                self.error(
+                    "orchestration.assignments.reviewer.independent must be true")
             approver = assignments.get("release_approver", {})
             if isinstance(approver, dict) and (approver.get("actor") != "human" or approver.get("required") is not True):
-                self.error("orchestration.assignments.release_approver must require a human")
+                self.error(
+                    "orchestration.assignments.release_approver must require a human")
         subagents = orchestration.get("subagents")
         if not isinstance(subagents, dict):
             self.error("orchestration.subagents must be an object")
         else:
             if orchestration.get("mode") == "multi-agent" and subagents.get("enabled") is not True:
-                self.error("multi-agent orchestration requires subagents.enabled=true")
+                self.error(
+                    "multi-agent orchestration requires subagents.enabled=true")
             if not isinstance(subagents.get("max_parallel"), int) or subagents.get("max_parallel") < 1:
-                self.error("orchestration.subagents.max_parallel must be a positive integer")
+                self.error(
+                    "orchestration.subagents.max_parallel must be a positive integer")
             for field in ("least_privilege", "parent_integrates", "stop_on_scope_change"):
                 if subagents.get(field) is not True:
                     self.error(f"orchestration.subagents.{field} must be true")
@@ -329,10 +358,12 @@ class Validator:
         else:
             finalization_mode = git.get("finalization_mode")
             if finalization_mode not in GIT_FINALIZATION_MODES:
-                self.error("orchestration.git.finalization_mode must be confirm_each or automatic")
+                self.error(
+                    "orchestration.git.finalization_mode must be confirm_each or automatic")
             commands = git.get("commands")
             if not isinstance(commands, list) or not {"git add", "git commit", "git push"}.issubset(commands):
-                self.error("orchestration.git.commands must include git add, git commit and git push")
+                self.error(
+                    "orchestration.git.commands must include git add, git commit and git push")
             required_flags = {
                 "human_approval_required_before_push": True,
                 "allow_force_push": False,
@@ -341,19 +372,24 @@ class Validator:
             }
             for field, expected in required_flags.items():
                 if git.get(field) is not expected:
-                    self.error(f"orchestration.git.{field} must be {str(expected).lower()}")
+                    self.error(
+                        f"orchestration.git.{field} must be {str(expected).lower()}")
             if finalization_mode == "confirm_each":
                 for field in ("ask_before_commit", "ask_before_push"):
                     if git.get(field) is not True:
-                        self.error(f"orchestration.git.{field} must be true in confirm_each mode")
+                        self.error(
+                            f"orchestration.git.{field} must be true in confirm_each mode")
             if finalization_mode == "automatic":
                 for field in ("ask_before_commit", "ask_before_push"):
                     if git.get(field) is not False:
-                        self.error(f"orchestration.git.{field} must be false in automatic mode")
+                        self.error(
+                            f"orchestration.git.{field} must be false in automatic mode")
             if git.get("commit_message_style") != "conventional_commits":
-                self.error("orchestration.git.commit_message_style must be conventional_commits")
+                self.error(
+                    "orchestration.git.commit_message_style must be conventional_commits")
             if any(isinstance(command, str) and ("--force" in command or "reset --hard" in command or "clean -" in command) for command in git.get("commands", [])):
-                self.error("orchestration.git.commands must not contain destructive or force Git operations")
+                self.error(
+                    "orchestration.git.commands must not contain destructive or force Git operations")
 
     def check_quality_and_governance(self, config: dict[str, Any]) -> None:
         if self.mode == "starter":
@@ -362,25 +398,36 @@ class Validator:
         for field in QUALITY_FIELDS:
             value = quality.get(field)
             if value is None or value == "NOT FOUND" or value == "":
-                self.error(f"{self.mode} quality gate is not configured: quality.{field}")
+                self.error(
+                    f"{self.mode} quality gate is not configured: quality.{field}")
         if self.mode == "enterprise":
             for relative in GOVERNED_PROJECT_FILES:
                 path = self.root / relative
                 if path.is_file() and "NOT FOUND" in path.read_text(encoding="utf-8"):
-                    self.error(f"enterprise configuration incomplete: {relative}")
+                    self.error(
+                        f"enterprise configuration incomplete: {relative}")
             ai = config.get("ai", {})
             for field in ("approved_tools", "data_classification"):
                 value = ai.get(field)
                 if value in (None, "NOT FOUND", "") or (isinstance(value, list) and not value):
-                    self.error(f"enterprise AI governance is not configured: ai.{field}")
+                    self.error(
+                        f"enterprise AI governance is not configured: ai.{field}")
 
     def check_adapters(self) -> None:
-        for relative in ("adapters/codex/AGENTS.md", "adapters/claude/CLAUDE.md", "adapters/copilot/copilot-instructions.md", "adapters/gemini/GEMINI.md"):
+        for relative in (
+            "adapters/codex/AGENTS.md",
+            "adapters/claude/CLAUDE.md",
+            "adapters/copilot/copilot-instructions.md",
+            "adapters/gemini/GEMINI.md",
+            "adapters/opencode/AGENTS.md",
+            "adapters/cursor/AGENTS.md",
+        ):
             path = self.root / relative
             if not path.is_file():
                 self.error(f"missing adapter: {relative}")
             elif ".context/" not in path.read_text(encoding="utf-8"):
-                self.error(f"adapter does not reference canonical .context/: {relative}")
+                self.error(
+                    f"adapter does not reference canonical .context/: {relative}")
 
     def check_legacy_and_public_markers(self) -> None:
         for relative in (".ai", "legacy"):
@@ -388,8 +435,10 @@ class Validator:
                 self.error(f"public package must not contain {relative}/")
         # Keep the detector itself neutral: the marker names are assembled at
         # runtime so this file does not trip its own public-package scan.
-        marker_words = ("S" "IIC", "SE" "CULT", "H" "U", "Lar" "avel", "V" "ue")
-        markers = re.compile(r"\b(?:" + "|".join(marker_words[:2] + (marker_words[3], marker_words[4])) + r"|" + marker_words[2] + r"\d+)\b", re.IGNORECASE)
+        marker_words = ("S" "IIC", "SE" "CULT",
+                        "H" "U", "Lar" "avel", "V" "ue")
+        markers = re.compile(r"\b(?:" + "|".join(marker_words[:2] + (
+            marker_words[3], marker_words[4])) + r"|" + marker_words[2] + r"\d+)\b", re.IGNORECASE)
         excluded = {".git", "__pycache__"}
         for path in self.root.rglob("*"):
             if not path.is_file() or any(part in excluded for part in path.parts):
@@ -397,7 +446,8 @@ class Validator:
             if path.suffix not in {".md", ".json", ".py", ".yml", ".yaml"}:
                 continue
             if markers.search(path.read_text(encoding="utf-8", errors="replace")):
-                self.error(f"project-specific marker found in public package: {path.relative_to(self.root)}")
+                self.error(
+                    f"project-specific marker found in public package: {path.relative_to(self.root)}")
 
     def markdown_files(self) -> list[Path]:
         return [path for path in self.root.rglob("*.md") if ".git" not in path.parts]
@@ -416,10 +466,12 @@ class Validator:
                 try:
                     resolved.relative_to(self.root.resolve())
                 except ValueError:
-                    self.error(f"link escapes repository: {path.relative_to(self.root)} -> {target}")
+                    self.error(
+                        f"link escapes repository: {path.relative_to(self.root)} -> {target}")
                     continue
                 if not resolved.exists():
-                    self.error(f"broken link: {path.relative_to(self.root)} -> {target}")
+                    self.error(
+                        f"broken link: {path.relative_to(self.root)} -> {target}")
 
     def check_placeholders(self) -> None:
         if not self.strict:
@@ -462,7 +514,8 @@ class Validator:
             self.error("no example work items found")
         for item_path in item_paths:
             directory = item_path.parent
-            item = self.load_json(item_path, f"example work item {directory.name}")
+            item = self.load_json(
+                item_path, f"example work item {directory.name}")
             if not item:
                 continue
             self.check_item_metadata(directory, item, pattern)
@@ -472,8 +525,10 @@ class Validator:
                 self.check_item_placeholders(directory)
 
     def check_item_metadata(self, directory: Path, item: dict[str, Any], pattern: str) -> None:
-        required = ("schema_version", "id", "title", "track", "type", "phase", "status", "risk", "owner", "conversation_profile", "last_updated")
-        allowed = set(required) | {"severity", "implementation_required", "phase_history", "policy_exceptions", "conversation_profile", "git_finalization_mode"}
+        required = ("schema_version", "id", "title", "track", "type", "phase",
+                    "status", "risk", "owner", "conversation_profile", "last_updated")
+        allowed = set(required) | {"severity", "implementation_required", "phase_history",
+                                   "policy_exceptions", "conversation_profile", "git_finalization_mode"}
         for field in item:
             if field not in allowed:
                 self.error(f"{directory.name}: unknown field {field}")
@@ -481,78 +536,101 @@ class Validator:
             if field not in item:
                 self.error(f"{directory.name}: missing field {field}")
             elif field in {"id", "title", "owner", "last_updated"} and (not isinstance(item[field], str) or not item[field]):
-                self.error(f"{directory.name}: {field} must be a non-empty string")
+                self.error(
+                    f"{directory.name}: {field} must be a non-empty string")
         if item.get("schema_version") != "1.0":
             self.error(f"{directory.name}: schema_version must be 1.0")
         if "conversation_profile" in item and (not isinstance(item["conversation_profile"], str) or not item["conversation_profile"]):
-            self.error(f"{directory.name}: conversation_profile must be a non-empty string")
+            self.error(
+                f"{directory.name}: conversation_profile must be a non-empty string")
         elif "conversation_profile" in item and item["conversation_profile"] not in self.available_agent_profiles:
-            self.error(f"{directory.name}: unknown conversation_profile={item['conversation_profile']}")
+            self.error(
+                f"{directory.name}: unknown conversation_profile={item['conversation_profile']}")
         if "git_finalization_mode" in item and item["git_finalization_mode"] not in GIT_FINALIZATION_MODES:
-            self.error(f"{directory.name}: invalid git_finalization_mode={item['git_finalization_mode']}")
+            self.error(
+                f"{directory.name}: invalid git_finalization_mode={item['git_finalization_mode']}")
         item_id = item.get("id")
         if isinstance(item_id, str) and not re.fullmatch(pattern, item_id):
-            self.error(f"{directory.name}: id does not match configured pattern")
+            self.error(
+                f"{directory.name}: id does not match configured pattern")
         if item.get("id") != directory.name:
-            self.error(f"{directory.name}: work-item id must match directory name")
+            self.error(
+                f"{directory.name}: work-item id must match directory name")
         for field, values in ENUMS.items():
             value = item.get(field)
             if field == "severity" and value is None:
                 continue
             if value not in values:
                 self.error(f"{directory.name}: invalid {field}={value}")
-        track, item_type, phase = item.get("track"), item.get("type"), item.get("phase")
+        track, item_type, phase = item.get(
+            "track"), item.get("type"), item.get("phase")
         if (track, item_type) not in PHASES:
             self.error(f"{directory.name}: unsupported track/type combination")
         elif phase not in PHASES[(track, item_type)]:
-            self.error(f"{directory.name}: phase {phase} is invalid for {track}/{item_type}")
+            self.error(
+                f"{directory.name}: phase {phase} is invalid for {track}/{item_type}")
         if item_type in {"incident", "hotfix"} and not item.get("severity"):
-            self.error(f"{directory.name}: severity is required for {item_type}")
+            self.error(
+                f"{directory.name}: severity is required for {item_type}")
         if "implementation_required" in item and not isinstance(item["implementation_required"], bool):
-            self.error(f"{directory.name}: implementation_required must be boolean")
+            self.error(
+                f"{directory.name}: implementation_required must be boolean")
         exceptions = item.get("policy_exceptions", [])
         if not isinstance(exceptions, list) or not all(isinstance(exception, str) for exception in exceptions):
-            self.error(f"{directory.name}: policy_exceptions must be a string array")
+            self.error(
+                f"{directory.name}: policy_exceptions must be a string array")
         elif any(not re.fullmatch(r"EXC-[0-9]+", exception) for exception in exceptions):
-            self.error(f"{directory.name}: policy_exceptions must contain IDs like EXC-0001")
+            self.error(
+                f"{directory.name}: policy_exceptions must contain IDs like EXC-0001")
         history = item.get("phase_history")
         if history is not None:
             if not isinstance(history, list) or not history or not all(isinstance(value, str) for value in history):
-                self.error(f"{directory.name}: phase_history must be a non-empty string array")
+                self.error(
+                    f"{directory.name}: phase_history must be a non-empty string array")
             elif history[-1] != phase:
-                self.error(f"{directory.name}: phase_history must end at current phase")
+                self.error(
+                    f"{directory.name}: phase_history must end at current phase")
             else:
                 for previous, current in zip(history, history[1:]):
                     if current not in TRANSITIONS.get(previous, set()):
-                        self.error(f"{directory.name}: invalid phase transition {previous} -> {current}")
+                        self.error(
+                            f"{directory.name}: invalid phase transition {previous} -> {current}")
         if item.get("status") == "completed" and phase != "close":
-            self.error(f"{directory.name}: completed items must be in close phase")
+            self.error(
+                f"{directory.name}: completed items must be in close phase")
         updated = item.get("last_updated")
         if isinstance(updated, str):
             try:
                 date.fromisoformat(updated)
             except ValueError:
-                self.error(f"{directory.name}: last_updated must be YYYY-MM-DD")
+                self.error(
+                    f"{directory.name}: last_updated must be YYYY-MM-DD")
 
     def check_item_exceptions(self, directory: Path, item: dict[str, Any]) -> None:
         exception_ids = item.get("policy_exceptions", [])
         if not isinstance(exception_ids, list):
             return
         for exception_id in exception_ids:
-            exception_path = self.root / ".context/exceptions" / f"{exception_id}.json"
+            exception_path = self.root / \
+                ".context/exceptions" / f"{exception_id}.json"
             if not exception_path.is_file():
-                self.error(f"{directory.name}: referenced exception does not exist: {exception_id}")
+                self.error(
+                    f"{directory.name}: referenced exception does not exist: {exception_id}")
                 continue
-            exception = self.load_json(exception_path, f"exception {exception_id}")
+            exception = self.load_json(
+                exception_path, f"exception {exception_id}")
             if exception.get("status") != "approved":
-                self.error(f"{directory.name}: exception is not approved: {exception_id}")
+                self.error(
+                    f"{directory.name}: exception is not approved: {exception_id}")
             expires_at = exception.get("expires_at")
             if isinstance(expires_at, str):
                 try:
                     if date.fromisoformat(expires_at) < date.today():
-                        self.error(f"{directory.name}: exception is expired: {exception_id}")
+                        self.error(
+                            f"{directory.name}: exception is expired: {exception_id}")
                 except ValueError:
-                    self.error(f"{directory.name}: exception has invalid expiration: {exception_id}")
+                    self.error(
+                        f"{directory.name}: exception has invalid expiration: {exception_id}")
 
     def check_exceptions(self) -> None:
         exceptions_root = self.root / ".context/exceptions"
@@ -560,7 +638,8 @@ class Validator:
             return
         for path in sorted(exceptions_root.glob("*.json")):
             exception = self.load_json(path, f"exception {path.stem}")
-            required = ("schema_version", "id", "policy", "scope", "rationale", "risk", "compensating_controls", "owner", "approver", "created_at", "expires_at", "status")
+            required = ("schema_version", "id", "policy", "scope", "rationale", "risk",
+                        "compensating_controls", "owner", "approver", "created_at", "expires_at", "status")
             for field in required:
                 if field not in exception:
                     self.error(f"{path.name}: missing field {field}")
@@ -571,9 +650,11 @@ class Validator:
             if exception.get("status") not in EXCEPTION_STATUSES:
                 self.error(f"{path.name}: invalid exception status")
             if exception.get("status") == "approved" and not exception.get("approver"):
-                self.error(f"{path.name}: approved exception requires approver")
+                self.error(
+                    f"{path.name}: approved exception requires approver")
             if not isinstance(exception.get("compensating_controls"), list) or not exception.get("compensating_controls"):
-                self.error(f"{path.name}: compensating_controls must be a non-empty array")
+                self.error(
+                    f"{path.name}: compensating_controls must be a non-empty array")
             for field in ("created_at", "expires_at"):
                 value = exception.get(field)
                 if not isinstance(value, str):
@@ -582,14 +663,16 @@ class Validator:
                 try:
                     parsed = date.fromisoformat(value)
                     if field == "expires_at" and parsed < date.today() and exception.get("status") == "approved":
-                        self.error(f"{path.name}: approved exception is expired")
+                        self.error(
+                            f"{path.name}: approved exception is expired")
                 except ValueError:
                     self.error(f"{path.name}: {field} must be YYYY-MM-DD")
 
     def check_item_artifacts(self, directory: Path, item: dict[str, Any]) -> None:
         phase = item.get("phase")
         required: set[str] = set()
-        implementation_required = item.get("implementation_required", item.get("type") != "incident")
+        implementation_required = item.get(
+            "implementation_required", item.get("type") != "incident")
         if item.get("track") == "product":
             required.add("discovery.md")
         if item.get("type") in {"bug", "incident", "hotfix"}:
@@ -612,7 +695,8 @@ class Validator:
             required.add("postmortem.md")
         for artifact in sorted(required):
             if not (directory / artifact).is_file():
-                self.error(f"{directory.name}: missing required artifact {artifact} for phase {phase}")
+                self.error(
+                    f"{directory.name}: missing required artifact {artifact} for phase {phase}")
         if implementation_required and phase in {"execute", "verify", "release", "observe", "close"}:
             self.check_plan_subtasks(directory)
 
@@ -622,28 +706,35 @@ class Validator:
             return
         content = path.read_text(encoding="utf-8")
         if "## Subtasks and waves" not in content:
-            self.error(f"{directory.name}: plan.md must contain a Subtasks and waves section")
+            self.error(
+                f"{directory.name}: plan.md must contain a Subtasks and waves section")
             return
-        table_rows = [line for line in content.splitlines() if line.startswith("|") and line.count("|") >= 5]
-        data_rows = [line for line in table_rows if "---" not in line and "Subtask" not in line]
+        table_rows = [line for line in content.splitlines(
+        ) if line.startswith("|") and line.count("|") >= 5]
+        data_rows = [
+            line for line in table_rows if "---" not in line and "Subtask" not in line]
         if not data_rows:
-            self.error(f"{directory.name}: plan.md must contain at least one subtask row")
+            self.error(
+                f"{directory.name}: plan.md must contain at least one subtask row")
             return
         marker = re.compile(r"<[^>]+>|^-$")
         parsed: list[tuple[str, list[str], int]] = []
         for row in data_rows:
             cells = [cell.strip() for cell in row.strip("|").split("|")]
             if len(cells) < 5 or any(not cell or marker.search(cell) for cell in cells[:5]):
-                self.error(f"{directory.name}: every subtask row needs id, owner, dependencies, evidence and wave")
+                self.error(
+                    f"{directory.name}: every subtask row needs id, owner, dependencies, evidence and wave")
                 continue
             try:
                 wave = int(cells[4])
                 if wave < 1:
                     raise ValueError
             except ValueError:
-                self.error(f"{directory.name}: subtask wave must be a positive integer")
+                self.error(
+                    f"{directory.name}: subtask wave must be a positive integer")
                 continue
-            dependencies = [] if cells[2].lower() == "none" else [value.strip() for value in cells[2].split(",") if value.strip()]
+            dependencies = [] if cells[2].lower() == "none" else [value.strip()
+                                                                  for value in cells[2].split(",") if value.strip()]
             parsed.append((cells[0], dependencies, wave))
         known = {subtask_id: wave for subtask_id, _, wave in parsed}
         if len(known) != len(parsed):
@@ -651,24 +742,31 @@ class Validator:
         for subtask_id, dependencies, wave in parsed:
             for dependency in dependencies:
                 if dependency not in known:
-                    self.error(f"{directory.name}: subtask {subtask_id} references unknown dependency {dependency}")
+                    self.error(
+                        f"{directory.name}: subtask {subtask_id} references unknown dependency {dependency}")
                 elif known[dependency] >= wave:
-                    self.error(f"{directory.name}: dependency {dependency} must be in an earlier wave than {subtask_id}")
+                    self.error(
+                        f"{directory.name}: dependency {dependency} must be in an earlier wave than {subtask_id}")
 
     def check_item_placeholders(self, directory: Path) -> None:
         marker = re.compile(r"<[A-Z][A-Z0-9_ /.-]*>")
         for path in directory.rglob("*"):
             if path.is_file() and path.name not in {"progress.md", "handoff.md"} and path.suffix in {".md", ".json"}:
                 if marker.search(path.read_text(encoding="utf-8")):
-                    self.error(f"{directory.name}: unresolved placeholder in {path.name}")
+                    self.error(
+                        f"{directory.name}: unresolved placeholder in {path.name}")
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--root", type=Path, default=Path.cwd(), help="repository root")
-    parser.add_argument("--strict", action="store_true", help="fail on unresolved work-item/canonical placeholders")
-    parser.add_argument("--mode", choices=sorted(MODES), help="override configured governance mode")
-    parser.add_argument("--examples", action="store_true", help="validate example work items")
+    parser.add_argument("--root", type=Path,
+                        default=Path.cwd(), help="repository root")
+    parser.add_argument("--strict", action="store_true",
+                        help="fail on unresolved work-item/canonical placeholders")
+    parser.add_argument("--mode", choices=sorted(MODES),
+                        help="override configured governance mode")
+    parser.add_argument("--examples", action="store_true",
+                        help="validate example work items")
     args = parser.parse_args(argv)
     root = args.root.resolve()
     if not root.is_dir():

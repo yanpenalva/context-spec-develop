@@ -6,6 +6,9 @@
 - Added the Portuguese quickstart and conversation-first onboarding guidance.
 - Added questioning-and-evidence policy and validation of subtask/wave tables.
 - Hardened orchestration assignments, optional tooling boundaries and closure documentation.
+- Added OpenCode and Cursor adapters to the agent compatibility suite.
+- Clarified code review graph guidance distinguishing AST/symbol knowledge graphs from delivery dependency graphs.
+- Enriched code quality policy with string interpolation, arrow function preferences and changed-file scoping gates.
 
 ## 0.1.0 — 2026-08-23
 
