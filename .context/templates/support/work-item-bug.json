@@ -10,6 +10,14 @@
   "owner": "<OWNER>",
   "conversation_profile": "support-incident-engineer",
   "git_finalization_mode": "confirm_each",
+  "classification": {
+    "complexity": "low",
+    "impact": "local",
+    "security": "none",
+    "confidence": "low",
+    "routing": "standard"
+  },
+  "reclassification": [],
   "last_updated": "YYYY-MM-DD",
   "policy_exceptions": []
 }

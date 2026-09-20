@@ -1,0 +1,81 @@
+# Routing
+
+Routing converts a classification into execution depth. It answers: **how deep must the workflow run?** Routing is deterministic given `complexity`, root `risk`, `impact` and `security`. Routing selects depth inside the existing gates; it never removes a gate or weakens a policy MUST.
+
+## Derivation
+
+Evaluate in order and stop at the first match:
+
+```text
+1. complexity = high
+   OR risk in {high, critical}
+   OR impact in {cross-module, system}
+   OR security = sensitive            → extended
+2. complexity = low
+   AND risk = low
+   AND impact = local
+   AND security = none                → minimal
+3. otherwise                          → standard
+```
+
+The validator enforces this derivation on every work item that carries a `classification` object.
+
+## Depth contracts
+
+Routing names phases from `workflows/core.md` and its Product/Support overlays. All routes share the same gate sequence and evidence rules; they differ in decomposition depth, review independence effort and security-review activation.
+
+### minimal
+
+```text
+Intake + classification
+→ Specify
+→ Plan (single subtask, single wave)
+→ Preflight
+→ Execute and Test
+→ Verify and Review
+→ Release (only if production-affecting) and Close
+```
+
+Suitable for low-risk, local, reversible work. The plan may be one subtask; artifacts stay concise. Review independence still follows `policies/core/review-release.md`; a production-affecting release keeps its human approver.
+
+### standard
+
+```text
+Intake + classification
+→ Specify
+→ Plan
+→ Subtasks and dependency-safe waves
+→ Preflight
+→ Execute and Test
+→ Verify and Review
+→ Release (only if production-affecting) and Close
+```
+
+Default depth. Decomposition into waves per `policies/core/decomposition.md`; reviewer independent of implementation when practical.
+
+### extended
+
+```text
+Intake + classification
+→ Specify
+→ Deep plan (alternatives, migration, rollback, dependency analysis)
+→ Subtasks and dependency-safe waves
+→ Preflight (explicit depth-vs-routing check)
+→ Execute and Test
+→ Validate and integrate evidence per wave
+→ Verify
+→ Security review when security is relevant or sensitive
+→ Independent review
+→ Release gate with human authorization when production-affecting
+→ Observe and Close
+```
+
+Required for architectural, cross-module, high-risk or sensitive work. Every critical human gate from `.context/interaction/decision-policy.md` applies in full.
+
+## Interaction with orchestration
+
+Orchestration maps routing to actors: wave size and reviewer independence scale with depth, and `security_reviewer` activates from the security signal. Orchestration never upgrades a route by assigning a stronger agent, and classification never assigns agents.
+
+## Overrides
+
+A human may route `standard` work as `extended` for caution. An agent MUST NOT downgrade a derived route; downgrading requires reclassification with recorded evidence and, when routing changes, a `reclassification` entry in the work item.

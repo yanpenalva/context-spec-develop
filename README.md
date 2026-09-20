@@ -11,6 +11,7 @@ An agent-neutral, conversation-first development kit—from context to verified 
 - Product work: discovery, specification, planning, implementation, verification, release and learning.
 - Support work: triage, diagnosis, bugs, incidents, hotfixes, deployment, observation and postmortems.
 - A common set of gates, prompts and artifacts for humans and coding agents.
+- Declarative work classification (complexity, impact, security, confidence) with deterministic routing depth and a canonical human↔agent interaction protocol.
 - A dependency-free Python validator for structure, metadata, workflow state and required evidence.
 
 ## Quick start
@@ -56,6 +57,8 @@ Selection happens during Intake, after the agent reads `AGENTS.md` and the chose
 The common sequence is `Specify → Plan → Preflight → Execute/Test → Verify/Review → Release/Deploy → Observe/Close`.
 
 Do not choose Product or Support from programming language, repository folder or implementation preference. Choose from the request's outcome and operational impact. If unclear, ask whether it is new value, a reproducible defect, active degradation or an urgent correction.
+
+After intake, `.context/classification/` sets complexity, impact, the security signal and confidence, and derives the routing depth; `.context/interaction/` governs every question, assumption, decision and escalation with any harness.
 
 ## Create a work item manually (fallback)
 
@@ -109,6 +112,8 @@ The repository is published at [github.com/yanpenalva/context-spec-develop](http
 - [`docs/upgrading.md`](docs/upgrading.md) — central kit snapshot upgrades.
 - [`docs/migration-from-project-context.md`](docs/migration-from-project-context.md) — migration from an existing context.
 - [`.context/policies/`](.context/policies/) — normative core policies.
+- [`.context/classification/`](.context/classification/) — classification dimensions and routing depth.
+- [`.context/interaction/`](.context/interaction/) — questioning, decision categories, uncertainty and escalation protocol.
 - [`adapters/`](adapters/) — thin entry points for compatible agents.
 - [`examples/acme-orders/`](examples/acme-orders/) — complete Product and Support examples.
 

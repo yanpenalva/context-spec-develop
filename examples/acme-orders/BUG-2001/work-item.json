@@ -9,6 +9,14 @@
   "risk": "low",
   "owner": "support-engineering",
   "conversation_profile": "support-incident-engineer",
+  "classification": {
+    "complexity": "low",
+    "impact": "module",
+    "security": "none",
+    "confidence": "high",
+    "routing": "standard"
+  },
+  "reclassification": [],
   "last_updated": "2026-08-21",
   "phase_history": ["triage", "specify", "plan", "preflight", "execute", "verify", "release", "observe", "close"],
   "policy_exceptions": []

@@ -56,6 +56,12 @@ This document gives people and agents one vocabulary for the delivery system.
 
 **Risk** is the potential consequence and uncertainty of the proposed change. **Severity** is the observed impact of a Support incident. A low-risk change can be related to a high-severity incident, and they must not be conflated.
 
+**Classification** is the declarative description of a request produced per `.context/classification/README.md`: `complexity` (intrinsic difficulty), `impact` (blast radius), `security` (none, relevant or sensitive exposure signal), `confidence` (how well evidence supports the classification) and the derived `routing` depth. Impact is not complexity, and neither is risk or severity.
+
+**Routing** is the deterministic execution depth (minimal, standard, extended) derived from the classification per `.context/classification/routing.md`. It scales the existing gates; it never removes one.
+
+**Reclassification** is the recorded change of classification when material new evidence appears: previous dimensions, trigger evidence and routing impact, stored on the work item.
+
 **Phase** describes where work is in the workflow. **Status** describes its operating condition (`draft`, `ready`, `active`, `blocked`, `completed` or `cancelled`). A completed status is valid only in the close phase.
 
 ## Quality and governance terms
@@ -69,3 +75,9 @@ This document gives people and agents one vocabulary for the delivery system.
 **Adapter** is a thin tool-specific entry point such as `AGENTS.md` or `CLAUDE.md`. It routes an agent to `.context/` and must not duplicate policy.
 
 **Agent** is a probabilistic assistant that can inspect, draft or implement within authorized boundaries. **Human approval** is the deterministic authorization required for scope, risk acceptance, production and destructive actions.
+
+**Decision category** is the interaction classification of an unresolved point per `.context/interaction/decision-policy.md`: `DISCOVERABLE`, `REVERSIBLE_AGENT_DECISION`, `ASSUMPTION_ALLOWED`, `HUMAN_DECISION_REQUIRED`, `CRITICAL_HUMAN_GATE` or `BLOCKED`.
+
+**Uncertainty state** records whether a claim is `known`, `inferred`, `unknown` or `NOT FOUND` per `.context/interaction/uncertainty.md`. Inference is never presented as fact.
+
+**Escalation** is the report required when work exceeds authority or approved scope, per `.context/interaction/escalation.md`: what changed, the evidence, what is affected, whether work can continue safely and which human decision is required.

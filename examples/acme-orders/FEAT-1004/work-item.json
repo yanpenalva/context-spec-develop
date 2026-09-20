@@ -1,0 +1,30 @@
+{
+  "schema_version": "1.0",
+  "id": "FEAT-1004",
+  "title": "Discount field on order lines",
+  "track": "product",
+  "type": "feature",
+  "phase": "plan",
+  "status": "active",
+  "risk": "medium",
+  "owner": "product-team",
+  "conversation_profile": "technical-planner",
+  "git_finalization_mode": "confirm_each",
+  "classification": {
+    "complexity": "high",
+    "impact": "cross-module",
+    "security": "relevant",
+    "confidence": "high",
+    "routing": "extended"
+  },
+  "reclassification": [
+    {
+      "previous": {"complexity": "medium", "impact": "module", "security": "none", "confidence": "medium", "routing": "standard"},
+      "trigger": "Plan inspection found the orders webhook publishes the order-lines payload verbatim to partner integrations, so the new discount field extends a public contract and crosses the module boundary (source: webhook publisher in orders service, partner integration guide).",
+      "routing_impact": "Routing raised from standard to extended: deep plan, dependency analysis and independent review added; security review activated by the relevant signal."
+    }
+  ],
+  "last_updated": "2026-09-20",
+  "phase_history": ["discover", "specify", "plan"],
+  "policy_exceptions": []
+}

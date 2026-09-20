@@ -16,6 +16,10 @@ Start with the core and change project context before changing workflow policy. 
 
 The JSON separates the collaboration profile from the runtime agent. Change `assignments.orchestrator`, `planner`, `executor` and `reviewer` to select who performs each responsibility. Keep the release approver human, keep the reviewer independent when risk warrants it, and require the security reviewer for sensitive changes. An assignment may use `selection: "user_or_default"` so the opening conversation can override the project default without editing policy files.
 
+## Classification and interaction
+
+Classification criteria live in `.context/classification/` and the interaction protocol in `.context/interaction/`. Projects may tighten criteria (for example, treat every payment change as `sensitive`) by editing those files; they must not weaken the routing derivation's determinism, remove a critical human gate, or change what a decision category authorizes. The validator enforces the derivation and the closed enums; record extensions to the dimensions themselves as a versioned schema change with a migration note.
+
 ## Git finalization preference
 
 Set `git.finalization_mode` to `confirm_each` for separate commit and push questions, or `automatic` when the team explicitly permits validated Git finalization without those repeated questions. The orchestrator still asks for the per-conversation `git_finalization_mode`, records it in the work item, verifies the branch and remote, and never permits force push, reset, clean or deployment through this setting.

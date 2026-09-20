@@ -20,6 +20,19 @@ AGENTS.md
 
 The authoritative startup contract is `.context/prompts/start-conversation.md`. The orchestrator must not invent a work-item ID, owner, permission, contract or approval. It may propose values and ask the user to confirm them.
 
+## Responsibility boundaries
+
+Each layer answers one question; none absorbs another's job:
+
+| Layer | Answers |
+| --- | --- |
+| `.context/classification/` | What kind of work is this, and how deep must the workflow run? |
+| `.context/interaction/` | When and how must the human participate in questions, decisions and escalations? |
+| `.context/orchestration/` | Who or what coordinates and executes? |
+| `.context/workflows/` | Which phases and gates govern delivery? |
+
+Classification describes work and derives routing depth; it never assigns agents. Orchestration consumes routing to size waves and reviewer independence. The interaction protocol governs every question and escalation; orchestration cannot bypass a critical human gate.
+
 ## Configuration
 
 Edit [`.context/orchestration/config.json`](../.context/orchestration/config.json) to select:

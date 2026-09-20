@@ -20,7 +20,43 @@
     "severity": {"enum": ["sev1", "sev2", "sev3", "sev4"]},
     "implementation_required": {"type": "boolean"},
     "phase_history": {"type": "array", "items": {"type": "string"}, "minItems": 1},
-    "policy_exceptions": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+    "policy_exceptions": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "classification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["complexity", "impact", "security", "confidence", "routing"],
+      "properties": {
+        "complexity": {"enum": ["low", "medium", "high"]},
+        "impact": {"enum": ["local", "module", "cross-module", "system"]},
+        "security": {"enum": ["none", "relevant", "sensitive"]},
+        "confidence": {"enum": ["low", "medium", "high"]},
+        "routing": {"enum": ["minimal", "standard", "extended"]}
+      }
+    },
+    "reclassification": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["previous", "trigger", "routing_impact"],
+        "properties": {
+          "previous": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["complexity", "impact", "security", "confidence", "routing"],
+            "properties": {
+              "complexity": {"enum": ["low", "medium", "high"]},
+              "impact": {"enum": ["local", "module", "cross-module", "system"]},
+              "security": {"enum": ["none", "relevant", "sensitive"]},
+              "confidence": {"enum": ["low", "medium", "high"]},
+              "routing": {"enum": ["minimal", "standard", "extended"]}
+            }
+          },
+          "trigger": {"type": "string", "minLength": 1},
+          "routing_impact": {"type": "string", "minLength": 1}
+        }
+      }
+    }
   },
   "allOf": [
     {"if": {"properties": {"track": {"const": "product"}}}, "then": {"properties": {"type": {"const": "feature"}}}},

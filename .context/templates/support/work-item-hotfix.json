@@ -13,5 +13,13 @@
   "last_updated": "YYYY-MM-DD",
   "severity": "sev1",
   "implementation_required": true,
+  "classification": {
+    "complexity": "medium",
+    "impact": "system",
+    "security": "relevant",
+    "confidence": "low",
+    "routing": "extended"
+  },
+  "reclassification": [],
   "policy_exceptions": []
 }

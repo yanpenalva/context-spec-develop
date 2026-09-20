@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0",
+  "id": "FEAT-9001",
+  "title": "Declarative classification layer and human interaction protocol",
+  "track": "product",
+  "type": "feature",
+  "phase": "close",
+  "status": "completed",
+  "risk": "medium",
+  "owner": "hiyan",
+  "conversation_profile": "technical-planner",
+  "git_finalization_mode": "confirm_each",
+  "classification": {
+    "complexity": "medium",
+    "impact": "cross-module",
+    "security": "none",
+    "confidence": "high",
+    "routing": "extended"
+  },
+  "reclassification": [],
+  "last_updated": "2026-09-20",
+  "phase_history": ["discover", "specify", "plan", "preflight", "execute", "verify", "release", "observe", "learn", "close"],
+  "policy_exceptions": []
+}

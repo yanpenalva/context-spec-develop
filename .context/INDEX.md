@@ -9,9 +9,10 @@
 3. `tooling/README.md` when token-saving or review-graph tools are available
 4. `project/overview.md` and relevant project files
 5. Applicable policies in `policies/`
-6. `workflows/core.md`
-7. `workflows/product.md` or `workflows/support.md`, selected by intake
-8. The active work item under `work/`
+6. `classification/README.md` and `interaction/README.md`
+7. `workflows/core.md`
+8. `workflows/product.md` or `workflows/support.md`, selected by intake
+9. The active work item under `work/`
 
 For any uncertainty, read `policies/core/questioning-and-evidence.md` before asking the user or delegating a subtask.
 
@@ -22,6 +23,8 @@ For any uncertainty, read `policies/core/questioning-and-evidence.md` before ask
 | `project/` | Context that describes the adopting software project |
 | `policies/` | Normative core rules and exception process |
 | `workflows/` | Core process and Product/Support overlays |
+| `classification/` | Declarative work classification (complexity, impact, security, confidence) and routing depth |
+| `interaction/` | Canonical human↔agent protocol: questioning, decisions, uncertainty, escalation |
 | `prompts/` | Agent-facing phase contracts |
 | `profiles/` | Conversation roles and startup questions |
 | `orchestration/` | Configurable agent assignments and automatic work-item setup |
@@ -46,4 +49,4 @@ At the beginning of a conversation, choose one profile, then classify the reques
 
 If classification is unclear, ask the smallest question that distinguishes user value, defect, active impact and urgency. Do not start implementation before `track`, `type`, owner, risk and phase are recorded.
 
-After classification, create or open the work item, decompose the plan into small subtasks, organize dependency-safe waves, and follow the phase gate. A subagent may work only on an assigned subtask and must return evidence to the parent work item.
+After intake, classify the work per `classification/README.md` (dimensions plus deterministic `routing` depth) and apply `interaction/README.md` to every question, assumption, decision and escalation. Then create or open the work item, decompose the plan into small subtasks, organize dependency-safe waves, and follow the phase gate. A subagent may work only on an assigned subtask and must return evidence to the parent work item.

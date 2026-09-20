@@ -9,6 +9,14 @@
   "risk": "low",
   "owner": "product-team",
   "conversation_profile": "product-engineer",
+  "classification": {
+    "complexity": "low",
+    "impact": "local",
+    "security": "none",
+    "confidence": "high",
+    "routing": "minimal"
+  },
+  "reclassification": [],
   "last_updated": "2026-08-20",
   "phase_history": ["discover", "specify", "plan", "preflight", "execute", "verify", "release", "observe", "learn", "close"],
   "policy_exceptions": []

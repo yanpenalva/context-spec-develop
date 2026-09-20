@@ -331,6 +331,103 @@ class ContextValidatorTest(unittest.TestCase):
         self.assertEqual(validator.run(), 1)
         self.assertTrue(any("expired" in error for error in validator.errors))
 
+    def test_work_item_without_classification_remains_valid(self):
+        temp, root = self.make_repo()
+        self.addCleanup(temp.cleanup)
+        item = {
+            "schema_version": "1.0", "id": "BUG-1005", "title": "Legacy item",
+            "track": "support", "type": "bug", "phase": "triage",
+            "status": "draft", "risk": "low", "owner": "team", "conversation_profile": "senior-software-engineer", "last_updated": "2026-08-23",
+        }
+        self.write_item(root, item, ["triage.md", "reproduction.md"])
+        self.assertEqual(Validator(root, strict=True).run(), 0)
+
+    def test_valid_classification_and_reclassification_pass(self):
+        temp, root = self.make_repo()
+        self.addCleanup(temp.cleanup)
+        item = {
+            "schema_version": "1.0", "id": "FEAT-1005", "title": "Classified feature",
+            "track": "product", "type": "feature", "phase": "specify",
+            "status": "active", "risk": "medium", "owner": "team", "conversation_profile": "senior-software-engineer", "last_updated": "2026-08-23",
+            "classification": {
+                "complexity": "medium", "impact": "cross-module",
+                "security": "none", "confidence": "high", "routing": "extended",
+            },
+            "reclassification": [
+                {
+                    "previous": {"complexity": "medium", "impact": "module", "security": "none", "confidence": "medium", "routing": "standard"},
+                    "trigger": "Shared persistence schema discovered in review",
+                    "routing_impact": "Routing raised from standard to extended; dependency analysis added",
+                }
+            ],
+        }
+        self.write_item(root, item, ["discovery.md", "spec.md"])
+        self.assertEqual(Validator(root, strict=True).run(), 0)
+
+    def test_invalid_classification_dimension_fails(self):
+        temp, root = self.make_repo()
+        self.addCleanup(temp.cleanup)
+        item = {
+            "schema_version": "1.0", "id": "FEAT-1006", "title": "Bad dimensions",
+            "track": "product", "type": "feature", "phase": "specify",
+            "status": "active", "risk": "low", "owner": "team", "conversation_profile": "senior-software-engineer", "last_updated": "2026-08-23",
+            "classification": {
+                "complexity": "huge", "impact": "local",
+                "security": "none", "confidence": "high", "routing": "minimal",
+            },
+        }
+        self.write_item(root, item, ["discovery.md", "spec.md"])
+        validator = Validator(root, strict=True)
+        self.assertEqual(validator.run(), 1)
+        self.assertTrue(any("invalid classification complexity" in error for error in validator.errors))
+
+    def test_routing_must_match_deterministic_derivation(self):
+        temp, root = self.make_repo()
+        self.addCleanup(temp.cleanup)
+        item = {
+            "schema_version": "1.0", "id": "FEAT-1007", "title": "Downgraded routing",
+            "track": "product", "type": "feature", "phase": "specify",
+            "status": "active", "risk": "medium", "owner": "team", "conversation_profile": "senior-software-engineer", "last_updated": "2026-08-23",
+            "classification": {
+                "complexity": "medium", "impact": "module",
+                "security": "none", "confidence": "high", "routing": "minimal",
+            },
+        }
+        self.write_item(root, item, ["discovery.md", "spec.md"])
+        validator = Validator(root, strict=True)
+        self.assertEqual(validator.run(), 1)
+        self.assertTrue(any("does not match derived routing" in error for error in validator.errors))
+
+    def test_reclassification_entry_requires_evidence_fields(self):
+        temp, root = self.make_repo()
+        self.addCleanup(temp.cleanup)
+        item = {
+            "schema_version": "1.0", "id": "FEAT-1008", "title": "Sparse history",
+            "track": "product", "type": "feature", "phase": "specify",
+            "status": "active", "risk": "medium", "owner": "team", "conversation_profile": "senior-software-engineer", "last_updated": "2026-08-23",
+            "classification": {
+                "complexity": "medium", "impact": "module",
+                "security": "none", "confidence": "high", "routing": "standard",
+            },
+            "reclassification": [
+                {"previous": {"complexity": "low", "impact": "local", "security": "none", "confidence": "low", "routing": "minimal"}},
+            ],
+        }
+        self.write_item(root, item, ["discovery.md", "spec.md"])
+        validator = Validator(root, strict=True)
+        self.assertEqual(validator.run(), 1)
+        self.assertTrue(any("non-empty trigger" in error for error in validator.errors))
+
+    def test_missing_classification_contracts_fail(self):
+        temp, root = self.make_repo()
+        self.addCleanup(temp.cleanup)
+        (root / ".context/classification/routing.md").unlink()
+        (root / ".context/interaction/decision-policy.md").unlink()
+        validator = Validator(root, strict=True)
+        self.assertEqual(validator.run(), 1)
+        self.assertTrue(any("classification/routing.md" in error for error in validator.errors))
+        self.assertTrue(any("interaction/decision-policy.md" in error for error in validator.errors))
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -30,6 +30,16 @@ REQUIRED_FILES = (
     ".context/policies/core/questioning-and-evidence.md",
     ".context/policies/core/review-release.md",
     ".context/policies/exceptions.md",
+    ".context/classification/README.md",
+    ".context/classification/complexity.md",
+    ".context/classification/risk.md",
+    ".context/classification/impact.md",
+    ".context/classification/routing.md",
+    ".context/interaction/README.md",
+    ".context/interaction/questioning.md",
+    ".context/interaction/decision-policy.md",
+    ".context/interaction/uncertainty.md",
+    ".context/interaction/escalation.md",
     ".context/workflows/core.md",
     ".context/workflows/product.md",
     ".context/workflows/support.md",
@@ -57,6 +67,14 @@ ENUMS = {
     "risk": {"low", "medium", "high", "critical"},
     "severity": {"sev1", "sev2", "sev3", "sev4"},
 }
+CLASSIFICATION_ENUMS = {
+    "complexity": {"low", "medium", "high"},
+    "impact": {"local", "module", "cross-module", "system"},
+    "security": {"none", "relevant", "sensitive"},
+    "confidence": {"low", "medium", "high"},
+    "routing": {"minimal", "standard", "extended"},
+}
+CLASSIFICATION_DIMENSIONS = ("complexity", "impact", "security", "confidence", "routing")
 GIT_FINALIZATION_MODES = {"confirm_each", "automatic"}
 MODES = {"starter", "managed", "enterprise"}
 QUALITY_FIELDS = (
@@ -95,6 +113,18 @@ PHASES = {
     ("support", "incident"): {"triage", "contain", "specify", "plan", "preflight", "execute", "verify", "release", "observe", "close"},
     ("support", "hotfix"): {"triage", "contain", "specify", "plan", "preflight", "execute", "verify", "release", "observe", "close"},
 }
+
+
+def derive_routing(classification: dict[str, Any], risk: Any) -> str | None:
+    """Derive routing deterministically per .context/classification/routing.md."""
+    complexity = classification.get("complexity")
+    impact = classification.get("impact")
+    security = classification.get("security")
+    if complexity == "high" or risk in {"high", "critical"} or impact in {"cross-module", "system"} or security == "sensitive":
+        return "extended"
+    if complexity == "low" and risk == "low" and impact == "local" and security == "none":
+        return "minimal"
+    return "standard"
 
 
 class Validator:
@@ -155,7 +185,7 @@ class Validator:
         for relative in REQUIRED_FILES:
             if not (self.root / relative).is_file():
                 self.error(f"missing required file: {relative}")
-        for relative in (".context/project", ".context/workflows", ".context/templates", ".context/prompts", ".context/profiles", ".context/tooling", ".context/orchestration"):
+        for relative in (".context/project", ".context/workflows", ".context/templates", ".context/prompts", ".context/profiles", ".context/tooling", ".context/orchestration", ".context/classification", ".context/interaction"):
             if not (self.root / relative).is_dir():
                 self.error(f"missing required directory: {relative}")
         for relative in (
@@ -528,7 +558,8 @@ class Validator:
         required = ("schema_version", "id", "title", "track", "type", "phase",
                     "status", "risk", "owner", "conversation_profile", "last_updated")
         allowed = set(required) | {"severity", "implementation_required", "phase_history",
-                                   "policy_exceptions", "conversation_profile", "git_finalization_mode"}
+                                   "policy_exceptions", "conversation_profile", "git_finalization_mode",
+                                   "classification", "reclassification"}
         for field in item:
             if field not in allowed:
                 self.error(f"{directory.name}: unknown field {field}")
@@ -562,6 +593,7 @@ class Validator:
                 continue
             if value not in values:
                 self.error(f"{directory.name}: invalid {field}={value}")
+        self.check_item_classification(directory, item)
         track, item_type, phase = item.get(
             "track"), item.get("type"), item.get("phase")
         if (track, item_type) not in PHASES:
@@ -605,6 +637,55 @@ class Validator:
             except ValueError:
                 self.error(
                     f"{directory.name}: last_updated must be YYYY-MM-DD")
+
+    def check_item_classification(self, directory: Path, item: dict[str, Any]) -> None:
+        classification = item.get("classification")
+        if classification is not None:
+            if not isinstance(classification, dict):
+                self.error(f"{directory.name}: classification must be an object")
+            else:
+                unknown = set(classification) - set(CLASSIFICATION_DIMENSIONS)
+                if unknown:
+                    self.error(
+                        f"{directory.name}: unknown classification dimensions {sorted(unknown)}")
+                for dimension, values in CLASSIFICATION_ENUMS.items():
+                    value = classification.get(dimension)
+                    if value is None:
+                        self.error(
+                            f"{directory.name}: classification is missing {dimension}")
+                    elif value not in values:
+                        self.error(
+                            f"{directory.name}: invalid classification {dimension}={value}")
+                if all(dimension in classification for dimension in CLASSIFICATION_DIMENSIONS):
+                    derived = derive_routing(classification, item.get("risk"))
+                    if classification.get("routing") != derived:
+                        self.error(
+                            f"{directory.name}: classification routing={classification.get('routing')} does not match derived routing={derived}")
+        history = item.get("reclassification")
+        if history is not None:
+            if not isinstance(history, list):
+                self.error(
+                    f"{directory.name}: reclassification must be an array")
+            else:
+                for index, entry in enumerate(history):
+                    if not isinstance(entry, dict):
+                        self.error(
+                            f"{directory.name}: reclassification entry {index} must be an object")
+                        continue
+                    for field in ("trigger", "routing_impact"):
+                        value = entry.get(field)
+                        if not isinstance(value, str) or not value:
+                            self.error(
+                                f"{directory.name}: reclassification entry {index} needs a non-empty {field}")
+                    previous = entry.get("previous")
+                    if not isinstance(previous, dict):
+                        self.error(
+                            f"{directory.name}: reclassification entry {index} needs a previous classification object")
+                        continue
+                    for dimension, values in CLASSIFICATION_ENUMS.items():
+                        if previous.get(dimension) not in values:
+                            self.error(
+                                f"{directory.name}: reclassification entry {index} has invalid previous {dimension}={previous.get(dimension)}")
 
     def check_item_exceptions(self, directory: Path, item: dict[str, Any]) -> None:
         exception_ids = item.get("policy_exceptions", [])

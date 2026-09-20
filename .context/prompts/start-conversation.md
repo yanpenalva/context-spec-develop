@@ -21,6 +21,8 @@ At the beginning of every conversation, ask for the Git finalization mode unless
 
 Record the choice as `git_finalization_mode` in `work-item.json`. If scope, branch, remote, risk or authorization changes, stop and ask again.
 
+Apply the canonical interaction protocol in `.context/interaction/README.md` to every question, assumption, decision and escalation: investigate before asking, classify the decision point, respect critical human gates, and record outcomes in the work item.
+
 Do not ask the user to create folders or copy templates. The orchestrator creates `.context/work/<id>/`, selects the overlay and writes the initial `work-item.json` automatically.
 
 ## Delegate

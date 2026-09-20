@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0",
+  "id": "FEAT-1003",
+  "title": "GDPR customer data export",
+  "track": "product",
+  "type": "feature",
+  "phase": "specify",
+  "status": "blocked",
+  "risk": "high",
+  "owner": "product-team",
+  "conversation_profile": "security-privacy-reviewer",
+  "git_finalization_mode": "confirm_each",
+  "classification": {
+    "complexity": "medium",
+    "impact": "cross-module",
+    "security": "sensitive",
+    "confidence": "high",
+    "routing": "extended"
+  },
+  "reclassification": [],
+  "last_updated": "2026-09-20",
+  "phase_history": ["discover", "specify"],
+  "policy_exceptions": []
+}

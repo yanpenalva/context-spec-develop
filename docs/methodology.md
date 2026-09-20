@@ -5,9 +5,11 @@ The repository treats context as an engineering dependency. A small, authoritati
 The core loop is:
 
 ```text
-Intake → Specify → Plan → Preflight → Execute/Test → Verify/Review
-       → Release/Deploy → Observe → Learn/Close
+Intake → Classify → Route → Specify → Plan → Preflight → Execute/Test
+       → Verify/Review → Release/Deploy → Observe → Learn/Close
 ```
+
+Intake determines the kind of work; classification (`.context/classification/`) describes its complexity, impact, security exposure and confidence, and derives the execution depth. The interaction protocol (`.context/interaction/`) governs every question, assumption, decision and escalation at any phase. Material new evidence triggers reclassification and a re-evaluation of routing and gates.
 
 Agents can accelerate investigation, drafting and implementation. Humans approve intent, risk, release and closure. A phase may return work to an earlier phase, but it must record why.
 

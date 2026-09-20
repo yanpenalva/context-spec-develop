@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0",
+  "id": "FEAT-1002",
+  "title": "Order cancellation window",
+  "track": "product",
+  "type": "feature",
+  "phase": "specify",
+  "status": "blocked",
+  "risk": "medium",
+  "owner": "product-team",
+  "conversation_profile": "product-engineer",
+  "git_finalization_mode": "confirm_each",
+  "classification": {
+    "complexity": "medium",
+    "impact": "module",
+    "security": "none",
+    "confidence": "high",
+    "routing": "standard"
+  },
+  "reclassification": [],
+  "last_updated": "2026-09-20",
+  "phase_history": ["discover", "specify"],
+  "policy_exceptions": []
+}

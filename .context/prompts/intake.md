@@ -20,9 +20,15 @@ Map the answers to exactly one pair:
 | Active degradation, outage or material impact | `support` | `incident` |
 | Urgent production change for active or critical impact | `support` | `hotfix` |
 
+## Classify and route
+
+With `track` and `type` recorded, classify the work per `.context/classification/README.md`: set `complexity`, `impact`, `security` and `confidence` from repository evidence, derive `routing` per `.context/classification/routing.md`, and write the `classification` object into `work-item.json`. Later, reclassify only on material new evidence and record a `reclassification` entry.
+
+Apply `.context/interaction/README.md` before asking anything: inspect first, map the point to a decision category, and ask only questions whose answer changes the path. Critical human gates stop the intake.
+
 ## Produce
 
-Create or update `work-item.json` with profile, track, type, owner, risk, `git_finalization_mode`, phase and status. Keep unknowns explicit. If answers conflict, stop at intake and ask the smallest clarifying question.
+Create or update `work-item.json` with profile, track, type, owner, risk, `git_finalization_mode`, classification, phase and status. Keep unknowns explicit. If answers conflict, stop at intake and ask the smallest clarifying question.
 
 ## Constraints
 

@@ -12,6 +12,14 @@
   "last_updated": "2026-08-22",
   "severity": "sev2",
   "implementation_required": false,
+  "classification": {
+    "complexity": "low",
+    "impact": "system",
+    "security": "none",
+    "confidence": "high",
+    "routing": "extended"
+  },
+  "reclassification": [],
   "phase_history": ["triage", "contain", "observe", "close"],
   "policy_exceptions": []
 }

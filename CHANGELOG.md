@@ -2,6 +2,9 @@
 
 ## 0.2.0 — Unreleased
 
+- Added the declarative classification layer (`.context/classification/`): complexity, impact, security signal and confidence dimensions with deterministic routing depth (minimal, standard, extended) validated on work items.
+- Added the canonical human↔agent interaction protocol (`.context/interaction/`): decision categories, questioning format, uncertainty model and escalation contract.
+- Added optional `classification` and `reclassification` fields to the work-item schema and templates, with backward-compatible validator enforcement.
 - Added separate human approvals for commit and push, with force-push protection and Git finalization evidence.
 - Added the Portuguese quickstart and conversation-first onboarding guidance.
 - Added questioning-and-evidence policy and validation of subtask/wave tables.
