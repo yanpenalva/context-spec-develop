@@ -123,7 +123,7 @@ There is no deployment workflow or CI configuration in this kit. Configure deplo
 
 ## Git delivery
 
-After the required gates and local validation pass, the agent presents evidence and a proposed Conventional Commit message. In `confirm_each`, it asks separately for commit and push approval; in `automatic`, it performs them only within the startup authorization. It must verify the worktree and upstream branch and must never force-push. If you perform the operations manually, use the consuming project's normal review process:
+After the required gates and local validation pass, the agent presents evidence and a proposed Conventional Commit message. In `confirm_each`, it asks separately for commit and push approval; in `automatic`, it performs them only within the startup authorization. Teams that deliver through pull requests can set `pull_request.mode` to `manual` (agent drafts, human opens) or `automatic` (the agent runs the project-configured PR command after push; merging always stays human). It must verify the worktree and upstream branch and must never force-push. If you perform the operations manually, use the consuming project's normal review process:
 
 At conversation start, choose Git finalization: `confirm_each` asks before commit and push; `automatic` performs both after successful gates for the recorded work item and verified upstream. The choice is recorded in `work-item.json` and does not authorize deployment or destructive Git commands.
 

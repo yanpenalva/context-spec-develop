@@ -50,7 +50,10 @@ Edit [`.context/orchestration/config.json`](../.context/orchestration/config.jso
 - `git.allow_force_push`: must remain `false`;
 - `git.require_clean_worktree`: unrelated changes stop finalization;
 - `git.commit_message_style`: `conventional_commits`;
-- `git.tag_requires_explicit_approval`: tags are never implicit.
+- `git.tag_requires_explicit_approval`: tags are never implicit;
+- `pull_request.mode`: `never` (default), `manual` (agent drafts, human opens) or `automatic` (agent runs the project-configured command after push; requires `git.finalization_mode: automatic` and a configured command);
+- `pull_request.command`: project-owned forge command; it must only open pull requests — merge, force and administrative flags are rejected by the validator;
+- `pull_request.merge_requires_human_approval`: always true; opening a PR never approves it.
 
 Agents and profiles are separate choices. `agent` identifies the tool/runtime; `profile` identifies the collaboration role. A project can use Codex as orchestrator, another compatible agent as executor and a human as release approver.
 
@@ -75,4 +78,4 @@ The graph may live in a review-graph tool or the dependency table in `plan.md`. 
 
 ## Git and release boundary
 
-At startup, the orchestrator asks whether the user wants `confirm_each` or `automatic` Git finalization and records the choice in `work-item.json`. In `confirm_each`, the agent presents validation evidence and a proposed Conventional Commit message, then asks separately before commit and push. In `automatic`, it may execute both only after all gates pass and only for the recorded work item, branch and remote. Force push, hard reset, clean operations, production deployment and external communication remain outside that authorization.
+At startup, the orchestrator asks whether the user wants `confirm_each` or `automatic` Git finalization and records the choice in `work-item.json`. In `confirm_each`, the agent presents validation evidence and a proposed Conventional Commit message, then asks separately before commit and push. In `automatic`, it may execute both only after all gates pass and only for the recorded work item, branch and remote. When `pull_request.mode` is `automatic`, it then opens the pull request with the configured project command and records the reference in `release.md`. Force push, hard reset, clean operations, merging, production deployment and external communication remain outside that authorization.

@@ -21,6 +21,8 @@ For the `0.2.0` upgrade, add the required `git.finalization_mode`, `git.ask_befo
 
 The same release adds the optional `classification` and `reclassification` fields on work items plus the `.context/classification/` and `.context/interaction/` contract directories. Existing work items without `classification` remain valid; add the fields when you next touch an item, and classify new items at intake. If a project removed or renamed contract files, restore or map them before upgrading so the validator's required-file checks pass.
 
+It also adds the optional `pull_request` block to the orchestration configuration (`mode`, `command`, `draft_default`, `merge_requires_human_approval`). Existing configs without the block remain valid with the default `never` behavior; configure it only when the team wants agent-drafted or agent-opened pull requests, and set `command` to your project's own forge command.
+
 ## Compatibility rules
 
 - Patch releases fix documentation, validator defects or examples without changing the work-item contract.

@@ -24,6 +24,10 @@ Classification criteria live in `.context/classification/` and the interaction p
 
 Set `git.finalization_mode` to `confirm_each` for separate commit and push questions, or `automatic` when the team explicitly permits validated Git finalization without those repeated questions. The orchestrator still asks for the per-conversation `git_finalization_mode`, records it in the work item, verifies the branch and remote, and never permits force push, reset, clean or deployment through this setting.
 
+## Pull requests
+
+Configure `pull_request.mode` in `.context/orchestration/config.json` when the team delivers through pull requests: `manual` makes the agent draft the title and body for a human to open; `automatic` lets the agent run your project's own PR command after a validated push (it requires `git.finalization_mode: automatic` and a configured `command`). The command belongs to the project — the core kit ships no forge CLI — and the validator rejects commands that merge, force or administratively override. Opening a PR never approves it; review and merge stay human.
+
 ## Optional tools
 
 RTK, Caveman, AI-memory and code-review graph are optional accelerators. If unavailable, use native commands and record the real evidence. Never compress contracts, test output, security findings or approval decisions. AI-memory must store only approved summaries and decisions; the review graph can identify impact but cannot approve a gate.

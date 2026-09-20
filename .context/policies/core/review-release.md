@@ -11,3 +11,4 @@
 - The default `confirm_each` mode requires separate human approvals for commit and push. The user may explicitly select `automatic` at conversation startup; that choice authorizes only a validated commit and push for the recorded work item, branch and remote.
 - A denied push in `confirm_each` mode leaves the approved local commit intact and MUST NOT trigger a retry or force push. Any scope, branch, remote or risk change invalidates automatic authorization.
 - Tags and destructive Git operations MUST require explicit approval; force push, hard reset and clean operations are prohibited by the core kit.
+- A project MAY configure automated pull-request opening. The configured command MUST only open pull requests; merging, force and administrative overrides MUST remain human decisions. Opening a pull request never approves it.

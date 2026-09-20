@@ -428,6 +428,56 @@ class ContextValidatorTest(unittest.TestCase):
         self.assertTrue(any("classification/routing.md" in error for error in validator.errors))
         self.assertTrue(any("interaction/decision-policy.md" in error for error in validator.errors))
 
+    def set_pull_request(self, root: Path, pull_request: dict) -> None:
+        path = root / ".context/orchestration/config.json"
+        config = json.loads(path.read_text(encoding="utf-8"))
+        config["pull_request"] = pull_request
+        path.write_text(json.dumps(config), encoding="utf-8")
+
+    def test_pr_merge_approval_can_never_be_removed(self):
+        temp, root = self.make_repo()
+        self.addCleanup(temp.cleanup)
+        self.set_pull_request(root, {"mode": "never", "merge_requires_human_approval": False})
+        validator = Validator(root, strict=True)
+        self.assertEqual(validator.run(), 1)
+        self.assertTrue(any("merge_requires_human_approval" in error for error in validator.errors))
+
+    def test_automatic_pr_requires_automatic_finalization_and_command(self):
+        temp, root = self.make_repo()
+        self.addCleanup(temp.cleanup)
+        self.set_pull_request(root, {"mode": "automatic", "command": "project pr create", "merge_requires_human_approval": True})
+        validator = Validator(root, strict=True)
+        self.assertEqual(validator.run(), 1)
+        self.assertTrue(any("requires git.finalization_mode automatic" in error for error in validator.errors))
+
+        path = root / ".context/orchestration/config.json"
+        config = json.loads(path.read_text(encoding="utf-8"))
+        config["git"]["finalization_mode"] = "automatic"
+        config["git"]["ask_before_commit"] = False
+        config["git"]["ask_before_push"] = False
+        path.write_text(json.dumps(config), encoding="utf-8")
+        self.set_pull_request(root, {"mode": "automatic", "command": None, "merge_requires_human_approval": True})
+        validator = Validator(root, strict=True)
+        self.assertEqual(validator.run(), 1)
+        self.assertTrue(any("configured project command" in error for error in validator.errors))
+
+        self.set_pull_request(root, {"mode": "automatic", "command": "project pr create --draft", "merge_requires_human_approval": True})
+        self.assertEqual(Validator(root, strict=True).run(), 0)
+
+    def test_pr_command_must_not_merge_or_force(self):
+        temp, root = self.make_repo()
+        self.addCleanup(temp.cleanup)
+        self.set_pull_request(root, {"mode": "manual", "command": "project pr merge --auto", "merge_requires_human_approval": True})
+        validator = Validator(root, strict=True)
+        self.assertEqual(validator.run(), 1)
+        self.assertTrue(any("must only open pull requests" in error for error in validator.errors))
+
+    def test_pr_block_is_optional_and_never_mode_validates(self):
+        temp, root = self.make_repo()
+        self.addCleanup(temp.cleanup)
+        self.set_pull_request(root, {"mode": "never", "command": None, "draft_default": True, "merge_requires_human_approval": True})
+        self.assertEqual(Validator(root, strict=True).run(), 0)
+
 
 if __name__ == "__main__":
     unittest.main()

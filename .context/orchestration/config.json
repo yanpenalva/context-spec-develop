@@ -84,5 +84,11 @@
     "commit_message_style": "conventional_commits",
     "tag_requires_explicit_approval": true,
     "commands": ["git add", "git commit", "git push"]
+  },
+  "pull_request": {
+    "mode": "never",
+    "command": null,
+    "draft_default": true,
+    "merge_requires_human_approval": true
   }
 }

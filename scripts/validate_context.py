@@ -76,6 +76,8 @@ CLASSIFICATION_ENUMS = {
 }
 CLASSIFICATION_DIMENSIONS = ("complexity", "impact", "security", "confidence", "routing")
 GIT_FINALIZATION_MODES = {"confirm_each", "automatic"}
+PR_MODES = {"never", "manual", "automatic"}
+FORBIDDEN_PR_COMMAND_FRAGMENTS = ("merge", "--admin", "--force", "rebase")
 MODES = {"starter", "managed", "enterprise"}
 QUALITY_FIELDS = (
     "static_analysis_command",
@@ -420,6 +422,38 @@ class Validator:
             if any(isinstance(command, str) and ("--force" in command or "reset --hard" in command or "clean -" in command) for command in git.get("commands", [])):
                 self.error(
                     "orchestration.git.commands must not contain destructive or force Git operations")
+        self.check_pull_request(orchestration)
+
+    def check_pull_request(self, orchestration: dict[str, Any]) -> None:
+        pull_request = orchestration.get("pull_request")
+        if pull_request is None:
+            return
+        if not isinstance(pull_request, dict):
+            self.error("orchestration.pull_request must be an object")
+            return
+        mode = pull_request.get("mode")
+        if mode not in PR_MODES:
+            self.error(
+                "orchestration.pull_request.mode must be never, manual or automatic")
+        if pull_request.get("merge_requires_human_approval") is not True:
+            self.error(
+                "orchestration.pull_request.merge_requires_human_approval must be true")
+        command = pull_request.get("command")
+        if command is not None and not isinstance(command, str):
+            self.error("orchestration.pull_request.command must be a string or null")
+            return
+        if mode == "automatic":
+            if orchestration.get("git", {}).get("finalization_mode") != "automatic":
+                self.error(
+                    "orchestration.pull_request.mode automatic requires git.finalization_mode automatic")
+            if not isinstance(command, str) or not command or command == "NOT FOUND":
+                self.error(
+                    "orchestration.pull_request.mode automatic requires a configured project command")
+        if isinstance(command, str):
+            lowered = command.lower()
+            if any(fragment in lowered for fragment in FORBIDDEN_PR_COMMAND_FRAGMENTS):
+                self.error(
+                    "orchestration.pull_request.command must only open pull requests; merging, force and administrative flags stay with humans")
 
     def check_quality_and_governance(self, config: dict[str, Any]) -> None:
         if self.mode == "starter":

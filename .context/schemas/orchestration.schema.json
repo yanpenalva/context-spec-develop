@@ -51,6 +51,17 @@
         "commands": {"type": "array", "items": {"type": "string"}, "minItems": 3}
       },
       "additionalProperties": false
+    },
+    "pull_request": {
+      "type": "object",
+      "required": ["mode", "merge_requires_human_approval"],
+      "properties": {
+        "mode": {"enum": ["never", "manual", "automatic"]},
+        "command": {"type": ["string", "null"]},
+        "draft_default": {"type": "boolean"},
+        "merge_requires_human_approval": {"const": true}
+      },
+      "additionalProperties": false
     }
   },
   "additionalProperties": false
