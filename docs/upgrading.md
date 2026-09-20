@@ -23,6 +23,8 @@ The same release adds the optional `classification` and `reclassification` field
 
 It also adds the optional `pull_request` block to the orchestration configuration (`mode`, `command`, `draft_default`, `merge_requires_human_approval`). Existing configs without the block remain valid with the default `never` behavior; configure it only when the team wants agent-drafted or agent-opened pull requests, and set `command` to your project's own forge command.
 
+For context routing, the release adds the `.context/context-routing/` contract directory and two optional work-item objects: `routing` (`derived`, `effective`, optional `override`) and `context` (the manifest). Work items using the earlier `classification.routing` shape remain valid as `derived = effective`; migrate them to the root `routing` object when you next touch them, and remove `classification.routing` then — carrying both shapes fails validation. Update `classification/routing.md`, `interaction/decision-policy.md` and `context-routing/catalog.md` deliberately: the validator reads the catalog table and enforces the routing, override and manifest invariants.
+
 ## Compatibility rules
 
 - Patch releases fix documentation, validator defects or examples without changing the work-item contract.

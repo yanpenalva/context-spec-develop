@@ -10,9 +10,10 @@
 4. `project/overview.md` and relevant project files
 5. Applicable policies in `policies/`
 6. `classification/README.md` and `interaction/README.md`
-7. `workflows/core.md`
-8. `workflows/product.md` or `workflows/support.md`, selected by intake
-9. The active work item under `work/`
+7. `context-routing/README.md` — load only the context the next decision needs
+8. `workflows/core.md`
+9. `workflows/product.md` or `workflows/support.md`, selected by intake
+10. The active work item under `work/`
 
 For any uncertainty, read `policies/core/questioning-and-evidence.md` before asking the user or delegating a subtask.
 
@@ -25,6 +26,7 @@ For any uncertainty, read `policies/core/questioning-and-evidence.md` before ask
 | `workflows/` | Core process and Product/Support overlays |
 | `classification/` | Declarative work classification (complexity, impact, security, confidence) and routing depth |
 | `interaction/` | Canonical human↔agent protocol: questioning, decisions, uncertainty, escalation |
+| `context-routing/` | Minimum-sufficient context: catalog, manifest, budgets and triggers |
 | `prompts/` | Agent-facing phase contracts |
 | `profiles/` | Conversation roles and startup questions |
 | `orchestration/` | Configurable agent assignments and automatic work-item setup |
@@ -49,4 +51,4 @@ At the beginning of a conversation, choose one profile, then classify the reques
 
 If classification is unclear, ask the smallest question that distinguishes user value, defect, active impact and urgency. Do not start implementation before `track`, `type`, owner, risk and phase are recorded.
 
-After intake, classify the work per `classification/README.md` (dimensions plus deterministic `routing` depth) and apply `interaction/README.md` to every question, assumption, decision and escalation. Then create or open the work item, decompose the plan into small subtasks, organize dependency-safe waves, and follow the phase gate. A subagent may work only on an assigned subtask and must return evidence to the parent work item.
+After intake, classify the work per `classification/README.md` (dimensions; `derived` versus `effective` routing per `classification/routing.md`), build the context manifest per `context-routing/README.md`, and apply `interaction/README.md` to every question, assumption, decision and escalation. Then create or open the work item, decompose the plan into small subtasks, organize dependency-safe waves, and follow the phase gate. A subagent may work only on an assigned subtask and must return evidence to the parent work item.

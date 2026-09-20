@@ -13,8 +13,17 @@
     "complexity": "low",
     "impact": "local",
     "security": "none",
-    "confidence": "high",
-    "routing": "minimal"
+    "confidence": "high"
+  },
+  "routing": {
+    "derived": "minimal",
+    "effective": "minimal"
+  },
+  "context": {
+    "budget": "minimal",
+    "required": ["core", "project", "testing"],
+    "deferred": ["architecture", "security", "release", "incident"],
+    "triggers": []
   },
   "reclassification": [],
   "last_updated": "2026-08-20",

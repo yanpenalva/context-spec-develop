@@ -28,10 +28,11 @@ Each layer answers one question; none absorbs another's job:
 | --- | --- |
 | `.context/classification/` | What kind of work is this, and how deep must the workflow run? |
 | `.context/interaction/` | When and how must the human participate in questions, decisions and escalations? |
+| `.context/context-routing/` | What canonical context is necessary for the next decision or phase? |
 | `.context/orchestration/` | Who or what coordinates and executes? |
 | `.context/workflows/` | Which phases and gates govern delivery? |
 
-Classification describes work and derives routing depth; it never assigns agents. Orchestration consumes routing to size waves and reviewer independence. The interaction protocol governs every question and escalation; orchestration cannot bypass a critical human gate.
+Classification describes work and derives routing depth; it never assigns agents. Context routing selects the minimum sufficient domains per phase; it never loads everything preventively. Orchestration consumes routing to size waves and reviewer independence and passes compact subtask handoffs. The interaction protocol governs every question and escalation; orchestration cannot bypass a critical human gate.
 
 ## Configuration
 

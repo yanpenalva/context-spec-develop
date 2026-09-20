@@ -6,7 +6,7 @@ Conversation startup:
 
 1. Read this file, then `.context/INDEX.md`.
 2. Ask which conversation profile applies, unless the user already chose one. Use `.context/profiles/`.
-3. Classify the request with the intake decision tree: Product feature, Support bug, Support incident or Support hotfix. Record `track` and `type` in `work-item.json`. Then classify complexity, impact, security and confidence and derive routing depth per `.context/classification/README.md`.
+3. Classify the request with the intake decision tree: Product feature, Support bug, Support incident or Support hotfix. Record `track` and `type` in `work-item.json`. Then classify complexity, impact, security and confidence, derive routing depth per `.context/classification/README.md`, and load only the required context per `.context/context-routing/README.md`.
 4. Apply `.context/interaction/README.md` before any question, assumption, decision or escalation.
 5. Ask whether Git finalization should use `confirm_each` or `automatic`, unless the user already chose; record `git_finalization_mode` in the work item.
 6. Read only relevant `.context/project/`, policy, workflow and work-item files.

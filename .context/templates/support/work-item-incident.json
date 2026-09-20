@@ -17,8 +17,17 @@
     "complexity": "low",
     "impact": "system",
     "security": "none",
-    "confidence": "low",
-    "routing": "extended"
+    "confidence": "low"
+  },
+  "routing": {
+    "derived": "extended",
+    "effective": "extended"
+  },
+  "context": {
+    "budget": "extended",
+    "required": ["core", "project", "testing", "incident", "architecture"],
+    "deferred": ["security", "release"],
+    "triggers": []
   },
   "reclassification": [],
   "policy_exceptions": []

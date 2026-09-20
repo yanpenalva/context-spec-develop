@@ -4,7 +4,14 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from scripts.validate_context import Validator
+from scripts.validate_context import (
+    DECISION_CATEGORIES,
+    EXECUTION_STATES,
+    EXECUTION_STATE_FOR,
+    Validator,
+    default_required_domains,
+    derive_routing,
+)
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -477,6 +484,261 @@ class ContextValidatorTest(unittest.TestCase):
         self.addCleanup(temp.cleanup)
         self.set_pull_request(root, {"mode": "never", "command": None, "draft_default": True, "merge_requires_human_approval": True})
         self.assertEqual(Validator(root, strict=True).run(), 0)
+
+    def test_decision_categories_exclude_blocked_and_map_execution_states(self):
+        self.assertNotIn("BLOCKED", DECISION_CATEGORIES)
+        self.assertEqual(
+            DECISION_CATEGORIES,
+            {"DISCOVERABLE", "REVERSIBLE_AGENT_DECISION", "ASSUMPTION_ALLOWED", "HUMAN_DECISION_REQUIRED", "CRITICAL_HUMAN_GATE"},
+        )
+        self.assertEqual(EXECUTION_STATES, {"CONTINUE", "WAITING_FOR_HUMAN", "BLOCKED"})
+        self.assertEqual(EXECUTION_STATE_FOR["DISCOVERABLE"], "CONTINUE")
+        self.assertEqual(EXECUTION_STATE_FOR["REVERSIBLE_AGENT_DECISION"], "CONTINUE")
+        self.assertEqual(EXECUTION_STATE_FOR["ASSUMPTION_ALLOWED"], "CONTINUE")
+        self.assertEqual(EXECUTION_STATE_FOR["HUMAN_DECISION_REQUIRED"], "WAITING_FOR_HUMAN")
+        self.assertEqual(EXECUTION_STATE_FOR["CRITICAL_HUMAN_GATE"], "WAITING_FOR_HUMAN")
+
+    def write_item_full(self, root: Path, directory: str, item: dict, artifacts: list[str]) -> None:
+        path = root / ".context/work" / directory
+        path.mkdir(parents=True)
+        (path / "work-item.json").write_text(json.dumps(item), encoding="utf-8")
+        self.write_item(root, item, artifacts)
+
+    def base_item(self, item_id: str, *, risk: str = "low") -> dict:
+        return {
+            "schema_version": "1.0", "id": item_id, "title": "Routing item",
+            "track": "product", "type": "feature", "phase": "specify",
+            "status": "active", "risk": risk, "owner": "team",
+            "conversation_profile": "senior-software-engineer", "last_updated": "2026-09-20",
+            "classification": {"complexity": "low", "impact": "local", "security": "none", "confidence": "high"},
+        }
+
+    def test_effective_routing_equal_to_derived_passes(self):
+        temp, root = self.make_repo()
+        self.addCleanup(temp.cleanup)
+        item = self.base_item("FEAT-2001")
+        item["routing"] = {"derived": "minimal", "effective": "minimal"}
+        self.write_item(root, item, ["discovery.md", "spec.md"])
+        self.assertEqual(Validator(root, strict=True).run(), 0)
+
+    def test_routing_override_upgrade_passes(self):
+        temp, root = self.make_repo()
+        self.addCleanup(temp.cleanup)
+        item = self.base_item("FEAT-2002")
+        item["routing"] = {
+            "derived": "minimal", "effective": "standard",
+            "override": {"authority": "human", "reason": "touches the billing path before quarter close"},
+        }
+        self.write_item(root, item, ["discovery.md", "spec.md"])
+        self.assertEqual(Validator(root, strict=True).run(), 0)
+
+    def test_routing_downgrade_fails(self):
+        temp, root = self.make_repo()
+        self.addCleanup(temp.cleanup)
+        item = self.base_item("FEAT-2003", risk="high")
+        item["routing"] = {
+            "derived": "extended", "effective": "standard",
+            "override": {"authority": "human", "reason": "attempted downgrade"},
+        }
+        self.write_item(root, item, ["discovery.md", "spec.md"])
+        validator = Validator(root, strict=True)
+        self.assertEqual(validator.run(), 1)
+        self.assertTrue(any("downgrade" in error for error in validator.errors))
+
+    def test_routing_override_requires_reason_and_human_authority(self):
+        temp, root = self.make_repo()
+        self.addCleanup(temp.cleanup)
+        item = self.base_item("FEAT-2004")
+        item["routing"] = {"derived": "minimal", "effective": "extended", "override": {"authority": "agent", "reason": ""}}
+        self.write_item(root, item, ["discovery.md", "spec.md"])
+        validator = Validator(root, strict=True)
+        self.assertEqual(validator.run(), 1)
+        self.assertTrue(any("authority must be human" in error for error in validator.errors))
+        self.assertTrue(any("non-empty reason" in error for error in validator.errors))
+
+    def test_override_without_routing_difference_fails(self):
+        temp, root = self.make_repo()
+        self.addCleanup(temp.cleanup)
+        item = self.base_item("FEAT-2005")
+        item["routing"] = {"derived": "minimal", "effective": "minimal", "override": {"authority": "human", "reason": "redundant"}}
+        self.write_item(root, item, ["discovery.md", "spec.md"])
+        validator = Validator(root, strict=True)
+        self.assertEqual(validator.run(), 1)
+        self.assertTrue(any("requires effective routing to differ" in error for error in validator.errors))
+
+    def test_dual_routing_shapes_fail(self):
+        temp, root = self.make_repo()
+        self.addCleanup(temp.cleanup)
+        item = self.base_item("FEAT-2006")
+        item["classification"]["routing"] = "minimal"
+        item["routing"] = {"derived": "minimal", "effective": "minimal"}
+        self.write_item(root, item, ["discovery.md", "spec.md"])
+        validator = Validator(root, strict=True)
+        self.assertEqual(validator.run(), 1)
+        self.assertTrue(any("not both" in error for error in validator.errors))
+
+    def test_legacy_classification_routing_remains_valid(self):
+        temp, root = self.make_repo()
+        self.addCleanup(temp.cleanup)
+        item = self.base_item("FEAT-2007")
+        item["classification"]["routing"] = "minimal"
+        self.write_item(root, item, ["discovery.md", "spec.md"])
+        self.assertEqual(Validator(root, strict=True).run(), 0)
+
+    def valid_manifest(self, budget: str) -> dict:
+        return {
+            "budget": budget,
+            "required": ["core", "project", "testing"],
+            "deferred": ["architecture", "security", "release", "incident"],
+            "triggers": [],
+        }
+
+    def test_valid_context_manifest_passes(self):
+        temp, root = self.make_repo()
+        self.addCleanup(temp.cleanup)
+        item = self.base_item("FEAT-2010")
+        item["routing"] = {"derived": "minimal", "effective": "minimal"}
+        item["context"] = self.valid_manifest("minimal")
+        self.write_item(root, item, ["discovery.md", "spec.md"])
+        self.assertEqual(Validator(root, strict=True).run(), 0)
+
+    def test_unknown_context_domain_fails(self):
+        temp, root = self.make_repo()
+        self.addCleanup(temp.cleanup)
+        item = self.base_item("FEAT-2011")
+        item["routing"] = {"derived": "minimal", "effective": "minimal"}
+        manifest = self.valid_manifest("minimal")
+        manifest["required"].append("kubernetes")
+        item["context"] = manifest
+        self.write_item(root, item, ["discovery.md", "spec.md"])
+        validator = Validator(root, strict=True)
+        self.assertEqual(validator.run(), 1)
+        self.assertTrue(any("unknown context domains" in error for error in validator.errors))
+
+    def test_required_and_deferred_conflict_fails(self):
+        temp, root = self.make_repo()
+        self.addCleanup(temp.cleanup)
+        item = self.base_item("FEAT-2012")
+        item["routing"] = {"derived": "minimal", "effective": "minimal"}
+        manifest = self.valid_manifest("minimal")
+        manifest["deferred"].append("core")
+        item["context"] = manifest
+        self.write_item(root, item, ["discovery.md", "spec.md"])
+        validator = Validator(root, strict=True)
+        self.assertEqual(validator.run(), 1)
+        self.assertTrue(any("required and deferred" in error for error in validator.errors))
+
+    def test_context_manifest_requires_mandatory_core(self):
+        temp, root = self.make_repo()
+        self.addCleanup(temp.cleanup)
+        item = self.base_item("FEAT-2013")
+        item["routing"] = {"derived": "minimal", "effective": "minimal"}
+        manifest = self.valid_manifest("minimal")
+        manifest["required"].remove("core")
+        manifest["deferred"].append("core")
+        item["context"] = manifest
+        self.write_item(root, item, ["discovery.md", "spec.md"])
+        validator = Validator(root, strict=True)
+        self.assertEqual(validator.run(), 1)
+        self.assertTrue(any("mandatory domain" in error for error in validator.errors))
+
+    def test_context_budget_must_match_effective_routing(self):
+        temp, root = self.make_repo()
+        self.addCleanup(temp.cleanup)
+        item = self.base_item("FEAT-2014")
+        item["routing"] = {"derived": "minimal", "effective": "minimal"}
+        item["context"] = self.valid_manifest("standard")
+        self.write_item(root, item, ["discovery.md", "spec.md"])
+        validator = Validator(root, strict=True)
+        self.assertEqual(validator.run(), 1)
+        self.assertTrue(any("must equal effective routing" in error for error in validator.errors))
+
+    def test_context_budget_maximum_enforced(self):
+        temp, root = self.make_repo()
+        self.addCleanup(temp.cleanup)
+        item = self.base_item("FEAT-2015")
+        item["routing"] = {
+            "derived": "minimal", "effective": "extended",
+            "override": {"authority": "human", "reason": "broaden discovery"},
+        }
+        manifest = self.valid_manifest("extended")
+        manifest["required"] = ["core", "project", "testing", "architecture", "security", "release", "incident", "extra" ]
+        item["context"] = manifest
+        self.write_item(root, item, ["discovery.md", "spec.md"])
+        validator = Validator(root, strict=True)
+        self.assertEqual(validator.run(), 1)
+        self.assertTrue(any("at most 7" in error for error in validator.errors) or any("unknown context domains" in error for error in validator.errors))
+
+    def test_context_manifest_requires_routing_object(self):
+        temp, root = self.make_repo()
+        self.addCleanup(temp.cleanup)
+        item = self.base_item("FEAT-2016")
+        item["classification"]["routing"] = "minimal"
+        item["context"] = self.valid_manifest("minimal")
+        self.write_item(root, item, ["discovery.md", "spec.md"])
+        validator = Validator(root, strict=True)
+        self.assertEqual(validator.run(), 1)
+        self.assertTrue(any("requires the root routing object" in error for error in validator.errors))
+
+    def test_minimal_classification_default_domains_regression(self):
+        calm = {"complexity": "low", "impact": "local", "security": "none", "confidence": "high"}
+        domains = default_required_domains(calm)
+        self.assertEqual(domains, {"core", "project", "testing"})
+        unrelated = {"security", "incident", "release", "architecture"}
+        self.assertEqual(domains & unrelated, set())
+
+        loud = {"complexity": "medium", "impact": "cross-module", "security": "relevant", "confidence": "high"}
+        expanded = default_required_domains(loud, "feature")
+        self.assertIn("security", expanded)
+        self.assertIn("architecture", expanded)
+        self.assertNotIn("incident", expanded)
+        self.assertNotIn("release", expanded)
+
+        self.assertEqual(derive_routing(calm, "low"), "minimal")
+        self.assertEqual(derive_routing(loud, "medium"), "extended")
+
+    def test_context_domains_come_from_catalog(self):
+        temp, root = self.make_repo()
+        self.addCleanup(temp.cleanup)
+        catalog = root / ".context/context-routing/catalog.md"
+        catalog.write_text(catalog.read_text(encoding="utf-8").replace("`core`", "`corex`", 1), encoding="utf-8")
+        item = self.base_item("FEAT-2017")
+        item["routing"] = {"derived": "minimal", "effective": "minimal"}
+        item["context"] = self.valid_manifest("minimal")
+        self.write_item(root, item, ["discovery.md", "spec.md"])
+        validator = Validator(root, strict=True)
+        self.assertEqual(validator.run(), 1)
+        self.assertTrue(any("unknown context domains" in error or "mandatory domain" in error for error in validator.errors))
+
+    def test_subtask_context_domain_column_validates(self):
+        temp, root = self.make_repo()
+        self.addCleanup(temp.cleanup)
+        item = {
+            "schema_version": "1.0", "id": "BUG-2010", "title": "Handoff",
+            "track": "support", "type": "bug", "phase": "execute",
+            "status": "active", "risk": "low", "owner": "team",
+            "conversation_profile": "support-incident-engineer", "last_updated": "2026-09-20",
+        }
+        self.write_item(root, item, ["triage.md", "reproduction.md", "spec.md", "plan.md"])
+        (root / ".context/work/BUG-2010/plan.md").write_text(
+            "# Plan\n\n## Subtasks and waves\n\n"
+            "| Subtask ID | Owner | Dependencies | Acceptance evidence | Wave | Context domains |\n"
+            "| --- | --- | --- | --- | --- | --- |\n"
+            "| S1 | team | none | Tests pass | 1 | core,project |\n",
+            encoding="utf-8",
+        )
+        self.assertEqual(Validator(root, strict=True).run(), 0)
+
+        (root / ".context/work/BUG-2010/plan.md").write_text(
+            "# Plan\n\n## Subtasks and waves\n\n"
+            "| Subtask ID | Owner | Dependencies | Acceptance evidence | Wave | Context domains |\n"
+            "| --- | --- | --- | --- | --- | --- |\n"
+            "| S1 | team | none | Tests pass | 1 | kubernetes |\n",
+            encoding="utf-8",
+        )
+        validator = Validator(root, strict=True)
+        self.assertEqual(validator.run(), 1)
+        self.assertTrue(any("unknown context domain" in error for error in validator.errors))
 
 
 if __name__ == "__main__":

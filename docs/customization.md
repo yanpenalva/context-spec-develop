@@ -20,6 +20,10 @@ The JSON separates the collaboration profile from the runtime agent. Change `ass
 
 Classification criteria live in `.context/classification/` and the interaction protocol in `.context/interaction/`. Projects may tighten criteria (for example, treat every payment change as `sensitive`) by editing those files; they must not weaken the routing derivation's determinism, remove a critical human gate, or change what a decision category authorizes. The validator enforces the derivation and the closed enums; record extensions to the dimensions themselves as a versioned schema change with a migration note.
 
+## Context routing
+
+The context catalog, budgets and triggers live in `.context/context-routing/`. Projects may rename or add domains in `catalog.md` (the validator reads the table to learn the valid names) and may tighten budgets. They must not remove the mandatory `core` domain, break the manifest structure, or turn a budget into a reason to skip safety- or governance-required context: minimum sufficient context never outranks correctness, safety or evidence.
+
 ## Git finalization preference
 
 Set `git.finalization_mode` to `confirm_each` for separate commit and push questions, or `automatic` when the team explicitly permits validated Git finalization without those repeated questions. The orchestrator still asks for the per-conversation `git_finalization_mode`, records it in the work item, verifies the branch and remote, and never permits force push, reset, clean or deployment through this setting.

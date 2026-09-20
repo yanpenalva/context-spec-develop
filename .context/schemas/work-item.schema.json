@@ -30,7 +30,36 @@
         "impact": {"enum": ["local", "module", "cross-module", "system"]},
         "security": {"enum": ["none", "relevant", "sensitive"]},
         "confidence": {"enum": ["low", "medium", "high"]},
-        "routing": {"enum": ["minimal", "standard", "extended"]}
+        "routing": {"description": "deprecated legacy shape; prefer the root routing object", "enum": ["minimal", "standard", "extended"]}
+      }
+    },
+    "routing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["derived", "effective"],
+      "properties": {
+        "derived": {"enum": ["minimal", "standard", "extended"]},
+        "effective": {"enum": ["minimal", "standard", "extended"]},
+        "override": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["authority", "reason"],
+          "properties": {
+            "authority": {"enum": ["human"]},
+            "reason": {"type": "string", "minLength": 1}
+          }
+        }
+      }
+    },
+    "context": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["budget", "required", "deferred"],
+      "properties": {
+        "budget": {"enum": ["minimal", "standard", "extended"]},
+        "required": {"type": "array", "items": {"type": "string"}},
+        "deferred": {"type": "array", "items": {"type": "string"}},
+        "triggers": {"type": "array", "items": {"type": "string"}}
       }
     },
     "reclassification": {

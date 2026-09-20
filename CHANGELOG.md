@@ -2,6 +2,10 @@
 
 ## 0.2.0 — Unreleased
 
+- Added the context-routing layer (`.context/context-routing/`): catalog of context domains, structural budgets, explicit triggers and the context manifest, with validator enforcement of manifest structure, domain names and budget consistency.
+- Added immediate-classification ordering and progressive disclosure: classification precedes detailed context loading, context inclusion requires purpose, extended routing never means loading everything, and handoffs are compact artifacts instead of conversation history.
+- Split decision authority from progress: decision categories (`DISCOVERABLE`, `REVERSIBLE_AGENT_DECISION`, `ASSUMPTION_ALLOWED`, `HUMAN_DECISION_REQUIRED`, `CRITICAL_HUMAN_GATE`) now carry an explicit execution state (`CONTINUE`, `WAITING_FOR_HUMAN`, `BLOCKED`) with formal precedence.
+- Split routing into derived and effective: the validator enforces the deterministic derivation, upward-only human overrides with recorded authority and reason, and legacy `classification.routing` compatibility.
 - Added the declarative classification layer (`.context/classification/`): complexity, impact, security signal and confidence dimensions with deterministic routing depth (minimal, standard, extended) validated on work items.
 - Added the canonical human↔agent interaction protocol (`.context/interaction/`): decision categories, questioning format, uncertainty model and escalation contract.
 - Added optional `classification` and `reclassification` fields to the work-item schema and templates, with backward-compatible validator enforcement.

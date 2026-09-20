@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0",
+  "id": "FEAT-9003",
+  "title": "Immediate classification, context routing and progressive disclosure",
+  "track": "product",
+  "type": "feature",
+  "phase": "close",
+  "status": "completed",
+  "risk": "medium",
+  "owner": "hiyan",
+  "conversation_profile": "technical-planner",
+  "git_finalization_mode": "confirm_each",
+  "classification": {
+    "complexity": "medium",
+    "impact": "cross-module",
+    "security": "none",
+    "confidence": "high"
+  },
+  "routing": {
+    "derived": "extended",
+    "effective": "extended"
+  },
+  "context": {
+    "budget": "extended",
+    "required": ["core", "project", "testing", "architecture"],
+    "deferred": ["security", "release", "incident"],
+    "triggers": ["extended planning", "impact cross-module"]
+  },
+  "reclassification": [],
+  "last_updated": "2026-09-20",
+  "phase_history": ["discover", "specify", "plan", "preflight", "execute", "verify", "release", "observe", "learn", "close"],
+  "policy_exceptions": []
+}

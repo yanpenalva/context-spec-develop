@@ -14,8 +14,17 @@
     "complexity": "high",
     "impact": "cross-module",
     "security": "relevant",
-    "confidence": "high",
-    "routing": "extended"
+    "confidence": "high"
+  },
+  "routing": {
+    "derived": "extended",
+    "effective": "extended"
+  },
+  "context": {
+    "budget": "extended",
+    "required": ["core", "project", "testing", "security", "architecture"],
+    "deferred": ["release", "incident"],
+    "triggers": ["impact cross-module", "security relevant", "extended planning"]
   },
   "reclassification": [
     {

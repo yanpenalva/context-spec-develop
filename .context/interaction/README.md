@@ -14,9 +14,11 @@ Can I infer this safely?           → evidence + inference rules (see uncertain
 Can I decide this myself?          → decision categories (see decision-policy.md)
 Should I record an assumption?     → ASSUMPTION_ALLOWED conditions
 Should I ask the human?            → HUMAN_DECISION_REQUIRED only
-Must I stop?                       → BLOCKED or CRITICAL_HUMAN_GATE
+Must I stop?                       → CRITICAL_HUMAN_GATE (authorization) or BLOCKED (no safe path)
 Must I escalate?                   → escalation triggers (see escalation.md)
 ```
+
+Every unresolved point carries two independent values: a **decision category** (who has authority: `DISCOVERABLE`, `REVERSIBLE_AGENT_DECISION`, `ASSUMPTION_ALLOWED`, `HUMAN_DECISION_REQUIRED`, `CRITICAL_HUMAN_GATE`) and an **execution state** (whether work proceeds: `CONTINUE`, `WAITING_FOR_HUMAN`, `BLOCKED`). Precedence and the mapping between the two are defined in `decision-policy.md`.
 
 ## Decision order
 

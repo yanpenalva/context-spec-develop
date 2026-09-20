@@ -56,11 +56,17 @@ This document gives people and agents one vocabulary for the delivery system.
 
 **Risk** is the potential consequence and uncertainty of the proposed change. **Severity** is the observed impact of a Support incident. A low-risk change can be related to a high-severity incident, and they must not be conflated.
 
-**Classification** is the declarative description of a request produced per `.context/classification/README.md`: `complexity` (intrinsic difficulty), `impact` (blast radius), `security` (none, relevant or sensitive exposure signal), `confidence` (how well evidence supports the classification) and the derived `routing` depth. Impact is not complexity, and neither is risk or severity.
+**Classification** is the declarative description of a request produced per `.context/classification/README.md`: `complexity` (intrinsic difficulty), `impact` (blast radius), `security` (none, relevant or sensitive exposure signal) and `confidence` (how well evidence supports the classification). Impact is not complexity, and neither is risk or severity.
 
-**Routing** is the deterministic execution depth (minimal, standard, extended) derived from the classification per `.context/classification/routing.md`. It scales the existing gates; it never removes one.
+**Routing** is the execution depth (minimal, standard, extended). **Derived routing** is computed deterministically from the classification per `.context/classification/routing.md`. **Effective routing** is the depth actually in effect after an optional upward override by a human; overrides never touch the classification dimensions, and downgrades happen only through reclassification.
 
-**Reclassification** is the recorded change of classification when material new evidence appears: previous dimensions, trigger evidence and routing impact, stored on the work item.
+**Reclassification** is the recorded change of classification when material new evidence appears: previous dimensions, trigger evidence and routing impact, stored on the work item. Reclassification recalculates derived routing and the context requirements.
+
+**Decision category** is the authority classification of an unresolved point per `.context/interaction/decision-policy.md`: `DISCOVERABLE`, `REVERSIBLE_AGENT_DECISION`, `ASSUMPTION_ALLOWED`, `HUMAN_DECISION_REQUIRED`, `CRITICAL_HUMAN_GATE`. **Execution state** is the progress state of that point: `CONTINUE`, `WAITING_FOR_HUMAN` or `BLOCKED`. `BLOCKED` means no safe path exists now — it is not a decision category and not merely a pending question.
+
+**Context domain** is a named bundle of canonical sources in `.context/context-routing/catalog.md`. The **context manifest** records which domains are `required`, `deferred` and what `triggers` fired, under the `budget` equal to the effective routing. A **context budget** (minimal, standard, extended) bounds required domains structurally. **Progressive disclosure** means classification precedes detailed context loading and each phase receives only the context it needs; context inclusion requires purpose, and exclusion is the default.
+
+**Compact handoff** is the structured artifact passed between phases or agents — task, acceptance criteria, decisions, constraints, relevant files, evidence — never the conversation history or private reasoning. The subtask row in `plan.md` is the planner→executor handoff; `verification.md` carries the executor→reviewer evidence.
 
 **Phase** describes where work is in the workflow. **Status** describes its operating condition (`draft`, `ready`, `active`, `blocked`, `completed` or `cancelled`). A completed status is valid only in the close phase.
 

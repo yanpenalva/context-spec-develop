@@ -8,7 +8,7 @@ Request, spec, plan, project context and repository state.
 
 `preflight.md` containing passed checks, missing evidence, risks, required approvals and a clear `READY` or `NOT READY` verdict.
 
-Confirm that the plan's execution depth matches the classified `routing` in `work-item.json` per `.context/classification/routing.md`. A mismatch is a finding, resolved by adjusting the plan or by recording a justified reclassification.
+Confirm that the plan's execution depth matches the effective routing in `work-item.json` per `.context/classification/routing.md`, and that the context manifest (when present) is consistent per `.context/context-routing/README.md`. A mismatch is a finding, resolved by adjusting the plan or manifest or by recording a justified reclassification.
 
 ## Constraints
 

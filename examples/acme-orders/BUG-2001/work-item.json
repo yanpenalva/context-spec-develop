@@ -13,8 +13,17 @@
     "complexity": "low",
     "impact": "module",
     "security": "none",
-    "confidence": "high",
-    "routing": "standard"
+    "confidence": "high"
+  },
+  "routing": {
+    "derived": "standard",
+    "effective": "standard"
+  },
+  "context": {
+    "budget": "standard",
+    "required": ["core", "project", "testing"],
+    "deferred": ["architecture", "security", "release", "incident"],
+    "triggers": []
   },
   "reclassification": [],
   "last_updated": "2026-08-21",

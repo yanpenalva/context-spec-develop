@@ -32,7 +32,7 @@ Can work continue safely? <yes with bounds / no, and why>
 Human decision required: <the exact decision or authorization needed>
 ```
 
-Route the report through the current gate: record it in the work item artifact for the phase, mark the work item `blocked` when progress depends on the answer, and stop the affected line of work until the human decision is recorded.
+Route the report through the current gate: record it in the work item artifact for the phase and stop the affected line of work until the human decision is recorded. When progress depends on the answer, the execution state is `WAITING_FOR_HUMAN` (`decision-policy.md`); mark the work item `status: blocked` only when no safe path exists even after the decision — for example a required validation cannot be performed.
 
 ## After escalation
 

@@ -40,6 +40,10 @@ REQUIRED_FILES = (
     ".context/interaction/decision-policy.md",
     ".context/interaction/uncertainty.md",
     ".context/interaction/escalation.md",
+    ".context/context-routing/README.md",
+    ".context/context-routing/catalog.md",
+    ".context/context-routing/budgets.md",
+    ".context/context-routing/triggers.md",
     ".context/workflows/core.md",
     ".context/workflows/product.md",
     ".context/workflows/support.md",
@@ -75,6 +79,26 @@ CLASSIFICATION_ENUMS = {
     "routing": {"minimal", "standard", "extended"},
 }
 CLASSIFICATION_DIMENSIONS = ("complexity", "impact", "security", "confidence", "routing")
+CLASSIFICATION_DIMENSIONS_CURRENT = ("complexity", "impact", "security", "confidence")
+ROUTING_DEPTHS = ("minimal", "standard", "extended")
+ROUTING_ORDER = {"minimal": 0, "standard": 1, "extended": 2}
+BUDGET_MAX_REQUIRED = {"minimal": 3, "standard": 5, "extended": 7}
+MANDATORY_CONTEXT_DOMAINS = {"core"}
+DECISION_CATEGORIES = {
+    "DISCOVERABLE",
+    "REVERSIBLE_AGENT_DECISION",
+    "ASSUMPTION_ALLOWED",
+    "HUMAN_DECISION_REQUIRED",
+    "CRITICAL_HUMAN_GATE",
+}
+EXECUTION_STATES = {"CONTINUE", "WAITING_FOR_HUMAN", "BLOCKED"}
+EXECUTION_STATE_FOR = {
+    "DISCOVERABLE": "CONTINUE",
+    "REVERSIBLE_AGENT_DECISION": "CONTINUE",
+    "ASSUMPTION_ALLOWED": "CONTINUE",
+    "HUMAN_DECISION_REQUIRED": "WAITING_FOR_HUMAN",
+    "CRITICAL_HUMAN_GATE": "WAITING_FOR_HUMAN",
+}
 GIT_FINALIZATION_MODES = {"confirm_each", "automatic"}
 PR_MODES = {"never", "manual", "automatic"}
 FORBIDDEN_PR_COMMAND_FRAGMENTS = ("merge", "--admin", "--force", "rebase")
@@ -129,6 +153,18 @@ def derive_routing(classification: dict[str, Any], risk: Any) -> str | None:
     return "standard"
 
 
+def default_required_domains(classification: dict[str, Any], item_type: str | None = None) -> set[str]:
+    """Deterministic default context manifest per .context/context-routing/triggers.md."""
+    domains = {"core", "project", "testing"}
+    if classification.get("security") in {"relevant", "sensitive"}:
+        domains.add("security")
+    if classification.get("impact") in {"cross-module", "system"}:
+        domains.add("architecture")
+    if item_type in {"incident", "hotfix"}:
+        domains.add("incident")
+    return domains
+
+
 class Validator:
     def __init__(self, root: Path, strict: bool, mode: str | None = None, include_examples: bool = False) -> None:
         self.root = root
@@ -137,6 +173,7 @@ class Validator:
         self.include_examples = include_examples
         self.mode = "starter"
         self.available_agent_profiles: set[str] = set()
+        self.context_domains: set[str] = set()
         self.errors: list[str] = []
         self.warnings: list[str] = []
 
@@ -148,6 +185,7 @@ class Validator:
 
     def run(self) -> int:
         self.check_required_files()
+        self.load_context_domains()
         config = self.load_json(self.root / ".context/config.json", "config")
         schema = self.load_json(
             self.root / ".context/schemas/work-item.schema.json", "work-item schema")
@@ -187,7 +225,7 @@ class Validator:
         for relative in REQUIRED_FILES:
             if not (self.root / relative).is_file():
                 self.error(f"missing required file: {relative}")
-        for relative in (".context/project", ".context/workflows", ".context/templates", ".context/prompts", ".context/profiles", ".context/tooling", ".context/orchestration", ".context/classification", ".context/interaction"):
+        for relative in (".context/project", ".context/workflows", ".context/templates", ".context/prompts", ".context/profiles", ".context/tooling", ".context/orchestration", ".context/classification", ".context/interaction", ".context/context-routing"):
             if not (self.root / relative).is_dir():
                 self.error(f"missing required directory: {relative}")
         for relative in (
@@ -593,7 +631,7 @@ class Validator:
                     "status", "risk", "owner", "conversation_profile", "last_updated")
         allowed = set(required) | {"severity", "implementation_required", "phase_history",
                                    "policy_exceptions", "conversation_profile", "git_finalization_mode",
-                                   "classification", "reclassification"}
+                                   "classification", "reclassification", "routing", "context"}
         for field in item:
             if field not in allowed:
                 self.error(f"{directory.name}: unknown field {field}")
@@ -672,8 +710,116 @@ class Validator:
                 self.error(
                     f"{directory.name}: last_updated must be YYYY-MM-DD")
 
+    def load_context_domains(self) -> None:
+        catalog = self.root / ".context/context-routing/catalog.md"
+        if not catalog.is_file():
+            return
+        pattern = re.compile(r"^\|\s*`([a-z-]+)`\s*\|")
+        for line in catalog.read_text(encoding="utf-8").splitlines():
+            match = pattern.match(line)
+            if match:
+                self.context_domains.add(match.group(1))
+
+    def check_item_routing(self, directory: Path, item: dict[str, Any]) -> None:
+        classification = item.get("classification")
+        routing = item.get("routing")
+        if routing is None:
+            return
+        if not isinstance(routing, dict):
+            self.error(f"{directory.name}: routing must be an object")
+            return
+        if classification is not None and isinstance(classification, dict) and "routing" in classification:
+            self.error(
+                f"{directory.name}: use the root routing object or the legacy classification.routing, not both")
+        derived = routing.get("derived")
+        effective = routing.get("effective")
+        if derived not in ROUTING_ORDER:
+            self.error(f"{directory.name}: invalid routing derived={derived}")
+            return
+        if effective not in ROUTING_ORDER:
+            self.error(f"{directory.name}: invalid routing effective={effective}")
+            return
+        expected = derive_routing(classification or {}, item.get("risk"))
+        if derived != expected:
+            self.error(
+                f"{directory.name}: routing derived={derived} does not match classification derivation={expected}")
+        override = routing.get("override")
+        if effective == derived:
+            if override is not None:
+                self.error(
+                    f"{directory.name}: routing override requires effective routing to differ from derived")
+            return
+        if ROUTING_ORDER[effective] < ROUTING_ORDER[derived]:
+            self.error(
+                f"{directory.name}: routing overrides may only increase depth; {derived} -> {effective} is a downgrade")
+            return
+        if not isinstance(override, dict):
+            self.error(
+                f"{directory.name}: routing override from {derived} to {effective} requires an override object")
+            return
+        if override.get("authority") != "human":
+            self.error(
+                f"{directory.name}: routing override authority must be human")
+        if not isinstance(override.get("reason"), str) or not override["reason"]:
+            self.error(
+                f"{directory.name}: routing override requires a non-empty reason")
+
+    def check_item_context(self, directory: Path, item: dict[str, Any]) -> None:
+        context = item.get("context")
+        if context is None:
+            return
+        if not isinstance(context, dict):
+            self.error(f"{directory.name}: context must be an object")
+            return
+        budget = context.get("budget")
+        if budget not in BUDGET_MAX_REQUIRED:
+            self.error(f"{directory.name}: invalid context budget={budget}")
+        routing = item.get("routing")
+        if not isinstance(routing, dict) or routing.get("effective") is None:
+            self.error(
+                f"{directory.name}: a context manifest requires the root routing object")
+        elif budget != routing.get("effective"):
+            self.error(
+                f"{directory.name}: context budget={budget} must equal effective routing={routing.get('effective')}")
+        if not self.context_domains:
+            self.error(
+                f"{directory.name}: context domains unavailable; catalog is missing or empty")
+            return
+        for field in ("required", "deferred", "triggers"):
+            value = context.get(field)
+            if value is not None and (not isinstance(value, list) or not all(isinstance(entry, str) for entry in value)):
+                self.error(
+                    f"{directory.name}: context {field} must be a string array")
+        required = context.get("required", [])
+        deferred = context.get("deferred", [])
+        if not isinstance(required, list) or not isinstance(deferred, list):
+            return
+        unknown = {domain for domain in required + deferred if domain not in self.context_domains}
+        if unknown:
+            self.error(
+                f"{directory.name}: unknown context domains {sorted(unknown)}")
+        overlap = set(required) & set(deferred)
+        if overlap:
+            self.error(
+                f"{directory.name}: context domains cannot be required and deferred: {sorted(overlap)}")
+        if MANDATORY_CONTEXT_DOMAINS - set(required):
+            self.error(
+                f"{directory.name}: context required must include the mandatory domain(s) {sorted(MANDATORY_CONTEXT_DOMAINS)}")
+        if budget in BUDGET_MAX_REQUIRED and len(set(required)) > BUDGET_MAX_REQUIRED[budget]:
+            self.error(
+                f"{directory.name}: context budget {budget} allows at most {BUDGET_MAX_REQUIRED[budget]} required domains")
+
+    def check_item_routing_legacy(self, directory: Path, item: dict[str, Any]) -> None:
+        classification = item.get("classification")
+        if item.get("routing") is not None or not isinstance(classification, dict):
+            return
+        if classification.get("routing") != derive_routing(classification, item.get("risk")):
+            self.error(
+                f"{directory.name}: classification routing={classification.get('routing')} does not match derived routing={derive_routing(classification, item.get('risk'))}")
+
     def check_item_classification(self, directory: Path, item: dict[str, Any]) -> None:
         classification = item.get("classification")
+        routing_object = item.get("routing")
         if classification is not None:
             if not isinstance(classification, dict):
                 self.error(f"{directory.name}: classification must be an object")
@@ -683,6 +829,8 @@ class Validator:
                     self.error(
                         f"{directory.name}: unknown classification dimensions {sorted(unknown)}")
                 for dimension, values in CLASSIFICATION_ENUMS.items():
+                    if dimension == "routing" and routing_object is not None:
+                        continue
                     value = classification.get(dimension)
                     if value is None:
                         self.error(
@@ -690,11 +838,11 @@ class Validator:
                     elif value not in values:
                         self.error(
                             f"{directory.name}: invalid classification {dimension}={value}")
-                if all(dimension in classification for dimension in CLASSIFICATION_DIMENSIONS):
-                    derived = derive_routing(classification, item.get("risk"))
-                    if classification.get("routing") != derived:
-                        self.error(
-                            f"{directory.name}: classification routing={classification.get('routing')} does not match derived routing={derived}")
+                needed = CLASSIFICATION_DIMENSIONS if routing_object is None else CLASSIFICATION_DIMENSIONS_CURRENT
+                if all(dimension in classification for dimension in needed):
+                    self.check_item_routing_legacy(directory, item)
+        self.check_item_routing(directory, item)
+        self.check_item_context(directory, item)
         history = item.get("reclassification")
         if history is not None:
             if not isinstance(history, list):
@@ -850,6 +998,11 @@ class Validator:
                 continue
             dependencies = [] if cells[2].lower() == "none" else [value.strip()
                                                                   for value in cells[2].split(",") if value.strip()]
+            if len(cells) >= 6 and cells[5] and cells[5].lower() != "none":
+                for domain in [value.strip() for value in cells[5].split(",") if value.strip()]:
+                    if domain not in self.context_domains:
+                        self.error(
+                            f"{directory.name}: subtask {cells[0]} references unknown context domain {domain}")
             parsed.append((cells[0], dependencies, wave))
         known = {subtask_id: wave for subtask_id, _, wave in parsed}
         if len(known) != len(parsed):

@@ -16,8 +16,17 @@
     "complexity": "medium",
     "impact": "system",
     "security": "relevant",
-    "confidence": "high",
-    "routing": "extended"
+    "confidence": "high"
+  },
+  "routing": {
+    "derived": "extended",
+    "effective": "extended"
+  },
+  "context": {
+    "budget": "extended",
+    "required": ["core", "project", "testing", "incident", "security", "architecture"],
+    "deferred": ["release"],
+    "triggers": ["type hotfix", "security relevant", "impact system"]
   },
   "reclassification": [],
   "phase_history": ["triage", "contain", "specify", "plan", "preflight", "execute", "verify", "release", "observe", "close"],

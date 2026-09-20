@@ -14,12 +14,12 @@ Smallest viable change: extend the order-line model with optional discount data,
 
 ## Subtasks and waves
 
-| Subtask ID | Owner | Dependencies | Acceptance evidence | Wave |
-| --- | --- | --- | --- | --- |
-| S1 | orders-team | none | Model and validation unit tests pass | 1 |
-| S2 | orders-team | S1 | Totals calculator tests pass with discount boundaries | 2 |
-| S3 | integrations-team | S1 | Webhook payload contract test passes; partner changelog drafted | 2 |
-| S4 | orders-team | S2, S3 | Audit record written on discount change; end-to-end test passes | 3 |
+| Subtask ID | Owner | Dependencies | Acceptance evidence | Wave | Context domains |
+| --- | --- | --- | --- | --- | --- |
+| S1 | orders-team | none | Model and validation unit tests pass | 1 | core,project |
+| S2 | orders-team | S1 | Totals calculator tests pass with discount boundaries | 2 | core,project,testing |
+| S3 | integrations-team | S1 | Webhook payload contract test passes; partner changelog drafted | 2 | core,project,architecture |
+| S4 | orders-team | S2, S3 | Audit record written on discount change; end-to-end test passes | 3 | core,project,testing,security |
 
 Wave 2 runs S2 and S3 in parallel: they touch different modules and no shared mutable files. The parent integrates evidence before wave 3.
 

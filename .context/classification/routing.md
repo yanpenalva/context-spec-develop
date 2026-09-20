@@ -1,6 +1,6 @@
 # Routing
 
-Routing converts a classification into execution depth. It answers: **how deep must the workflow run?** Routing is deterministic given `complexity`, root `risk`, `impact` and `security`. Routing selects depth inside the existing gates; it never removes a gate or weakens a policy MUST.
+Routing converts a classification into execution depth. It answers: **how deep must the workflow run?** Routing has two values: the **derived routing**, computed deterministically from `complexity`, root `risk`, `impact` and `security`; and the **effective routing**, the depth actually in effect after an optional authorized override. Routing selects depth inside the existing gates; it never removes a gate or weakens a policy MUST.
 
 ## Derivation
 
@@ -76,6 +76,38 @@ Required for architectural, cross-module, high-risk or sensitive work. Every cri
 
 Orchestration maps routing to actors: wave size and reviewer independence scale with depth, and `security_reviewer` activates from the security signal. Orchestration never upgrades a route by assigning a stronger agent, and classification never assigns agents.
 
+## Derived and effective routing
+
+```text
+classification → derived routing → optional authorized override → effective routing
+```
+
+- `derived` is always exactly the derivation above. Never adjust `complexity`, `risk`, `impact` or `security` to produce a desired depth.
+- `effective` equals `derived` unless a human explicitly overrides upward.
+- The work item records both:
+
+```json
+{
+  "routing": {
+    "derived": "standard",
+    "effective": "extended",
+    "override": {"authority": "human", "reason": "touches the billing path before quarter close"}
+  }
+}
+```
+
 ## Overrides
 
-A human may route `standard` work as `extended` for caution. An agent MUST NOT downgrade a derived route; downgrading requires reclassification with recorded evidence and, when routing changes, a `reclassification` entry in the work item.
+Overrides may only increase depth:
+
+```text
+minimal → standard    minimal → extended    standard → extended
+```
+
+Never:
+
+```text
+extended → standard    extended → minimal    standard → minimal
+```
+
+An override records derived routing, effective routing, the authority (`human`) and the reason. The validator rejects downgrades, missing reasons, non-human authority and inconsistencies between the two values. Downgrading happens only through legitimate reclassification based on evidence: the dimensions change, the derivation changes, and `derived` moves with them.

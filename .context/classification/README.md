@@ -19,7 +19,7 @@ Classification is an implementation-independent contract. Today an agent classif
 
 ## Outputs
 
-- A `classification` object in `work-item.json`:
+- A `classification` object in `work-item.json` (without routing):
 
 ```json
 {
@@ -27,13 +27,15 @@ Classification is an implementation-independent contract. Today an agent classif
     "complexity": "low|medium|high",
     "impact": "local|module|cross-module|system",
     "security": "none|relevant|sensitive",
-    "confidence": "low|medium|high",
-    "routing": "minimal|standard|extended"
+    "confidence": "low|medium|high"
   }
 }
 ```
 
-- Optionally, `reclassification` entries when a dimension changes materially (see [`README.md` reclassification](#reclassification)).
+- A root `routing` object with the derived and effective depths (see [`routing.md`](routing.md)) and the optional override record.
+- Optionally, a `context` manifest (see `.context/context-routing/README.md`) and `reclassification` entries when a dimension changes materially.
+
+Legacy note: items written before the routing split may carry `classification.routing` instead of the root `routing` object; the validator accepts that shape as `derived = effective`.
 
 ## When classification happens
 
