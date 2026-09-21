@@ -8,7 +8,7 @@ Release record, production evidence, declared signals and observation window.
 
 `outcome.md` with deployment result, smoke checks, observed signals, rollback/escalation decisions, residual risk and learning. Support incidents also require `postmortem.md` when applicable.
 
-Before closure, produce the Git finalization record in `release.md`: validation evidence, changed-file summary and proposed Conventional Commit message. In `confirm_each` mode, ask separately before commit and push. In `automatic` mode, execute those two operations only for the startup-authorized work item, branch and remote. When `pull_request.mode` is `manual`, draft the PR title and body for a human to open; when `automatic`, run the project-configured PR command after the push and record the PR reference in `release.md`. Never merge, and never use force push or destructive reset/clean commands.
+Before closure, produce the Git finalization record in `release.md`: validation evidence, changed-file summary and proposed Conventional Commit message. Resolve `git_finalization_mode` before the first Git action if it is still unresolved: reuse the user's stated preference; otherwise ask, with `confirm_each` as the safe fallback. An unresolved mode never authorizes anything. In `confirm_each` mode, ask separately before commit and push. In `automatic` mode, execute those two operations only for the authorized work item, branch and remote, and re-resolve if scope, branch, remote or risk changed. When `pull_request.mode` is `manual`, draft the PR title and body for a human to open; when `automatic`, run the project-configured PR command after the push and record the PR reference in `release.md`. Never merge, and never use force push or destructive reset/clean commands.
 
 ## Constraints
 

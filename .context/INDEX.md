@@ -49,7 +49,7 @@ This kit distinguishes two conceptual modes (documentation distinction, not pers
 
 ## Conversation routing
 
-At the beginning of a conversation, choose one profile, then classify the request:
+At the beginning of a conversation, run the front door first — classify the request before optional configuration or questions — and resolve the conversation profile lazily per `profiles/README.md` (explicit choice, recorded preference, or the configured default, stated briefly). Then classify the request:
 
 - New user or business value: `product` / `feature`.
 - Reproducible defect without active degradation: `support` / `bug`.

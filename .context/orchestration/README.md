@@ -15,9 +15,9 @@ Change `agent`, `profile`, `actor`, `pool`, `selection` or `max_parallel` to fit
 
 ## Automatic startup
 
-The orchestrator reads `AGENTS.md`, this file and the selected profile. It asks only missing startup questions, creates `.context/work/<id>/`, copies the appropriate templates, writes `work-item.json`, and starts the intake gate. The user should provide decisions, not shell commands for scaffolding.
+The orchestrator reads `AGENTS.md` and this file, runs the front door (classification, routing, context manifest), then resolves remaining decisions on demand. It asks only material unresolved questions, creates `.context/work/<id>/`, copies the appropriate templates, writes `work-item.json`, and starts the intake gate. The user should provide decisions, not shell commands for scaffolding.
 
-At startup, ask whether Git finalization should be `confirm_each` or `automatic`; record the answer in the work item. The default asks separately before commit and push. Automatic mode is limited to a validated work item and verified branch/remote. Deployment commands and infrastructure remain outside this repository.
+`startup.questions` lists the decisions the orchestrator must ensure **resolved** — it does not mandate asking them at the start of the conversation. Resolve each at its phase of relevance, reusing explicit user choices and recorded preferences before asking: conversation profile from the configured default unless selection is material; `git_finalization_mode` before the first Git finalization action (`confirm_each` is the safe fallback; an unresolved mode authorizes nothing); role assignments from `assignments.*` unless the user requests an override or an assignment is invalid or materially unsuitable. `confirm_each` asks separately before commit and push; `automatic` mode is limited to the authorized work item and verified branch/remote. Deployment commands and infrastructure remain outside this repository.
 
 ## Pull requests
 

@@ -6,10 +6,10 @@ Turn a conversation into an explicit route, work item, dependency graph and sequ
 
 ## Opening questions
 
-- Which profile should lead this conversation?
-- Who should orchestrate, plan, execute, review and approve?
 - Is this Product or Support, and which type applies?
 - What decisions must the user make before the agents can proceed?
+
+Ask these only after the front door (classification, routing, context manifest). Do not open with profile or Git-mode questions: resolve the profile from explicit choice, recorded preference or the configured default, and defer `git_finalization_mode` until Git finalization becomes relevant. Ask about role assignments only when the user requests an override or an assignment is invalid or materially unsuitable.
 
 ## Working behavior
 

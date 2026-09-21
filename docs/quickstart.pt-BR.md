@@ -32,9 +32,9 @@ Depois de inicializado, basta descrever o trabalho:
 Adicione filtro por status ao endpoint de pedidos.
 ```
 
-Quando o harness segue o `AGENTS.md`, cada solicitação entra automaticamente pela porta da frente: bootstrap mínimo → classificação → roteamento determinístico → roteamento de contexto → workflow. Você nunca precisa escrever "classifique isso", "use context routing" ou "otimize tokens". O usuário descreve o outcome; o framework governa o processo.
+Quando o harness segue o `AGENTS.md`, cada solicitação entra automaticamente pela porta da frente: bootstrap mínimo → classificação → roteamento determinístico → roteamento de contexto → workflow. Você nunca precisa escrever "classifique isso", "use context routing" ou "otimize tokens". Depois da porta da frente, o agente resolve o resto sob demanda: escolhas explícitas e preferências registradas são reutilizadas, defaults seguros são aplicados, decisões irrelevantes para a fase são adiadas, e só perguntas materiais não resolvidas chegam a você. Uma tarefa normal não pergunta perfil nem modo de Git.
 
-Na primeira conversa de trabalho, escolha o modo de Git: `confirm_each` pergunta antes do commit e antes do push; `automatic` executa ambos somente depois dos gates, no work item, branch e remoto registrados.
+O modo de Git (`confirm_each` pergunta antes do commit e antes do push; `automatic` executa ambos somente depois dos gates, no work item, branch e remoto registrados) é resolvido apenas quando a finalização Git se torna relevante — nunca interpretado por ausência: modo não resolvido não autoriza nada. Se você já declarou uma preferência, ela é reutilizada.
 
 ## 4. Escolha Product ou Support
 
@@ -49,7 +49,7 @@ Se a classificação alterar o risco ou o fluxo, o agente deve perguntar antes d
 
 ## 5. Perfis e responsabilidades
 
-Escolha os perfis em [`.context/profiles/`](../.context/profiles/). Eles definem a lente de perguntas, não o programa que executa o trabalho. Quem orquestra, planeja, executa e revisa é configurado em [`.context/orchestration/config.json`](../.context/orchestration/config.json).
+Os perfis em [`.context/profiles/`](../.context/profiles/) definem a lente de colaboração — nunca classificação, roteamento ou autoridade. A resolução é lazy: escolha explícita ou preferência registrada é reutilizada; sem isso, aplica-se o default configurado (`agent_profiles.default`), informado brevemente; o agente só pergunta de perfil quando nenhum default atende ou a escolha muda materialmente a colaboração. Quem orquestra, planeja, executa e revisa é configurado em [`.context/orchestration/config.json`](../.context/orchestration/config.json); overrides de papel só entram quando você pede ou uma atribuição é inválida.
 
 O agente dividirá o trabalho em subtasks pequenas, organizará waves dependentes e integrará os resultados. Subagents recebem somente o contexto necessário e não aprovam produção.
 

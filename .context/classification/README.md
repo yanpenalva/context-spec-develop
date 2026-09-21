@@ -32,6 +32,12 @@ normal workflow
 
 A dedicated classifier executor is an optional optimization (`classifier-contract.md`); its absence never removes the classification stage. Reclassification is equally intrinsic: when material new evidence emerges in any phase, reclassify, recalculate routing and load only newly required context — it is not an optional call, and it remains evidence-driven.
 
+### Ordering invariant
+
+> For daily operational requests, initial classification and routing SHOULD occur before resolving optional collaboration or finalization preferences — conversation profile, `git_finalization_mode`, role overrides — unless one of those decisions is required to classify safely.
+
+The invariant is deliberately SHOULD-strength: a decision that is genuinely needed to classify safely may be resolved first. Optional interaction after the front door follows `.context/interaction/README.md`: reuse known decisions, apply safe configured defaults, defer what the current phase does not need, inspect what is discoverable, ask only material unresolved decisions. Deferred is not granted: an unresolved `git_finalization_mode` authorizes no automatic Git action.
+
 ## Responsibility
 
 - Produce a declarative, evidence-based description of a request: `complexity`, `impact`, a `security` signal and classification `confidence`.

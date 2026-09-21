@@ -7,9 +7,13 @@
 ```text
 AGENTS.md
   read orchestration config
-  choose conversation profile
-  ask missing startup decisions
-  classify Product/Support work
+  classify Product/Support work (front door first)
+  derive routing and the context manifest
+  resolve remaining decisions on demand:
+    profile   → explicit choice / recorded preference / configured default
+    roles     → configured assignments, override only on request or invalidity
+    git mode  → before the first Git finalization action, never inferred
+  ask missing material decisions
   create work-item directory and templates
   specify and plan
   split into dependency-safe waves
@@ -18,7 +22,7 @@ AGENTS.md
   verify, review, release and observe
 ```
 
-The authoritative startup contract is `.context/prompts/start-conversation.md`. The orchestrator must not invent a work-item ID, owner, permission, contract or approval. It may propose values and ask the user to confirm them.
+The authoritative startup contract is `.context/prompts/start-conversation.md`. The orchestrator must not invent a work-item ID, owner, permission, contract or approval. It may propose values and ask the user to confirm them. It never opens with profile or Git-mode questions: the front door precedes optional configuration, and an unresolved `git_finalization_mode` authorizes nothing.
 
 ## Responsibility boundaries
 

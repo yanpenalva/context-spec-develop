@@ -2,28 +2,24 @@
 
 ## Read
 
-Read root `AGENTS.md`, `.context/config.json`, `.context/orchestration/config.json` and `.context/INDEX.md`. Load the configured default profile only when the user does not choose another.
+Read root `AGENTS.md`, `.context/config.json`, `.context/orchestration/config.json` and `.context/INDEX.md`.
 
 ## Initialize first, if needed
 
 If the project context is not initialized — `.context/project/` files are predominantly placeholders or `NOT FOUND`, or the user asks to initialize the project — follow `.context/prompts/initialize-project.md` instead of intake: discover repository facts, populate the canonical project context, record unknowns as `NOT FOUND`, ask only non-discoverable material questions, validate. Onboarding creates no work item. Once the project context is populated, every request follows the intake flow below.
 
-## Ask only missing decisions
+## Front door first, then ask only what the work needs
 
-Ask for:
+Run the front door before optional configuration: classify the request per `.context/prompts/intake.md` and `.context/classification/README.md`, derive routing, and build the context manifest. Then resolve remaining decisions on demand per `.context/interaction/README.md` — reuse explicit choices and recorded preferences, apply safe configured defaults, defer what the current phase does not need, inspect what is discoverable, and ask only material unresolved decisions.
 
-1. conversation profile;
-2. orchestrator, planner, executor and reviewer assignments when the user wants to override JSON defaults;
-3. Product/Support classification and work type;
-4. title, owner and risk;
-5. material constraints, approvals or sensitive-data boundaries.
+Specific resolution timing:
 
-At the beginning of every conversation, ask for the Git finalization mode unless the user already stated it:
+1. **Conversation profile** — reuse the user's explicit choice when stated; otherwise apply the configured default (`agent_profiles.default` in `config.json`) and state it briefly. Ask only when no default can satisfy the request or explicit profile selection materially changes the collaboration (for example a planning-only or orchestration-shaped request). Never derive the profile from routing depth.
+2. **Git finalization mode** — not a startup question by default. Resolve `confirm_each` or `automatic` before the first Git finalization action, or earlier if the user states a preference (record it and reuse it). An unresolved mode is a deferred decision, not an authorization: it never permits automatic commit or push. When resolution is required, `confirm_each` is the safe fallback.
+3. **Role overrides** — use the configured `assignments.*` defaults. Ask about orchestrator/planner/executor/reviewer overrides only when the user requests one or an assignment is invalid or materially unsuitable. Never invent agents.
+4. **Title, owner, risk, material constraints** — ask only what the request does not already answer and the decision needs.
 
-- `confirm_each`: present the Conventional Commit message and ask separately before commit and push (the safe default);
-- `automatic`: after all gates pass, create the Conventional Commit and push to the verified upstream without repeating those two questions. This startup authorization is only for Git on the recorded work item; it never authorizes deployment, force push, reset, clean or a failed or changed scope.
-
-Record the choice as `git_finalization_mode` in `work-item.json`. If scope, branch, remote, risk or authorization changes, stop and ask again.
+If scope, branch, remote, risk or authorization changes after a Git mode was resolved, stop and re-resolve per `.context/prompts/close.md`.
 
 Apply the canonical interaction protocol in `.context/interaction/README.md` to every question, assumption, decision and escalation: investigate before asking, classify the decision point, respect critical human gates, and record outcomes in the work item.
 
@@ -35,4 +31,4 @@ After intake and specification, split work into very small subtasks. Assign each
 
 ## Stop
 
-Stop before file creation when classification, ownership, authorization or risk cannot be determined. Stop before implementation when preflight is not `READY`. Stop before push when the selected mode does not authorize it, the worktree/upstream is not verified, or a required gate has failed.
+Stop before file creation when classification, ownership, authorization or risk cannot be determined. Stop before implementation when preflight is not `READY`. Stop before any Git finalization action when the mode is unresolved, the selected mode does not authorize the action, the worktree/upstream is not verified, or a required gate has failed.

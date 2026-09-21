@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0",
+  "id": "FEAT-9010",
+  "title": "Lazy startup interaction: front door before optional configuration",
+  "track": "product",
+  "type": "feature",
+  "phase": "close",
+  "status": "completed",
+  "risk": "low",
+  "owner": "hiyan",
+  "conversation_profile": "senior-software-engineer",
+  "git_finalization_mode": "confirm_each",
+  "classification": {
+    "complexity": "medium",
+    "impact": "cross-module",
+    "security": "none",
+    "confidence": "high"
+  },
+  "routing": {
+    "derived": "extended",
+    "effective": "extended"
+  },
+  "context": {
+    "budget": "extended",
+    "required": ["project", "architecture"],
+    "deferred": ["core", "testing", "security", "release", "incident"],
+    "triggers": []
+  },
+  "reclassification": [],
+  "last_updated": "2026-09-20",
+  "policy_exceptions": []
+}

@@ -10,7 +10,11 @@ This document gives people and agents one vocabulary for the delivery system.
 
 **Project context** describes one product's architecture, stack, security, testing, delivery and observability. It is factual and project-owned.
 
-**Policy** is a normative rule expressed as MUST, SHOULD or MAY. **Convention** is a project choice such as naming or commit format. A **stack profile** is an optional set of rules for a language, framework or operating environment. A **conversation profile** is a role lens such as senior engineer, incident engineer or quality engineer; it changes questions and emphasis, never authority or policy.
+**Policy** is a normative rule expressed as MUST, SHOULD or MAY. **Convention** is a project choice such as naming or commit format. A **stack profile** is an optional set of rules for a language, framework or operating environment.
+
+**Conversation profile** is a collaboration lens — interaction style and role emphasis, not a program that executes work. It changes questions and emphasis, never authority, policy, classification or routing: `PROFILE != CLASSIFICATION != ROUTING != AUTHORIZATION`, and routing is never derived from the profile. **Profile resolution** is lazy: reuse an explicit user choice or recorded preference; otherwise apply the configured default (`agent_profiles.default`) and state it briefly; ask only when no default satisfies the request or selection materially changes collaboration (per `.context/profiles/README.md`).
+
+**Deferred decision != granted authorization.** A decision whose resolution is postponed (for example `git_finalization_mode` before any Git action) authorizes nothing while unresolved; the safe fallback when resolution becomes necessary is the canonical safe default (`confirm_each`), never the permissive value.
 
 **Workflow** is the sequence of gates. **Track** is the kind of work being performed, currently Product or Support. **Artifact** is a durable file produced by a gate. **Evidence** is the observation, command result, link or approval that supports a claim.
 

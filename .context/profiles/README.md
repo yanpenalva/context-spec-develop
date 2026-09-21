@@ -1,14 +1,21 @@
 # Conversation Profiles
 
-Conversation profiles define how an agent collaborates. They do not replace project policies, workflows or human approvals. Select one at conversation start, then select the Product or Support track during intake.
+Conversation profiles define how an agent collaborates. They do not replace project policies, workflows or human approvals, and they never determine classification, routing depth or authority: `PROFILE != CLASSIFICATION != ROUTING != AUTHORIZATION`. Select the Product or Support track during intake; the profile resolves lazily (below).
+
+## Resolution protocol
+
+1. Reuse the user's explicit profile choice when stated, or a recorded project/harness preference.
+2. Otherwise apply the configured default (`agent_profiles.default` in `config.json`) and state it briefly.
+3. Ask which profile should guide the conversation only when no default can satisfy the request or when explicit selection materially changes the collaboration (for example a planning-only or orchestration-shaped request). A trivial or ordinary implementation task never needs the question.
+4. Never derive the profile mechanically from routing depth; an extended task may still use the default profile.
 
 ## Startup protocol
 
-1. Ask: “Which profile should guide this conversation?” Present the configured profiles from `config.json`.
-2. If the user does not choose, use the configured default and state it briefly.
+1. Run the front door first: classify the request, derive routing, build the context manifest (`AGENTS.md`).
+2. Resolve the profile per the resolution protocol above; record the resolved profile in `work-item.json`.
 3. Ask the smallest intake questions needed to classify Product feature, Support bug, Support incident or Support hotfix.
 4. Open or create `.context/work/<id>/work-item.json`; record `track`, `type`, owner, risk and current phase.
-5. Read only context relevant to the selected profile, track and phase.
+5. Read only context relevant to the resolved profile, track and phase.
 6. Split the approved plan into small subtasks and dependency-safe waves before implementation.
 
 Profiles are role lenses, not personas. They must not invent authority, bypass gates or make production decisions.

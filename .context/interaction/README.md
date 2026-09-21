@@ -4,6 +4,17 @@ This is the canonical contract for human↔agent interaction: when to investigat
 
 Any harness that follows `AGENTS.md` into `.context/` applies this protocol identically. It contains no tool- or vendor-specific rules.
 
+## Interaction is a cost too
+
+Structural efficiency includes avoiding unnecessary context loading **and** unnecessary interaction: unnecessary questions, configuration decisions and handoffs. This never turns human interaction into mere token cost. The standing priority order is:
+
+```text
+correctness > safety > human authority > evidence >
+minimum sufficient context > minimum necessary interaction > runtime efficiency
+```
+
+Minimum necessary interaction means: reuse known decisions, apply safe configured defaults, defer decisions irrelevant to the current phase, inspect discoverable facts, and ask only material unresolved decisions — never skip a required question, gate or authorization to save interaction.
+
 ## The questions every harness must answer
 
 Before acting on incomplete information, determine — in this order:

@@ -9,7 +9,7 @@ Intake → Specify → Plan → Preflight Validate → Execute and Test
 
 ## Start every conversation
 
-Read `AGENTS.md`, select one conversation profile, then run intake. Product means new user or business value. Support means a reproducible bug, active incident or urgent hotfix. Record the selected profile, `track` and `type` in `work-item.json` before implementation.
+Read `AGENTS.md`, run the front door (classify, derive routing, build the context manifest), then run intake. Product means new user or business value. Support means a reproducible bug, active incident or urgent hotfix. Resolve the conversation profile lazily per `.context/profiles/README.md` (explicit choice, recorded preference, or the configured default, stated briefly) and record it with `track` and `type` in `work-item.json` before implementation.
 
 Before Execute and Test, split the approved plan into small subtasks. Organize them into waves ordered by dependencies. Parallel subagents receive bounded scope, relevant context and a stop condition; a parent owner integrates their evidence.
 

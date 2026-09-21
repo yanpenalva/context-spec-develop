@@ -106,7 +106,7 @@ The full lifecycle — installation/onboarding versus daily work, with reclassif
 
 ## Work with an agent
 
-Point the agent to `AGENTS.md` or the adapter for its tool, then provide the current work-item path and phase. At conversation start, choose one profile from [`.context/profiles/`](.context/profiles/), classify the track, and confirm owner/risk. The phase contracts in `.context/prompts/` define what the agent may read, produce and change. Agents prepare evidence; people approve scope, risk, production and closure.
+Point the agent to `AGENTS.md` or the adapter for its tool, then provide the current work-item path and phase. After the front door (classification, routing, context routing), the agent resolves remaining decisions on demand: explicit choices and recorded preferences are reused, safe configured defaults apply, and only material unresolved decisions are asked — a normal task needs no profile or Git-mode questionnaire. The phase contracts in `.context/prompts/` define what the agent may read, produce and change. Agents prepare evidence; people approve scope, risk, production and closure.
 
 Use optional guidance in [`.context/tooling/`](.context/tooling/) for RTK, AI-memory, code-review graphs and subtask waves. These tools reduce noise or improve coordination; they never replace canonical artifacts or validation.
 

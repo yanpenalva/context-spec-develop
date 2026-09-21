@@ -33,7 +33,7 @@ The validator checks the template structure and active work items. Project-speci
 
 ## 5. Work normally
 
-Describe the outcome — "Add an optional status filter to the orders endpoint." — and the harness that follows `AGENTS.md` runs the front door automatically: minimal bootstrap, classification, deterministic routing, context routing, then the workflow. You never write workflow incantations.
+Describe the outcome — "Add an optional status filter to the orders endpoint." — and the harness that follows `AGENTS.md` runs the front door automatically: minimal bootstrap, classification, deterministic routing, context routing, then the workflow. You never write workflow incantations, and a normal task asks nothing about profile or Git mode: an explicit profile choice or recorded preference is reused, otherwise the configured default applies; `git_finalization_mode` is resolved only when Git finalization becomes relevant, and an unresolved mode authorizes nothing.
 
 The agent creates `.context/work/<id>/`, selects and copies templates, and writes `work-item.json` with profile, track, type, phase and status. Keep `progress.md` local; use `handoff.md` only for durable transfer context. Before execution, make `plan.md` a small dependency graph: one owner and acceptance evidence per subtask, ordered into waves.
 
