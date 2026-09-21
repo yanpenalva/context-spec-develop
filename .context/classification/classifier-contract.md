@@ -120,12 +120,47 @@ When a harness runs a classifier outside a work item and feeds the result to the
 
 `classification` is present only for accepted results; `fallback` (with a reason) is present when the classifier path deferred to the main agent; every `runtime` field is optional and nullable, supplied only by real runs.
 
-`applied_routing` is **observational benchmark metadata**: it records the routing depth actually used downstream during an experiment or harness run. It MUST NOT be interpreted as routing requested, selected or authorized by the classifier. Authority is one-directional:
+`applied_routing` is **observational benchmark metadata**: it records the routing depth actually used downstream during an experiment or harness run. It MUST NOT be interpreted as routing requested, selected or authorized by the classifier. Classifier authority ends at CLASSIFICATION; routing is derived deterministically; overrides come from the authorized human mechanism (see `routing.md`); observation happens afterwards:
 
 ```text
-classifier → classification dimensions → derive_routing() → derived routing
-          → (valid canonical override) → effective routing → workflow
-          → observed afterwards → applied_routing (benchmark)
+        CLASSIFIER
+             │  authority ends here
+             ▼
+       CLASSIFICATION
+             │
+             ▼
+       derive_routing()
+             │
+             ▼
+      DERIVED ROUTING
+             │
+       ┌─────┴──────────────────────┐
+       │                            │
+  no override          authorized override
+       │                (human, per routing.md)
+       │                            │
+       └──────────┬─────────────────┘
+                  ▼
+          EFFECTIVE ROUTING
+                  │
+                  ▼
+              WORKFLOW
+                  │
+                  ▼
+        observed afterwards
+                  │
+                  ▼
+           applied_routing
+        (benchmark; no authority)
+```
+
+Summary of authority:
+
+```text
+classifier decides:              classification
+system derives:                  derived routing
+authorized mechanism may affect: effective routing
+benchmark observes:              applied_routing
 ```
 
 Comparing `applied_routing` against the derived expectation is what makes under-routing and false-minimal measurable; the field observes what happened and never decides what should happen.
