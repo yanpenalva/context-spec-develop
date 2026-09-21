@@ -24,5 +24,5 @@ test('registry records the exact packaged skill hash and catalog version', async
 
   const catalog = await readFile(join(root, 'catalog', 'index.html'), 'utf8')
   assert.match(catalog, /Version <code>0\.3\.0<\/code>/)
-  assert.match(catalog, /@yanpenalva\/context-spec-develop install/)
+  assert.match(catalog, /@owlcodium\/context-spec-develop install/)
 })

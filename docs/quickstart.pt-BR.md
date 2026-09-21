@@ -7,7 +7,7 @@ Este guia é a porta de entrada do `context-spec-develop`. As políticas e contr
 Instale o pacote publicado:
 
 ```bash
-npx @yanpenalva/context-spec-develop install
+npx @owlcodium/context-spec-develop install
 ```
 
 Por padrão a instalação é global. Use `--scope project` para versionar a skill no repositório e `--agents codex,claude-code,cursor,copilot,gemini,opencode` para selecionar os harnesses sem o assistente interativo. O instalador cria lockfile, recusa conflitos sem `--force` explícito e oferece `update`, `remove` e `doctor`.

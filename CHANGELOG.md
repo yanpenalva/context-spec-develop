@@ -2,7 +2,7 @@
 
 ## 0.2.0 — Unreleased
 
-- Added the `@yanpenalva/context-spec-develop` TypeScript/Node package: `csd` skill, multi-harness installer, lockfile integrity checks, safe bootstrap, registry, static catalog and release workflows. Native aliases are `/csd` where supported, `$csd` in Codex and the `csd` custom agent in Copilot.
+- Added the `@owlcodium/context-spec-develop` TypeScript/Node package: `csd` skill, multi-harness installer, lockfile integrity checks, safe bootstrap, registry, static catalog and release workflows. Native aliases are `/csd` where supported, `$csd` in Codex and the `csd` custom agent in Copilot.
 
 - Made startup interaction demand-driven: the front door (classification → deterministic routing → context routing) now precedes optional configuration. Conversation profile resolves lazily (explicit choice > recorded preference > configured default, stated briefly; asked only when material and never derived from routing); `git_finalization_mode` resolves before the first Git finalization action — an unresolved mode authorizes nothing and `confirm_each` remains the safe fallback; agent-role overrides are asked only on request or invalid assignment. Added the SHOULD-level front-door ordering invariant, the interaction-cost principle (with the standing priority order), nine focused tests, and documentation updates across prompts, profiles, orchestration, workflows, README and the glossary. No schema or validator structural change; no migration.
 - Removed Caveman from the official optional tooling set (guidance file, references in README, AGENTS.md, quickstart, customization, executive overview and the validator's required-file list). Remaining optional tooling: RTK, AI-memory, code-review graph and the subtasks-and-waves guidance.

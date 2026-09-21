@@ -5,7 +5,7 @@
 Install the published package for the harnesses you use:
 
 ```bash
-npx @yanpenalva/context-spec-develop install
+npx @owlcodium/context-spec-develop install
 ```
 
 The default is global installation. Use `--scope project` to version the skill with the repository, and `--agents codex,claude-code,cursor,copilot,gemini,opencode` to avoid the interactive selection. The installer writes a lockfile, refuses conflicting files unless `--force` is explicit, and supports `update`, `remove` and `doctor`.

@@ -8,7 +8,7 @@
 
 ## Decisions
 
-- Package: `@yanpenalva/context-spec-develop`.
+- Package: `@owlcodium/context-spec-develop`.
 - Runtime: TypeScript compiled for Node 22 or newer.
 - Distribution: npm and GitHub catalog/release workflows.
 - Activation: `/csd` where custom commands exist, `$csd` in Codex, and a `csd` custom agent in Copilot.

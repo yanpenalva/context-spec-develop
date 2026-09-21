@@ -27,7 +27,7 @@ Allow a user to install CSD through npm, activate it in a compatible harness and
 
 ## Acceptance criteria
 
-1. `npx @yanpenalva/context-spec-develop install` installs a verifiable package in the selected scope.
+1. `npx @owlcodium/context-spec-develop install` installs a verifiable package in the selected scope.
 2. Every supported harness receives its documented activation form and shared CSD instructions.
 3. First activation previews missing files, waits for confirmation and then materializes the canonical context.
 4. Reinstallation is idempotent; update and remove respect lockfile ownership and hashes.

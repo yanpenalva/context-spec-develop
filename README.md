@@ -11,7 +11,7 @@ An agent-neutral, conversation-first development kit—from context to verified 
 The package can install the CSD skill and the native activation entrypoint for the current agent setup:
 
 ```bash
-npx @yanpenalva/context-spec-develop install
+npx @owlcodium/context-spec-develop install
 ```
 
 Choose `global` to use CSD across repositories or `project` to version the skill with one repository. You can select explicit targets with `--agents codex,claude-code,cursor,copilot,gemini,opencode`.
@@ -35,7 +35,7 @@ After installation, use `/csd` in hosts with custom commands, `$csd` in Codex, o
 INSTALL ONCE  →  INITIALIZE PROJECT  →  WORK NORMALLY
 ```
 
-1. Install the package with `npx @yanpenalva/context-spec-develop install`, or use this repository as a GitHub template when you want to inspect or customize the canonical source.
+1. Install the package with `npx @owlcodium/context-spec-develop install`, or use this repository as a GitHub template when you want to inspect or customize the canonical source.
 2. Activate CSD in the installed harness. The skill previews and, after confirmation, bootstraps `AGENTS.md` and [`.context/`](.context/) into the project.
 3. Point your agent at `AGENTS.md` and say: **"Initialize context-spec-develop for this repository."** The agent discovers repository facts, populates [`.context/project/`](.context/project/), records unknowns as `NOT FOUND` and asks only non-discoverable material questions. Filling the files by hand remains a valid manual fallback.
 4. Review only the unresolved material decisions the agent reports.

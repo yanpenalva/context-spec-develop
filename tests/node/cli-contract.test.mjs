@@ -16,7 +16,7 @@ test('project install writes the CSD skill, native command and lockfile', async 
 
     assert.match(skill, /name:\s*csd/)
     assert.match(command, /CSD bootstrap protocol/)
-    assert.equal(lock.package, '@yanpenalva/context-spec-develop')
+    assert.equal(lock.package, '@owlcodium/context-spec-develop')
     assert.deepEqual(lock.agents, ['claude-code'])
     assert.ok(lock.files.length >= 2)
   } finally {

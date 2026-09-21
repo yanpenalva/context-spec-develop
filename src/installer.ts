@@ -6,7 +6,7 @@ import { ADAPTERS, getAdapter } from './adapters.js'
 import { absoluteRoot, atomicWrite, exists, listFiles, readJson, sha256, writeJson } from './fs.js'
 import type { Adapter, AgentId, InstallOptions, InstalledFile, LockFile, OperationReport, PlannedFile, Scope } from './types.js'
 
-export const PACKAGE_NAME = '@yanpenalva/context-spec-develop'
+export const PACKAGE_NAME = '@owlcodium/context-spec-develop'
 export const PACKAGE_VERSION = '0.3.0'
 
 function packageRoot(): string {
