@@ -4,6 +4,10 @@
 
 Read root `AGENTS.md`, `.context/config.json`, `.context/orchestration/config.json` and `.context/INDEX.md`. Load the configured default profile only when the user does not choose another.
 
+## Initialize first, if needed
+
+If the project context is not initialized — `.context/project/` files are predominantly placeholders or `NOT FOUND`, or the user asks to initialize the project — follow `.context/prompts/initialize-project.md` instead of intake: discover repository facts, populate the canonical project context, record unknowns as `NOT FOUND`, ask only non-discoverable material questions, validate. Onboarding creates no work item. Once the project context is populated, every request follows the intake flow below.
+
 ## Ask only missing decisions
 
 Ask for:

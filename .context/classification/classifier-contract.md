@@ -3,13 +3,18 @@
 The kit defines the classification contract. The user and harness choose the executor. Any executor — the main agent, a subagent, a dedicated classifier, a rule-based helper — may produce the classification, provided the result satisfies this contract. Execution strategy lives in the harness; it never appears in canonical configuration.
 
 ```text
+CLASSIFICATION IS MANDATORY
+CLASSIFIER EXECUTOR IS CONFIGURABLE
+DEDICATED CLASSIFIER = OPTIONAL EXECUTOR OPTIMIZATION
+CLASSIFICATION IS NOT OPTIONAL
 MODEL SELECTION  != CLASSIFICATION CONTRACT
 CLASSIFIER ROLE  != SPECIFIC MODEL
 CLASSIFICATION   != ROUTING
 ROUTING          != CONTEXT ROUTING
 CLASSIFIER FAILURE != WORKFLOW FAILURE
-DEDICATED CLASSIFIER = OPTIONAL OPTIMIZATION
 ```
+
+`DEDICATED CLASSIFIER = OPTIONAL` means the **executor** is optional, never the classification stage itself. With no dedicated classifier configured, the main agent performs the mandatory classification and the workflow proceeds normally.
 
 ## Role and responsibilities
 

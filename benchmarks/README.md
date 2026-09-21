@@ -28,6 +28,17 @@ python3 benchmarks/run.py --json --output benchmarks/results/latest.json
 
 Observational only. Benchmark results are **not** a release gate; correctness, safety and evidence always outrank context economy. The repository makes no token-percentage claims. A future experiment may compare main-agent classification (A) against a cheap/local classifier (B) feeding the same classification and context-manifest contracts, measuring accuracy, context loaded, input tokens, latency, cost, reclassification rate and incorrect routing rate — no such integration exists yet.
 
+## Relationship to the intrinsic front door
+
+Classification, routing and context routing are mandatory front-door stages (`.context/classification/README.md`); these benchmarks measure them without coupling to any executor:
+
+```text
+CONTEXT BENCHMARK        → are we loading less unnecessary context?
+CLASSIFICATION BENCHMARK → are we making safe/correct front-door decisions?
+RUNTIME EXPERIMENT       → does another classifier executor improve tokens/latency/cost
+                           without degrading safety?
+```
+
 ## Classification quality
 
 [`classification/`](classification/) ships the golden classification dataset (ten case classes) and an offline benchmark that validates fixtures and scores optional adapter results on classification accuracy, routing accuracy, under-routing, false-minimal, missed protected signals and fallback behavior. See its README and the classifier contract in `.context/classification/classifier-contract.md`.

@@ -5,9 +5,13 @@ How to execute classification with any harness. The canonical contract is [`.con
 ## Principle
 
 ```text
+CLASSIFICATION IS MANDATORY.
+CLASSIFIER EXECUTOR IS CONFIGURABLE.
 THE KIT DEFINES THE CONTRACT.
 THE USER/HARNESS CHOOSES THE EXECUTOR.
 ```
+
+Classification, deterministic routing and context routing are intrinsic stages of every daily request — the kit has no `use_classifier` decision. Optional is only **who executes**: "dedicated classifier is optional" means the executor is optional, never the classification stage. The kit governs the protocol: classification contract, output schema, routing derivation, confidence semantics, fallback rules, validation, benchmark methodology. The harness governs execution: which agent, model, runtime or strategy produces the result. No model or provider is required by, or named in, the kit.
 
 The kit governs the protocol: classification contract, output schema, routing derivation, confidence semantics, fallback rules, validation, benchmark methodology. The harness governs execution: which agent, model, runtime or strategy produces the result. No model or provider is required by, or named in, the kit.
 
@@ -197,7 +201,7 @@ classification:
 
 ## User journeys
 
-Simplest setup: install the kit, point the harness at `AGENTS.md`, describe the task — the same agent classifies and the workflow continues. Zero additional configuration.
+Simplest setup: install the kit, initialize the project context once (`docs/getting-started.md`), point the harness at `AGENTS.md`, describe the task — the same agent classifies and the workflow continues. Zero additional configuration, no classification instructions in the prompt.
 
 Optimized setup: configure the harness so a lightweight executor fills the classifier role and the main agent executes. The classifier emits the canonical classification, the kit validates it, routing is derived deterministically, and the main agent continues.
 

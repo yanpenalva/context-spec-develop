@@ -12,36 +12,40 @@ An agent-neutral, conversation-first development kit—from context to verified 
 - Support work: triage, diagnosis, bugs, incidents, hotfixes, deployment, observation and postmortems.
 - A common set of gates, prompts and artifacts for humans and coding agents.
 - Declarative work classification (complexity, impact, security, confidence) with deterministic routing depth and a canonical human↔agent interaction protocol.
-- Context routing with progressive disclosure: a minimal bootstrap, immediate classification, then only the minimum sufficient canonical context per phase — project and testing domains load lazily, when triggered. See [`docs/examples/end-to-end-context-routing.md`](docs/examples/end-to-end-context-routing.md).
+- Context routing with progressive disclosure: a minimal bootstrap, immediate classification, then only the minimum sufficient canonical context per phase — project and testing domains load lazily, when triggered. Classification, routing and context routing are intrinsic front-door stages of every request. See [`docs/examples/end-to-end-context-routing.md`](docs/examples/end-to-end-context-routing.md).
+- Agent-assisted project onboarding: one prompt initializes the canonical project context from repository evidence; humans answer only what cannot be discovered.
 - A reproducible, vendor-neutral benchmark measuring structural context size (eager baseline versus routed) across five scenario classes: [`benchmarks/`](benchmarks/), plus a golden-dataset benchmark for classification quality and safety: [`benchmarks/classification/`](benchmarks/classification/).
 - A dependency-free Python validator for structure, metadata, workflow state and required evidence.
 
 ## Quick start
 
+```text
+INSTALL ONCE  →  INITIALIZE PROJECT  →  WORK NORMALLY
+```
+
 1. Use this repository as a GitHub template or copy it into a project.
-2. Read [`docs/getting-started.md`](docs/getting-started.md).
-3. Portuguese-speaking teams can start with [`docs/quickstart.pt-BR.md`](docs/quickstart.pt-BR.md).
-4. Fill the project context in [`.context/project/`](.context/project/).
-5. Select a workflow in [`.context/workflows/`](.context/workflows/).
-6. Describe the work to the orchestrator; it creates `.context/work/<id>/`, selects templates and writes `work-item.json`.
-7. Run `python3 scripts/validate_context.py --strict`.
+2. Point your agent at `AGENTS.md` and say: **"Initialize context-spec-develop for this repository."** The agent discovers repository facts, populates [`.context/project/`](.context/project/), records unknowns as `NOT FOUND` and asks only non-discoverable material questions. Filling the files by hand remains a valid manual fallback.
+3. Review only the unresolved material decisions the agent reports.
+4. Run `python3 scripts/validate_context.py --strict`.
+5. Describe the work in plain language. Read [`docs/getting-started.md`](docs/getting-started.md); Portuguese-speaking teams can start with [`docs/quickstart.pt-BR.md`](docs/quickstart.pt-BR.md).
 
 ## Start a conversation
 
-You do not need to know the folder structure. Point your agent at `AGENTS.md` and describe the outcome in plain language. The orchestrator reads the JSON assignments, asks only missing decisions, creates the work-item directory, copies templates and reports the path.
+After initialization you do not need workflow instructions. Point your agent at `AGENTS.md` and describe the outcome:
 
 ```text
-Read AGENTS.md and start the context-spec-develop workflow.
-Ask only the missing startup questions, create the work item automatically,
-and do not modify implementation files before preflight approval.
+Add an optional status filter to the orders endpoint.
 ```
+
+When the harness follows `AGENTS.md`, every request automatically enters the front door — minimal bootstrap, classification, deterministic routing, context routing, then the workflow. You never need to say "classify this", "use context routing" or "optimize tokens": the user describes the work; the framework governs the process.
 
 | You provide | The orchestrator creates and coordinates |
 | --- | --- |
-| Profile and role choices | `conversation_profile` and orchestration assignments |
 | Problem or operational signal | Product/Support classification and `work-item.json` |
 | Owner, risk and constraints | Intake, specification and plan artifacts |
 | Approval decisions | Subtasks, waves, agent handoffs and evidence collection |
+
+This protocol binds agents that follow `AGENTS.md` (or a thin adapter); the kit cannot force tools that never read it to obey — see [`docs/agent-compatibility.md`](docs/agent-compatibility.md).
 
 Customize roles in [`.context/orchestration/config.json`](.context/orchestration/config.json). Read [`docs/agent-orchestration.md`](docs/agent-orchestration.md) for the complete sequence.
 
@@ -78,28 +82,33 @@ For a support item, use one of the templates in `.context/templates/support/`. I
 
 ## Classify with any executor
 
-The kit defines how classification works; your harness decides who performs it. The main agent classifies out of the box (zero configuration); a dedicated classifier or a hybrid strategy is an optional optimization — with protected signals, acceptance policy and fallback to the same-agent path defined by [`.context/classification/classifier-contract.md`](.context/classification/classifier-contract.md) and explained in [`docs/classifier-strategies.md`](docs/classifier-strategies.md). No model or provider is required or named by the kit.
+Classification, deterministic routing and context routing are **mandatory protocol stages** of every daily request — the kit contains no `use_classifier` decision. What is configurable is only the **executor**: the main agent classifies out of the box (zero configuration); a dedicated classifier or a hybrid strategy is an optional optimization — with protected signals, acceptance policy and fallback to the same-agent path defined by [`.context/classification/classifier-contract.md`](.context/classification/classifier-contract.md) and explained in [`docs/classifier-strategies.md`](docs/classifier-strategies.md). No model or provider is required or named by the kit, and choosing an executor never requires editing the framework or adding classifier credentials to it.
 
 ```text
-        task
-         │
-   minimal bootstrap
-         │
-   ┌─────┴─────┐
-   │ classifier role (your harness chooses the executor)
-   └─────┬─────┘
-         │ canonical classification
-         ▼
-   deterministic routing
-         │
-   context manifest → load required only → workflow
+              MANDATORY CLASSIFICATION
+                        │  executed by (harness choice)
+            ┌───────────┼────────────┐
+            ▼           ▼            ▼
+       SAME AGENT    SUBAGENT    LIGHTWEIGHT
+       zero-config                EXECUTOR
+            └───────────┼────────────┘
+                        ▼
+              CANONICAL CLASSIFICATION
+                        ▼
+              derive_routing()  (deterministic)
+                        ▼
+              CONTEXT ROUTING (mandatory)
+                        ▼
+          minimum sufficient context → workflow
 ```
+
+The full lifecycle — installation/onboarding versus daily work, with reclassification on new evidence — is documented in [`docs/concepts-and-glossary.md`](docs/concepts-and-glossary.md) and the canonical contracts under [`.context/`](.context/INDEX.md).
 
 ## Work with an agent
 
 Point the agent to `AGENTS.md` or the adapter for its tool, then provide the current work-item path and phase. At conversation start, choose one profile from [`.context/profiles/`](.context/profiles/), classify the track, and confirm owner/risk. The phase contracts in `.context/prompts/` define what the agent may read, produce and change. Agents prepare evidence; people approve scope, risk, production and closure.
 
-Use optional guidance in [`.context/tooling/`](.context/tooling/) for RTK, Caveman, AI-memory, code-review graphs and subagent waves. These tools reduce noise or improve coordination; they never replace canonical artifacts or validation.
+Use optional guidance in [`.context/tooling/`](.context/tooling/) for RTK, AI-memory, code-review graphs and subtask waves. These tools reduce noise or improve coordination; they never replace canonical artifacts or validation.
 
 ## Validate and update
 
@@ -127,7 +136,7 @@ The repository is published at [github.com/yanpenalva/context-spec-develop](http
 - [`.context/profiles/`](.context/profiles/) — conversation roles and startup questions.
 - [`.context/orchestration/config.json`](.context/orchestration/config.json) — who orchestrates, plans, executes, reviews and approves.
 - [`docs/agent-orchestration.md`](docs/agent-orchestration.md) — automatic startup, directory creation and delegation sequence.
-- [`.context/tooling/`](.context/tooling/) — optional RTK, Caveman, AI-memory and review-graph guidance.
+- [`.context/tooling/`](.context/tooling/) — optional RTK, AI-memory and review-graph guidance.
 - [`docs/customization.md`](docs/customization.md) — project-specific extensions.
 - [`docs/context-maintenance.md`](docs/context-maintenance.md) — keeping context current.
 - [`docs/upgrading.md`](docs/upgrading.md) — central kit snapshot upgrades.

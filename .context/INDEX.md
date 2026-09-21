@@ -27,7 +27,7 @@ For any uncertainty, read `policies/core/questioning-and-evidence.md` before ask
 | `classification/` | Declarative work classification (complexity, impact, security, confidence) and routing depth |
 | `interaction/` | Canonical human↔agent protocol: questioning, decisions, uncertainty, escalation |
 | `context-routing/` | Minimum-sufficient context: catalog, manifest, budgets and triggers |
-| `prompts/` | Agent-facing phase contracts |
+| `prompts/` | Agent-facing phase contracts, including project onboarding (`initialize-project.md`) |
 | `profiles/` | Conversation roles and startup questions |
 | `orchestration/` | Configurable agent assignments and automatic work-item setup |
 | `tooling/` | Optional token, memory and review-graph integrations |
@@ -39,6 +39,13 @@ For any uncertainty, read `policies/core/questioning-and-evidence.md` before ask
 The project fills the placeholders in `project/` once. Work items then reference that context instead of copying it into every prompt.
 
 Use `NOT FOUND` when an expected fact does not exist. Never invent a route, permission, status, test, owner or operational signal.
+
+## Lifecycle
+
+This kit distinguishes two conceptual modes (documentation distinction, not persisted state):
+
+- **Project onboarding** — first run in an adopting repository: initialize the canonical project context per `prompts/initialize-project.md`. Creates no work item.
+- **Daily work** — every operational request afterwards: the request enters through the front door — minimal bootstrap, classification, deterministic routing, context routing — before any detailed context loads.
 
 ## Conversation routing
 

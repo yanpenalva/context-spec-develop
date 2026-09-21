@@ -4,31 +4,41 @@ Este guia é a porta de entrada do `context-spec-develop`. As políticas e contr
 
 ## 1. Instale o kit
 
-Use o repositório como template do GitHub ou copie-o para o projeto:
+Use o repositório como template do GitHub ou copie `.context/`, `AGENTS.md` e o adapter do seu agente para o projeto. Mantenha os arquivos canônicos versionados com o projeto.
 
-```bash
-git clone https://github.com/yanpenalva/context-spec-develop.git
-cd context-spec-develop
-python3 scripts/validate_context.py --strict --examples
-```
+## 2. Primeira vez: inicialize o contexto do projeto
 
-Preencha os arquivos em [`.context/project/`](../.context/project/). Não crie work items manualmente: a conversa inicial cria o diretório e copia os templates.
-
-## 2. Primeira mensagem para o agente
+Aponte o agente para o `AGENTS.md` e peça, em linguagem natural:
 
 ```text
-Leia AGENTS.md e inicie o fluxo context-spec-develop.
-Faça somente as perguntas iniciais que estiverem faltando, escolha comigo o perfil,
-orquestrador, planejador, executor e revisor, classifique Product ou Support,
-crie o work item automaticamente e não altere código antes do preflight aprovado.
-Converse em português, mas mantenha os artefatos canônicos em inglês.
+Inicialize o context-spec-develop neste projeto.
 ```
 
-O agente deve ler `AGENTS.md`, `.context/INDEX.md`, `.context/config.json` e a configuração de orquestração antes de perguntar. Consulte o contrato completo em [`docs/agent-orchestration.md`](agent-orchestration.md) e o prompt canônico em [`start-conversation.md`](../.context/prompts/start-conversation.md).
+Não há frase obrigatória; a intenção é inicializar o contexto do projeto. O agente segue o contrato canônico [`initialize-project.md`](../.context/prompts/initialize-project.md):
 
-Na mesma abertura, escolha o modo de Git: `confirm_each` pergunta antes do commit e antes do push; `automatic` executa ambos somente depois dos gates, no work item, branch e remoto registrados.
+- inspeciona o repositório (linguagens, frameworks, testes, CI, estrutura);
+- preenche o contexto descobrível em [`.context/project/`](../.context/project/) e `.context/config.json`;
+- marca ausências como `NOT FOUND`;
+- pergunta somente decisões materiais que não pode descobrir (por exemplo, quem aprova produção);
+- valida a instalação.
 
-## 3. Escolha Product ou Support
+Preencher os arquivos manualmente continua sendo um caminho válido. O passo é idempotente: fatos confirmados são preservados e fatos organizacionais pertencem a humanos, nunca são inferados.
+
+## 3. Uso diário: descreva o resultado
+
+Depois de inicializado, basta descrever o trabalho:
+
+```text
+Adicione filtro por status ao endpoint de pedidos.
+```
+
+Quando o harness segue o `AGENTS.md`, cada solicitação entra automaticamente pela porta da frente: bootstrap mínimo → classificação → roteamento determinístico → roteamento de contexto → workflow. Você nunca precisa escrever "classifique isso", "use context routing" ou "otimize tokens". O usuário descreve o outcome; o framework governa o processo.
+
+Na primeira conversa de trabalho, escolha o modo de Git: `confirm_each` pergunta antes do commit e antes do push; `automatic` executa ambos somente depois dos gates, no work item, branch e remoto registrados.
+
+## 4. Escolha Product ou Support
+
+O agente classifica na intake; você confirma apenas o que mudar a decisão:
 
 - **Product / feature:** novo valor, hipótese ou melhoria mensurável; começa em `discovery.md`.
 - **Support / bug:** defeito reproduzível sem indisponibilidade ativa; começa em `triage.md` e `reproduction.md`.
@@ -37,13 +47,13 @@ Na mesma abertura, escolha o modo de Git: `confirm_each` pergunta antes do commi
 
 Se a classificação alterar o risco ou o fluxo, o agente deve perguntar antes de criar o item.
 
-## 4. Perfis e responsabilidades
+## 5. Perfis e responsabilidades
 
 Escolha os perfis em [`.context/profiles/`](../.context/profiles/). Eles definem a lente de perguntas, não o programa que executa o trabalho. Quem orquestra, planeja, executa e revisa é configurado em [`.context/orchestration/config.json`](../.context/orchestration/config.json).
 
 O agente dividirá o trabalho em subtasks pequenas, organizará waves dependentes e integrará os resultados. Subagents recebem somente o contexto necessário e não aprovam produção.
 
-## 5. Gates e validação
+## 6. Gates e validação
 
 O caminho comum é Specify → Plan → Preflight → Execute/Test → Verify/Review → Release → Observe/Close. O validador verifica estrutura, estados, artefatos, links, placeholders, políticas, assignments e exemplos:
 
@@ -54,7 +64,7 @@ python3 -m unittest discover -s tests
 
 O validador não substitui testes, análise estática ou revisão técnica. Registre o comando exato, escopo, exit code e limitações nos artefatos.
 
-## 6. Git no encerramento
+## 7. Git no encerramento
 
 Depois de todas as validações, o agente mostra o resumo e sugere uma mensagem Conventional Commit. Em `confirm_each`, pergunta separadamente se pode executar o commit e depois o push. Em `automatic`, executa ambos conforme a autorização registrada no início. Force push, reset destrutivo e deploy automático não fazem parte do kit.
 
@@ -65,4 +75,5 @@ Leia a política em [`review-release.md`](../.context/policies/core/review-relea
 - `NOT FOUND` em Starter é um aviso; em Managed/Enterprise, configure os comandos e limites do projeto.
 - Placeholder em um work item real indica que o gate ainda não está pronto.
 - Um revisor rejeitou o item? Corrija somente os achados registrados e retorne ao gate apropriado.
-- Uma ferramenta opcional não está instalada? Use o fallback nativo e registre a evidência; RTK, Caveman, AI-memory e review graph nunca são obrigatórios.
+- Uma ferramenta opcional não está instalada? Use o fallback nativo e registre a evidência; RTK, AI-memory e review graph nunca são obrigatórios.
+- Reexecutar a inicialização não destrói contexto válido: fatos confirmados são preservados; conflitos são reportados, não sobrescritos.

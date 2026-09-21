@@ -18,6 +18,29 @@ OR mandatory governance/safety requirement
 
 Otherwise: `DO NOT LOAD`. The mandatory bootstrap required for governance and safety is always exempt from this rule. The invariant: a context domain that is not mandatory, required by the current phase, triggered by evidence or classification, or explicitly requested MUST remain deferred. Correctness, safety and evidence always outrank context economy — the target is minimum **sufficient** context, never minimum possible.
 
+### Strong ordering invariant
+
+> Detailed canonical context SHOULD NOT be loaded before initial classification unless that context is required to classify safely.
+
+The invariant is deliberately SHOULD-strength: it must never be read as forbidding the bounded targeted discovery classification itself may need (one route, one symbol, a filename, a dependency flag). The intent is `EXCLUSION = DEFAULT`, `INCLUSION = JUSTIFIED` — already the normative principle above. Context inclusion requires purpose; context exclusion is the default.
+
+## Structural context economy
+
+The economy model is decide-then-load, not load-then-save:
+
+```text
+TASK → cheap/minimal decision stage → what context is needed?
+     → load only that context → main work
+```
+
+never:
+
+```text
+load everything → classify → try to save tokens
+```
+
+Boundary of what the kit actually controls. The kit reduces unnecessary loading of: canonical project context, policies, workflow context, domain context, repository discovery and handoffs. The kit does **not** control: harness system prompts, tool schemas, IDE-injected context, provider-managed memory or external connector context. Structural context economy is therefore a property of context selection, not a provider token guarantee; no token-reduction percentage is claimed anywhere in this kit (measurement belongs to `benchmarks/`).
+
 ## Order of operations
 
 ```text
@@ -56,6 +79,23 @@ Bootstrap invariant: detailed project, testing, architecture, security, release 
 ### Targeted discovery
 
 Classification sometimes needs one specific fact (does this touch authentication? which module owns the endpoint?). **Targeted discovery** — searching filenames or symbols, inspecting the target route or relevant metadata — is allowed at classification time and is distinct from domain loading: discovery seeks the minimum evidence to decide; domain loading provides detailed context to execute. Targeted discovery never becomes an excuse to pull a full domain into the bootstrap.
+
+```text
+TARGETED DISCOVERY != DOMAIN LOADING
+TARGETED DISCOVERY != FULL REPOSITORY EXPANSION
+```
+
+### Onboarding discovery is a different budget
+
+`PROJECT ONBOARDING != DAILY WORKFLOW`. Initializing an adopting repository (`prompts/initialize-project.md`) legitimately inspects more than one task would, because its output is the reusable canonical project context itself:
+
+```text
+TASK DISCOVERY               = minimal evidence needed for one request
+ONBOARDING DISCOVERY          = bounded repository-wide discovery needed to
+                                initialize reusable canonical project context
+```
+
+Broader is not unbounded: onboarding stays fact-oriented (stack, commands, structure, CI), never reads every file, and never dumps the repository into context. Task budgets do not apply to onboarding; the fact-orientation rule does.
 
 ### Mandatory policy versus mandatory loading
 

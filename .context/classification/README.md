@@ -2,6 +2,36 @@
 
 Classification describes the work before it is planned or executed. It answers one question: **what kind of work is this?** It does not decide who executes it, how it is coordinated, or whether a gate passes.
 
+## The front door (mandatory protocol stage)
+
+Classification is an intrinsic stage of every operational request, never an optional feature the agent decides to invoke:
+
+```text
+CLASSIFICATION          = mandatory protocol stage
+DETERMINISTIC ROUTING   = mandatory protocol stage
+CONTEXT ROUTING         = mandatory protocol stage
+CLASSIFIER EXECUTOR     = implementation choice
+```
+
+There is no `use_classifier` decision in the canonical contract. The protocol runs:
+
+```text
+USER REQUEST → MINIMAL BOOTSTRAP → INITIAL CLASSIFICATION → DETERMINISTIC ROUTING
+             → CONTEXT ROUTING → MINIMUM SUFFICIENT CONTEXT → WORKFLOW
+```
+
+without the user asking for it: the user describes the work, the framework governs the process. What is optional is only **who executes** the classifier:
+
+```text
+no dedicated classifier configured
+        ↓
+main agent performs the mandatory classification (zero-config default)
+        ↓
+normal workflow
+```
+
+A dedicated classifier executor is an optional optimization (`classifier-contract.md`); its absence never removes the classification stage. Reclassification is equally intrinsic: when material new evidence emerges in any phase, reclassify, recalculate routing and load only newly required context — it is not an optional call, and it remains evidence-driven.
+
 ## Responsibility
 
 - Produce a declarative, evidence-based description of a request: `complexity`, `impact`, a `security` signal and classification `confidence`.

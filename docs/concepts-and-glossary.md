@@ -20,6 +20,10 @@ This document gives people and agents one vocabulary for the delivery system.
 
 ## Lifecycle terms
 
+**Project onboarding** is the agent-assisted initialization of the canonical project context in an adopting repository, per `.context/prompts/initialize-project.md`: bounded repository discovery populates `.context/project/` and `config.json`; unknowns become `NOT FOUND`; only non-discoverable material questions reach the human. Onboarding is distinct from daily work and creates no work item. **Daily work** is every operational request after initialization; it enters through the front door below. `PROJECT ONBOARDING != DAILY WORKFLOW`, and `ONBOARDING DISCOVERY != TASK DISCOVERY`: onboarding may inspect the repository more broadly because its output is the reusable canonical context, but stays fact-oriented and never dumps the repository into context.
+
+**Front door** is the intrinsic entry sequence of every daily request — minimal bootstrap, initial classification, deterministic routing, context routing, minimum sufficient context, workflow. It is not a callable feature and involves no `use_classifier` decision: the user describes the work, the framework governs the process. **Structural context economy** is the resulting property — decide what context is needed before loading detailed context. It bounds canonical context loading (project context, policies, workflow, domains, discovery, handoffs); it does not control harness system prompts, tool schemas, IDE-injected context, provider memory or connector context, and it claims no token percentage without measurement (`benchmarks/`).
+
 **Intake** classifies the request, owner, impact and risk.
 
 **Subtask** is a small independently verifiable unit of work. **Wave** is a dependency-safe group of subtasks that may run in parallel. **Subagent** is a delegated agent with bounded context, scope and stop condition; its parent integrates evidence.
