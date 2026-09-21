@@ -13,7 +13,7 @@ An agent-neutral, conversation-first development kit—from context to verified 
 - A common set of gates, prompts and artifacts for humans and coding agents.
 - Declarative work classification (complexity, impact, security, confidence) with deterministic routing depth and a canonical human↔agent interaction protocol.
 - Context routing with progressive disclosure: a minimal bootstrap, immediate classification, then only the minimum sufficient canonical context per phase — project and testing domains load lazily, when triggered. See [`docs/examples/end-to-end-context-routing.md`](docs/examples/end-to-end-context-routing.md).
-- A reproducible, vendor-neutral benchmark measuring structural context size (eager baseline versus routed) across five scenario classes: [`benchmarks/`](benchmarks/).
+- A reproducible, vendor-neutral benchmark measuring structural context size (eager baseline versus routed) across five scenario classes: [`benchmarks/`](benchmarks/), plus a golden-dataset benchmark for classification quality and safety: [`benchmarks/classification/`](benchmarks/classification/).
 - A dependency-free Python validator for structure, metadata, workflow state and required evidence.
 
 ## Quick start
@@ -76,6 +76,25 @@ Edit `work-item.json`, including the selected `conversation_profile`, then advan
 
 For a support item, use one of the templates in `.context/templates/support/`. Incidents without code can close with `triage.md`, `incident.md`, `outcome.md` and `postmortem.md`; hotfixes require the full implementation and release evidence.
 
+## Classify with any executor
+
+The kit defines how classification works; your harness decides who performs it. The main agent classifies out of the box (zero configuration); a dedicated classifier or a hybrid strategy is an optional optimization — with protected signals, acceptance policy and fallback to the same-agent path defined by [`.context/classification/classifier-contract.md`](.context/classification/classifier-contract.md) and explained in [`docs/classifier-strategies.md`](docs/classifier-strategies.md). No model or provider is required or named by the kit.
+
+```text
+        task
+         │
+   minimal bootstrap
+         │
+   ┌─────┴─────┐
+   │ classifier role (your harness chooses the executor)
+   └─────┬─────┘
+         │ canonical classification
+         ▼
+   deterministic routing
+         │
+   context manifest → load required only → workflow
+```
+
 ## Work with an agent
 
 Point the agent to `AGENTS.md` or the adapter for its tool, then provide the current work-item path and phase. At conversation start, choose one profile from [`.context/profiles/`](.context/profiles/), classify the track, and confirm owner/risk. The phase contracts in `.context/prompts/` define what the agent may read, produce and change. Agents prepare evidence; people approve scope, risk, production and closure.
@@ -114,10 +133,12 @@ The repository is published at [github.com/yanpenalva/context-spec-develop](http
 - [`docs/upgrading.md`](docs/upgrading.md) — central kit snapshot upgrades.
 - [`docs/migration-from-project-context.md`](docs/migration-from-project-context.md) — migration from an existing context.
 - [`.context/policies/`](.context/policies/) — normative core policies.
-- [`.context/classification/`](.context/classification/) — classification dimensions and routing depth.
+- [`.context/classification/`](.context/classification/) — classification dimensions, routing depth and the provider-neutral classifier contract.
 - [`.context/interaction/`](.context/interaction/) — questioning, decision categories, uncertainty and escalation protocol.
+- [`docs/classifier-strategies.md`](docs/classifier-strategies.md) — same-agent, dedicated and hybrid classification strategies with diagrams.
 - [`.context/context-routing/`](.context/context-routing/) — bootstrap, context domains, budgets, triggers and the manifest.
 - [`benchmarks/`](benchmarks/) — reproducible context-size benchmark (eager baseline versus routed).
+- [`benchmarks/classification/`](benchmarks/classification/) — golden-dataset benchmark for classification quality and safety.
 - [`docs/examples/end-to-end-context-routing.md`](docs/examples/end-to-end-context-routing.md) — worked example of the full flow.
 - [`adapters/`](adapters/) — thin entry points for compatible agents.
 - [`examples/acme-orders/`](examples/acme-orders/) — complete Product and Support examples.

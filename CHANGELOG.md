@@ -2,6 +2,9 @@
 
 ## 0.2.0 — Unreleased
 
+- Added the provider-neutral classifier contract (`.context/classification/classifier-contract.md`): minimal input, canonical output, confidence semantics, acceptance policy, protected signals, fallback conditions and fail-safe — the kit defines the contract, the harness chooses the executor.
+- Added classifier strategy guidance (`docs/classifier-strategies.md`) with same-agent, dedicated and hybrid modes, responsibility-boundary and flow diagrams, guidance matrix and user journeys; same-agent remains the zero-config canonical path.
+- Added the golden-dataset classification benchmark (`benchmarks/classification/`): ten case classes validated offline and scored against optional adapter results on classification accuracy, routing accuracy, under-routing, false-minimal, missed protected signals and fallback behavior — independent metrics, no composite score.
 - Separated the minimal bootstrap from context domains: entrypoint and index files belong to the bootstrap, the `core` domain narrowed to post-bootstrap governance, and no domain is mandatory in every manifest (trivial tasks may run on an empty manifest).
 - Made `project` lazy and `testing` phase/task driven through explicit promotion triggers, with targeted discovery distinguished from domain loading and mandatory policy separated from mandatory full-document loading.
 - Added the reproducible, vendor-neutral context benchmark (`benchmarks/`): five scenario classes, documented eager baseline versus routed behavior, deterministic context-size metrics, optional runtime-token slots, no fabricated numbers and not a release gate.

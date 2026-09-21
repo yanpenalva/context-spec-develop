@@ -27,3 +27,7 @@ python3 benchmarks/run.py --json --output benchmarks/results/latest.json
 ## Status
 
 Observational only. Benchmark results are **not** a release gate; correctness, safety and evidence always outrank context economy. The repository makes no token-percentage claims. A future experiment may compare main-agent classification (A) against a cheap/local classifier (B) feeding the same classification and context-manifest contracts, measuring accuracy, context loaded, input tokens, latency, cost, reclassification rate and incorrect routing rate — no such integration exists yet.
+
+## Classification quality
+
+[`classification/`](classification/) ships the golden classification dataset (ten case classes) and an offline benchmark that validates fixtures and scores optional adapter results on classification accuracy, routing accuracy, under-routing, false-minimal, missed protected signals and fallback behavior. See its README and the classifier contract in `.context/classification/classifier-contract.md`.

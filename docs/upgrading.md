@@ -27,6 +27,8 @@ For context routing, the release adds the `.context/context-routing/` contract d
 
 The bootstrap split refines this further: no context domain is mandatory in every manifest (older manifests requiring `core`, `project` and `testing` remain valid), `core` now covers post-bootstrap governance only, and `project`/`testing` promote through triggers and phases. Existing smaller-or-larger manifests keep validating; adopt the lazy model by updating your catalog, triggers and manifests deliberately.
 
+The classifier contract adds `.context/classification/classifier-contract.md` as a required file and the optional `benchmarks/classification/` golden dataset (validated when present). No configuration is required: same-agent classification remains the default executor, and no model, provider or credentials belong in canonical files — those stay in your harness.
+
 ## Compatibility rules
 
 - Patch releases fix documentation, validator defects or examples without changing the work-item contract.

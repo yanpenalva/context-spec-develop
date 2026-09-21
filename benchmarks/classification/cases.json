@@ -1,0 +1,135 @@
+{
+  "description": "Golden classification dataset. Each case carries the task, minimal evidence and the expected classification, derived routing, context signals, protected signals and fallback expectation. No private reasoning is stored: evidence and expected outcome only. The expected derived routing MUST equal derive_routing(expected.classification, risk).",
+  "cases": [
+    {
+      "id": "documentation-trivial",
+      "task": "Fix a typo in README.",
+      "evidence": ["Single documentation file", "No code, contracts or data touched"],
+      "risk": "low",
+      "expected": {
+        "classification": {"complexity": "low", "impact": "local", "security": "none", "confidence": "high"},
+        "derived_routing": "minimal",
+        "context_signals": [],
+        "protected_signals": [],
+        "fallback_expected": false
+      }
+    },
+    {
+      "id": "local-implementation",
+      "task": "Add validation to an existing request field.",
+      "evidence": ["One module owns the field", "Existing validation helpers apply"],
+      "risk": "medium",
+      "expected": {
+        "classification": {"complexity": "low", "impact": "module", "security": "none", "confidence": "high"},
+        "derived_routing": "standard",
+        "context_signals": ["project", "testing"],
+        "protected_signals": [],
+        "fallback_expected": false
+      }
+    },
+    {
+      "id": "local-bug",
+      "task": "Fix incorrect total calculation in an isolated service.",
+      "evidence": ["Calculation isolated in one service", "Unit tests cover the calculator"],
+      "risk": "low",
+      "expected": {
+        "classification": {"complexity": "low", "impact": "local", "security": "none", "confidence": "high"},
+        "derived_routing": "minimal",
+        "context_signals": ["project", "testing"],
+        "protected_signals": [],
+        "fallback_expected": false
+      }
+    },
+    {
+      "id": "cross-module-feature",
+      "task": "Add order status synchronization across two modules.",
+      "evidence": ["State changes must propagate across module boundaries", "Both modules expose events"],
+      "risk": "medium",
+      "expected": {
+        "classification": {"complexity": "high", "impact": "cross-module", "security": "none", "confidence": "high"},
+        "derived_routing": "extended",
+        "context_signals": ["architecture", "project", "testing"],
+        "protected_signals": ["cross-module-impact"],
+        "fallback_expected": false
+      }
+    },
+    {
+      "id": "security-sensitive-change",
+      "task": "Change authorization rules for order visibility.",
+      "evidence": ["Authorization middleware enforces visibility", "Rules apply to every order reader"],
+      "risk": "high",
+      "expected": {
+        "classification": {"complexity": "medium", "impact": "module", "security": "relevant", "confidence": "high"},
+        "derived_routing": "extended",
+        "context_signals": ["security", "project", "testing"],
+        "protected_signals": ["security", "authorization"],
+        "fallback_expected": false
+      }
+    },
+    {
+      "id": "database-migration",
+      "task": "Add a nullable column and backfill it for existing orders.",
+      "evidence": ["Migration rewrites a shared table", "Backfill touches production data"],
+      "risk": "high",
+      "expected": {
+        "classification": {"complexity": "medium", "impact": "module", "security": "none", "confidence": "high"},
+        "derived_routing": "extended",
+        "context_signals": ["architecture", "project", "testing"],
+        "protected_signals": ["migration", "irreversible-operation"],
+        "fallback_expected": false
+      }
+    },
+    {
+      "id": "public-api-change",
+      "task": "Rename a field in the public orders API response.",
+      "evidence": ["Field is documented in the public API contract", "External integrations consume the response"],
+      "risk": "high",
+      "expected": {
+        "classification": {"complexity": "medium", "impact": "cross-module", "security": "none", "confidence": "high"},
+        "derived_routing": "extended",
+        "context_signals": ["architecture", "project", "testing"],
+        "protected_signals": ["public-contract", "external-integration"],
+        "fallback_expected": false
+      }
+    },
+    {
+      "id": "production-release-operation",
+      "task": "Enable the new checkout feature flag for all users in production.",
+      "evidence": ["Flag rollout target is the production environment", "Change affects every user session"],
+      "risk": "high",
+      "expected": {
+        "classification": {"complexity": "low", "impact": "system", "security": "relevant", "confidence": "high"},
+        "derived_routing": "extended",
+        "context_signals": ["release", "project"],
+        "protected_signals": ["production", "deployment"],
+        "fallback_expected": false
+      }
+    },
+    {
+      "id": "incident-hotfix",
+      "task": "Patch duplicate webhook processing during the active outage.",
+      "evidence": ["Active degradation in progress", "Change targets the production webhook path"],
+      "risk": "critical",
+      "expected": {
+        "classification": {"complexity": "medium", "impact": "system", "security": "relevant", "confidence": "high"},
+        "derived_routing": "extended",
+        "context_signals": ["incident", "security", "architecture", "project"],
+        "protected_signals": ["incident", "hotfix", "production"],
+        "fallback_expected": false
+      }
+    },
+    {
+      "id": "ambiguous-task",
+      "task": "Improve the orders page.",
+      "evidence": ["No specific behavior, metric or defect named", "Multiple plausible interpretations with different scopes"],
+      "risk": "medium",
+      "expected": {
+        "classification": null,
+        "derived_routing": null,
+        "context_signals": [],
+        "protected_signals": [],
+        "fallback_expected": true
+      }
+    }
+  ]
+}

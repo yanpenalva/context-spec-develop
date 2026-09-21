@@ -8,7 +8,7 @@ Classification describes the work before it is planned or executed. It answers o
 - Derive `routing` (execution depth) deterministically from those dimensions plus the work-item `risk` (see [`routing.md`](routing.md)).
 - Reclassify only when material new evidence changes a dimension.
 
-Classification is an implementation-independent contract. Today an agent classifies by reading these files; tomorrow an external classifier may produce the same structured output. Nothing downstream may depend on which implementation produced it.
+Classification is an implementation-independent contract: the kit defines the contract, and the user or harness chooses the executor — the main agent (canonical, zero-config), a dedicated classifier or a hybrid strategy. See [`classifier-contract.md`](classifier-contract.md) for the executor contract, acceptance policy, protected signals and fallback, and `docs/classifier-strategies.md` for strategy guidance. Nothing downstream may depend on which implementation produced the classification.
 
 ## Inputs
 

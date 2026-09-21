@@ -31,6 +31,7 @@ REQUIRED_FILES = (
     ".context/policies/core/review-release.md",
     ".context/policies/exceptions.md",
     ".context/classification/README.md",
+    ".context/classification/classifier-contract.md",
     ".context/classification/complexity.md",
     ".context/classification/risk.md",
     ".context/classification/impact.md",
@@ -99,6 +100,14 @@ EXECUTION_STATE_FOR = {
     "HUMAN_DECISION_REQUIRED": "WAITING_FOR_HUMAN",
     "CRITICAL_HUMAN_GATE": "WAITING_FOR_HUMAN",
 }
+PROTECTED_SIGNALS = frozenset({
+    "security", "privacy", "authentication", "authorization",
+    "production", "deployment", "migration",
+    "destructive-operation", "irreversible-operation",
+    "public-contract", "external-integration",
+    "cross-module-impact", "system-impact",
+    "incident", "hotfix",
+})
 GIT_FINALIZATION_MODES = {"confirm_each", "automatic"}
 PR_MODES = {"never", "manual", "automatic"}
 FORBIDDEN_PR_COMMAND_FRAGMENTS = ("merge", "--admin", "--force", "rebase")
@@ -172,6 +181,51 @@ def default_required_domains(classification: dict[str, Any], item_type: str | No
     return domains
 
 
+def load_context_domains(root: Path) -> set[str]:
+    """Parse the valid context-domain names from catalog.md (single source)."""
+    catalog = root / ".context/context-routing/catalog.md"
+    domains: set[str] = set()
+    if not catalog.is_file():
+        return domains
+    pattern = re.compile(r"^\|\s*`([a-z-]+)`\s*\|")
+    for line in catalog.read_text(encoding="utf-8").splitlines():
+        match = pattern.match(line)
+        if match:
+            domains.add(match.group(1))
+    return domains
+
+
+def check_classification_fixture(case: dict[str, Any], domains: set[str]) -> list[str]:
+    """Deterministic validation of one golden classification case."""
+    errors: list[str] = []
+    case_id = case.get("id", "missing-id")
+    expected = case.get("expected")
+    if not isinstance(expected, dict):
+        return [f"{case_id}: golden case is missing the expected object"]
+    classification = expected.get("classification")
+    if expected.get("fallback_expected"):
+        if classification is not None or expected.get("derived_routing") is not None:
+            errors.append(f"{case_id}: fallback case must not expect a classification")
+    else:
+        if not isinstance(classification, dict) or set(classification) != set(CLASSIFICATION_DIMENSIONS_CURRENT):
+            errors.append(f"{case_id}: expected classification must carry exactly {CLASSIFICATION_DIMENSIONS_CURRENT}")
+        else:
+            for dimension in CLASSIFICATION_DIMENSIONS_CURRENT:
+                if classification[dimension] not in CLASSIFICATION_ENUMS[dimension]:
+                    errors.append(f"{case_id}: invalid expected {dimension}={classification[dimension]}")
+            derived = derive_routing(classification, case.get("risk"))
+            if derived != expected.get("derived_routing"):
+                errors.append(
+                    f"{case_id}: expected derived_routing={expected.get('derived_routing')} does not match derivation={derived}")
+    unknown_protected = set(expected.get("protected_signals", [])) - set(PROTECTED_SIGNALS)
+    if unknown_protected:
+        errors.append(f"{case_id}: unknown protected signals {sorted(unknown_protected)}")
+    unknown_domains = set(expected.get("context_signals", [])) - domains
+    if unknown_domains:
+        errors.append(f"{case_id}: unknown context signals {sorted(unknown_domains)}")
+    return errors
+
+
 class Validator:
     def __init__(self, root: Path, strict: bool, mode: str | None = None, include_examples: bool = False) -> None:
         self.root = root
@@ -217,6 +271,7 @@ class Validator:
         self.check_legacy_and_public_markers()
         self.check_exceptions()
         self.check_work_items(config)
+        self.check_classification_fixtures()
         if self.include_examples:
             self.check_examples(config)
         for warning in self.warnings:
@@ -718,14 +773,18 @@ class Validator:
                     f"{directory.name}: last_updated must be YYYY-MM-DD")
 
     def load_context_domains(self) -> None:
-        catalog = self.root / ".context/context-routing/catalog.md"
-        if not catalog.is_file():
+        self.context_domains = load_context_domains(self.root)
+
+    def check_classification_fixtures(self) -> None:
+        cases_path = self.root / "benchmarks/classification/cases.json"
+        if not cases_path.is_file():
             return
-        pattern = re.compile(r"^\|\s*`([a-z-]+)`\s*\|")
-        for line in catalog.read_text(encoding="utf-8").splitlines():
-            match = pattern.match(line)
-            if match:
-                self.context_domains.add(match.group(1))
+        cases = self.load_json(cases_path, "classification golden dataset")
+        if not cases:
+            return
+        for case in cases.get("cases", []):
+            for error in check_classification_fixture(case, self.context_domains):
+                self.error(error)
 
     def check_item_routing(self, directory: Path, item: dict[str, Any]) -> None:
         classification = item.get("classification")
