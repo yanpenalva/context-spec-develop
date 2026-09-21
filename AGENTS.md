@@ -22,7 +22,7 @@ The agent may prepare artifacts and implementation, but humans own scope approva
 
 Before asking a question, inspect the repository and consult `.context/policies/core/questioning-and-evidence.md`. Ask only a decision-changing question, distinguish fact/inference/unknown, and stop when a required decision or `MUST` evidence is unresolved.
 
-At closure, present validation evidence and a proposed Conventional Commit message. Ask separately before commit and before push; never force-push or infer approval from an earlier answer.
+At closure, present validation evidence and a proposed Conventional Commit message, then follow the resolved `git_finalization_mode`: `confirm_each` asks separately before commit and push; `automatic` performs only the Git actions already authorized by the resolved mode, within the existing guardrails; unresolved authorizes nothing. Never force-push or infer approval from an earlier answer.
 
 Do not invent requirements, contracts, architecture, permissions, operational procedures or test evidence. Record unknowns as `NOT FOUND`, ask when they change scope or risk, and preserve existing behavior unless the approved work item says otherwise.
 
