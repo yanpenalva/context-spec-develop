@@ -1,0 +1,31 @@
+{
+  "schema_version": "1.0",
+  "id": "FEAT-9012",
+  "title": "Remove residual startup-mandatory Git wording from policy and README",
+  "track": "product",
+  "type": "feature",
+  "phase": "close",
+  "status": "completed",
+  "risk": "low",
+  "owner": "hiyan",
+  "conversation_profile": "senior-software-engineer",
+  "classification": {
+    "complexity": "low",
+    "impact": "module",
+    "security": "none",
+    "confidence": "high"
+  },
+  "routing": {
+    "derived": "standard",
+    "effective": "standard"
+  },
+  "context": {
+    "budget": "standard",
+    "required": [],
+    "deferred": ["core", "project", "testing", "architecture", "security", "release", "incident"],
+    "triggers": []
+  },
+  "reclassification": [],
+  "last_updated": "2026-09-20",
+  "policy_exceptions": []
+}
