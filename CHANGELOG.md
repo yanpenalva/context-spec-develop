@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.0 — 2026-09-21
+
+- First stable release of the installable, agent-neutral Context Spec Develop workflow for Codex, Claude Code, Cursor, Copilot, Gemini, OpenCode and Open Agent Skills.
+- Added the `@owlcodium/context-spec-develop` npm package, global/project installation, native harness activation, safe bootstrap, lockfile integrity checks, versioned registry, static catalog and provenance-enabled release workflow.
+
 ## 0.2.0 — Unreleased
 
 - Added the `@owlcodium/context-spec-develop` TypeScript/Node package: `csd` skill, multi-harness installer, lockfile integrity checks, safe bootstrap, registry, static catalog and release workflows. Native aliases are `/csd` where supported, `$csd` in Codex and the `csd` custom agent in Copilot.
