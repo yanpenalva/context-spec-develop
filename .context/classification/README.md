@@ -12,10 +12,22 @@ Classification is an implementation-independent contract: the kit defines the co
 
 ## Inputs
 
+Initial classification consumes the smallest evidence set that classifies safely — never a full context expansion:
+
 - The user request and any existing work item.
 - Intake answers: `track`, `type`, owner, `risk` (canonical at the work-item root; never duplicated here).
-- Repository inspection: affected files, dependencies, contracts, persistence, integrations.
-- Project context under `.context/project/` and applicable policies.
+- The minimal bootstrap (see `.context/context-routing/README.md`).
+- Bounded targeted discovery when a specific classification question needs one fact — inspecting a filename, symbol, route or dependency flag. Discovery is evidence-seeking, not domain loading.
+
+Repository inspection, project context under `.context/project/` and detailed policies are **not** default inputs: they are promoted through context routing after classification, and the evidence they surface later feeds **reclassification**:
+
+```text
+initial classification → routing → context manifest → detailed context
+        ↑                                                      │
+        └──────────── new material evidence ←──────────────────┘
+```
+
+Later evidence — loaded project or domain context, runtime evidence, implementation and verification evidence — may trigger reclassification, which recalculates routing and the context manifest and loads only newly required context.
 
 ## Outputs
 

@@ -96,6 +96,17 @@ class ClassifierContractTest(unittest.TestCase):
         self.assertTrue(scored["under_routing"])
         self.assertTrue(scored["false_minimal"])
 
+        upward_observation = {
+            "case": case["id"],
+            "classification": case["expected"]["classification"],
+            "applied_routing": "extended",
+        }
+        observed = score_result(case, upward_observation)
+        self.assertFalse(observed["under_routing"])
+        self.assertFalse(observed["false_minimal"])
+        self.assertTrue(observed["routing_match"])
+        self.assertFalse(observed["malformed"])
+
     def test_golden_fixtures_validate_offline(self):
         report = build_report(None)
         self.assertEqual(report["fixture_validation"]["cases"], 10)

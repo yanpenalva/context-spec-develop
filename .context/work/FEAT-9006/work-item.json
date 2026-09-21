@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0",
+  "id": "FEAT-9006",
+  "title": "Classification input ordering and applied_routing semantics clarification",
+  "track": "product",
+  "type": "feature",
+  "phase": "close",
+  "status": "completed",
+  "risk": "low",
+  "owner": "hiyan",
+  "conversation_profile": "technical-planner",
+  "git_finalization_mode": "confirm_each",
+  "classification": {
+    "complexity": "low",
+    "impact": "module",
+    "security": "none",
+    "confidence": "high"
+  },
+  "routing": {
+    "derived": "standard",
+    "effective": "standard"
+  },
+  "context": {
+    "budget": "standard",
+    "required": ["core"],
+    "deferred": ["project", "testing", "architecture", "security", "release", "incident"],
+    "triggers": []
+  },
+  "reclassification": [],
+  "last_updated": "2026-09-20",
+  "phase_history": ["discover", "specify", "plan", "preflight", "execute", "verify", "release", "observe", "learn", "close"],
+  "policy_exceptions": []
+}
