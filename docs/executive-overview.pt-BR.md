@@ -157,7 +157,6 @@ As ferramentas são opcionais. O repositório continua funcionando sem elas.
 | Ferramenta | Uso recomendado | Onde ler |
 | --- | --- | --- |
 | RTK | Reduzir ruído de shell, busca, diff e testes; nunca ocultar falhas | [`tooling/rtk.md`](../.context/tooling/rtk.md) |
-| Caveman | Comprimir mensagens curtas de planejamento/status; preservar comandos, erros e decisões | [`tooling/caveman.md`](../.context/tooling/caveman.md) |
 | AI-memory | Manter continuidade; promover decisões duráveis para `.context/` e nunca guardar secrets | [`tooling/ai-memory.md`](../.context/tooling/ai-memory.md) |
 | Code review graph | Representar dependências, reviewers, waves e evidências | [`tooling/code-review-graph.md`](../.context/tooling/code-review-graph.md) |
 
@@ -254,7 +253,7 @@ O guia empresarial completo está em [`docs/enterprise-adoption.md`](enterprise-
 | Escolher Product/Support | [`prompts/intake.md`](../.context/prompts/intake.md) | [`workflows/product.md`](../.context/workflows/product.md) ou [`workflows/support.md`](../.context/workflows/support.md) |
 | Escolher perfil | [`profiles/README.md`](../.context/profiles/README.md) | perfil específico em `.context/profiles/` |
 | Planejar execução | [`prompts/plan.md`](../.context/prompts/plan.md) | [`templates/common/plan.md`](../.context/templates/common/plan.md) e policy de decomposition |
-| Usar ferramentas de contexto | [`tooling/README.md`](../.context/tooling/README.md) | RTK, Caveman, AI-memory e code-review graph |
+| Usar ferramentas de contexto | [`tooling/README.md`](../.context/tooling/README.md) | RTK, AI-memory e code-review graph |
 | Entender qualidade e segurança | [`policies/README.md`](../.context/policies/README.md) | `policies/core/` e `.context/project/` |
 | Validar estrutura | [`scripts/validate_context.py`](../scripts/validate_context.py) | `tests/test_validate_context.py` |
 | Migrar ou atualizar | [`docs/migration-from-project-context.md`](migration-from-project-context.md) | [`docs/upgrading.md`](upgrading.md) |

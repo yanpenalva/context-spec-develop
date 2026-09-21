@@ -34,7 +34,7 @@ Configure `pull_request.mode` in `.context/orchestration/config.json` when the t
 
 ## Optional tools
 
-RTK, Caveman, AI-memory and code-review graph are optional accelerators. If unavailable, use native commands and record the real evidence. Never compress contracts, test output, security findings or approval decisions. AI-memory must store only approved summaries and decisions; the review graph can identify impact but cannot approve a gate.
+RTK, AI-memory and the code-review graph are optional accelerators. If unavailable, use native commands and record the real evidence. Never compress contracts, test output, security findings or approval decisions. AI-memory must store only approved summaries and decisions; the review graph can identify impact but cannot approve a gate.
 
 ## Avoid
 

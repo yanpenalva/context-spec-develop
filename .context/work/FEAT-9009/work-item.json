@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0",
+  "id": "FEAT-9009",
+  "title": "Remove Caveman from official tooling",
+  "track": "product",
+  "type": "feature",
+  "phase": "close",
+  "status": "completed",
+  "risk": "low",
+  "owner": "hiyan",
+  "conversation_profile": "senior-software-engineer",
+  "git_finalization_mode": "confirm_each",
+  "classification": {
+    "complexity": "low",
+    "impact": "module",
+    "security": "none",
+    "confidence": "high"
+  },
+  "routing": {
+    "derived": "standard",
+    "effective": "standard"
+  },
+  "context": {
+    "budget": "standard",
+    "required": [],
+    "deferred": ["core", "project", "testing", "architecture", "security", "release", "incident"],
+    "triggers": []
+  },
+  "reclassification": [],
+  "last_updated": "2026-09-20",
+  "policy_exceptions": []
+}
