@@ -21,7 +21,7 @@ Otherwise: `DO NOT LOAD`. The mandatory bootstrap required for governance and sa
 ## Order of operations
 
 ```text
-1. Minimal bootstrap: AGENTS.md, INDEX.md essentials, the classification
+1. Minimal bootstrap: AGENTS.md, INDEX essentials, the classification
    and interaction core, and this catalog — nothing more.
 2. Classify immediately (before detailed project context).
 3. Derive routing; resolve effective routing (overrides live in
@@ -34,6 +34,32 @@ Otherwise: `DO NOT LOAD`. The mandatory bootstrap required for governance and sa
 ```
 
 Loading everything first and classifying afterwards violates this contract.
+
+## Bootstrap
+
+```text
+BOOTSTRAP != CONTEXT DOMAIN
+```
+
+The bootstrap is the smallest set of information needed to understand the protocol, classify the task, determine routing, build the initial context manifest and apply the safety/governance boundaries that must hold *before* classification. It is index- and pointer-oriented: prefer small summaries and references over full contracts whenever possible.
+
+Bootstrap contents (as pointers or summaries, not necessarily full documents):
+
+- `AGENTS.md` and the minimal index information from `.context/INDEX.md`;
+- the classification contract core (`.context/classification/README.md`);
+- the interaction core (`.context/interaction/README.md`);
+- this catalog (`.context/context-routing/catalog.md`) and its README;
+- the mandatory pre-classification governance boundaries (normative-language and precedence rules from `policies/README.md`, and the questioning rule that inspection precedes questions).
+
+Bootstrap invariant: detailed project, testing, architecture, security, release and incident context MUST NOT be part of the default bootstrap unless that information is required for safe classification itself. The bootstrap answers four questions — what is this task, how deep is it, what context comes next, is human input needed — and need not enable implementing the task.
+
+### Targeted discovery
+
+Classification sometimes needs one specific fact (does this touch authentication? which module owns the endpoint?). **Targeted discovery** — searching filenames or symbols, inspecting the target route or relevant metadata — is allowed at classification time and is distinct from domain loading: discovery seeks the minimum evidence to decide; domain loading provides detailed context to execute. Targeted discovery never becomes an excuse to pull a full domain into the bootstrap.
+
+### Mandatory policy versus mandatory loading
+
+A policy can remain mandatory without its complete document being loaded at every phase. The obligation (for example, verification evidence is mandatory) lives in the bootstrap as a rule; the full document (for example `policies/core/testing.md`) loads when a phase actually needs it.
 
 ## Layer responsibilities
 
@@ -69,7 +95,7 @@ The manifest records the routing decision over context. It is small and auditabi
 }
 ```
 
-`budget` equals the effective routing. Domain names come from [`catalog.md`](catalog.md). `core` is always required. The validator enforces structure, names, disjointness and budget consistency; it does not judge whether a domain "should" have been triggered.
+`budget` equals the effective routing. Domain names come from [`catalog.md`](catalog.md). The manifest may be empty (`required: []`) when the task needs no domain context yet — the bootstrap already carries governance. Domains are promoted incrementally per [`triggers.md`](triggers.md); the validator enforces structure, names, disjointness and budget consistency, and never judges whether a domain "should" have been triggered. A manifest from before the bootstrap split that requires `core`, `project` and `testing` remains valid; it is simply less lazy than needed.
 
 ## Progressive disclosure between phases
 

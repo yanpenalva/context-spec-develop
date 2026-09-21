@@ -1,0 +1,163 @@
+{
+  "benchmark": "context-routing",
+  "generated_by": "benchmarks/run.py",
+  "repository_state": "context-spec-develop main; measured against the working tree at run time",
+  "methodology": {
+    "baseline": "Eager strategy: every generally applicable policy, workflow, project, prompt, orchestration and index file is loaded before any work begins. This represents a reasonable agent that front-loads its context, not an intentionally bad strawman. The exact file set is BASELINE_FILES in benchmarks/run.py.",
+    "routed": "Bootstrap first (AGENTS.md, INDEX, classification core, interaction core, context-routing README and catalog), immediate classification, then only the canonical sources of the domains the scenario's context manifest requires.",
+    "measurement": "Deterministic file counts and character counts of the actual files in the repository at run time. No tokenizer is involved.",
+    "metrics": [
+      "files",
+      "chars",
+      "domains_loaded",
+      "context_size_reduction_percent",
+      "file_reduction_percent"
+    ],
+    "token_policy": "runtime_tokens fields are null unless real token counts are supplied by an actual model run. Character reduction is never reported as token reduction.",
+    "gate_status": "Observational only. Benchmark results are not a release gate; correctness, safety and evidence outrank context economy."
+  },
+  "baseline_file_set_size": 37,
+  "bootstrap_file_set_size": 6,
+  "scenarios": [
+    {
+      "scenario": "B1-documentation-trivial",
+      "task": "Fix a typo in README.",
+      "routing": "minimal",
+      "domains_required": [],
+      "baseline": {
+        "files_loaded": 37,
+        "context_chars": 45206
+      },
+      "routed": {
+        "bootstrap_files": 6,
+        "bootstrap_chars": 24925,
+        "domains_loaded": 0,
+        "domain_files_loaded": 0,
+        "files_loaded": 6,
+        "context_chars": 24925
+      },
+      "context_size_reduction_percent": 44.9,
+      "file_reduction_percent": 83.8,
+      "questions_expected": 0,
+      "reclassifications_expected": 0,
+      "runtime_tokens": null
+    },
+    {
+      "scenario": "B2-local-implementation",
+      "task": "Add validation to an existing request field.",
+      "routing": "standard",
+      "domains_required": [
+        "project",
+        "testing"
+      ],
+      "baseline": {
+        "files_loaded": 37,
+        "context_chars": 45206
+      },
+      "routed": {
+        "bootstrap_files": 6,
+        "bootstrap_chars": 24925,
+        "domains_loaded": 2,
+        "domain_files_loaded": 8,
+        "files_loaded": 14,
+        "context_chars": 32304
+      },
+      "context_size_reduction_percent": 28.5,
+      "file_reduction_percent": 62.2,
+      "questions_expected": 0,
+      "reclassifications_expected": 0,
+      "runtime_tokens": null
+    },
+    {
+      "scenario": "B3-local-bug",
+      "task": "Fix incorrect total calculation in an isolated service.",
+      "routing": "minimal",
+      "domains_required": [
+        "project",
+        "testing"
+      ],
+      "baseline": {
+        "files_loaded": 37,
+        "context_chars": 45206
+      },
+      "routed": {
+        "bootstrap_files": 6,
+        "bootstrap_chars": 24925,
+        "domains_loaded": 2,
+        "domain_files_loaded": 8,
+        "files_loaded": 14,
+        "context_chars": 32304
+      },
+      "context_size_reduction_percent": 28.5,
+      "file_reduction_percent": 62.2,
+      "questions_expected": 0,
+      "reclassifications_expected": 0,
+      "runtime_tokens": null
+    },
+    {
+      "scenario": "B4-cross-module-feature",
+      "task": "Add order status synchronization across two modules.",
+      "routing": "extended",
+      "domains_required": [
+        "architecture",
+        "project",
+        "testing"
+      ],
+      "baseline": {
+        "files_loaded": 37,
+        "context_chars": 45206
+      },
+      "routed": {
+        "bootstrap_files": 6,
+        "bootstrap_chars": 24925,
+        "domains_loaded": 3,
+        "domain_files_loaded": 9,
+        "files_loaded": 15,
+        "context_chars": 33849
+      },
+      "context_size_reduction_percent": 25.1,
+      "file_reduction_percent": 59.5,
+      "questions_expected": 1,
+      "reclassifications_expected": 0,
+      "runtime_tokens": null
+    },
+    {
+      "scenario": "B5-security-sensitive",
+      "task": "Change authorization rules for order visibility.",
+      "routing": "extended",
+      "domains_required": [
+        "security",
+        "project",
+        "testing",
+        "architecture"
+      ],
+      "baseline": {
+        "files_loaded": 37,
+        "context_chars": 45206
+      },
+      "routed": {
+        "bootstrap_files": 6,
+        "bootstrap_chars": 24925,
+        "domains_loaded": 4,
+        "domain_files_loaded": 13,
+        "files_loaded": 19,
+        "context_chars": 37248
+      },
+      "context_size_reduction_percent": 17.6,
+      "file_reduction_percent": 48.6,
+      "questions_expected": 1,
+      "reclassifications_expected": 0,
+      "runtime_tokens": null
+    }
+  ],
+  "totals": {
+    "baseline_context_chars": 226030,
+    "routed_context_chars": 160630,
+    "context_size_reduction_percent": 28.9,
+    "input_token_reduction_percent": null
+  },
+  "notes": [
+    "Percentages are context-size (characters) reductions, not token reductions.",
+    "runtime_tokens and input_token_reduction_percent stay null unless a real model run supplies actual token counts."
+  ]
+}

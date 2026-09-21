@@ -25,6 +25,8 @@ It also adds the optional `pull_request` block to the orchestration configuratio
 
 For context routing, the release adds the `.context/context-routing/` contract directory and two optional work-item objects: `routing` (`derived`, `effective`, optional `override`) and `context` (the manifest). Work items using the earlier `classification.routing` shape remain valid as `derived = effective`; migrate them to the root `routing` object when you next touch them, and remove `classification.routing` then — carrying both shapes fails validation. Update `classification/routing.md`, `interaction/decision-policy.md` and `context-routing/catalog.md` deliberately: the validator reads the catalog table and enforces the routing, override and manifest invariants.
 
+The bootstrap split refines this further: no context domain is mandatory in every manifest (older manifests requiring `core`, `project` and `testing` remain valid), `core` now covers post-bootstrap governance only, and `project`/`testing` promote through triggers and phases. Existing smaller-or-larger manifests keep validating; adopt the lazy model by updating your catalog, triggers and manifests deliberately.
+
 ## Compatibility rules
 
 - Patch releases fix documentation, validator defects or examples without changing the work-item contract.

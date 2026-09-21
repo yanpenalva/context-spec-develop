@@ -2,13 +2,37 @@
 
 A worked example of immediate classification, progressive disclosure, decision states and compact handoffs. The contracts live in `.context/classification/`, `.context/interaction/` and `.context/context-routing/`; this page only demonstrates them.
 
-## The request
+## Scenario 0 — the trivial case: "Fix the typo in README."
 
-> "Add an optional filter by status to the orders endpoint."
+The agent loads only the bootstrap (`AGENTS.md`, index essentials, the classification and interaction core, the context catalog) and classifies immediately:
 
-## 1. Minimal bootstrap, then immediate classification
+```json
+{
+  "classification": {"complexity": "low", "impact": "local", "security": "none", "confidence": "high"},
+  "routing": {"derived": "minimal", "effective": "minimal"}
+}
+```
 
-The agent loads only the bootstrap — `AGENTS.md`, the index essentials, the classification and interaction core, and the context catalog — and classifies before opening any detailed project file:
+```json
+{
+  "context": {
+    "budget": "minimal",
+    "required": [],
+    "deferred": ["core", "project", "testing", "architecture", "security", "release", "incident"],
+    "triggers": []
+  }
+}
+```
+
+No domain is promoted: the task needs no project conventions, no stack facts, no test strategy. The bootstrap already carries the governance rules. The agent makes the targeted edit and runs a lightweight verification (the corrected text is in the file; no tests claim to run). Bootstrap in, edit, evidence out — no project or testing domain ever loaded. Mandatory policy stayed mandatory: the evidence rule was in the bootstrap; its full testing document never needed to load.
+
+Contrast this with the orders scenario below, where evidence promotes domain after domain. Same protocol, progressively deeper context.
+
+## Scenario 1 — the orders filter: "Add an optional filter by status to the orders endpoint."
+
+### 1. Minimal bootstrap, then immediate classification
+
+The agent loads only the bootstrap and classifies before opening any detailed project file:
 
 ```json
 {
@@ -19,20 +43,20 @@ The agent loads only the bootstrap — `AGENTS.md`, the index essentials, the cl
 
 ## 2. The context manifest
 
-Classification produces the manifest:
+Classification produces the manifest. `project` is promoted immediately — the filter touches project-specific endpoint behavior — while `testing` waits for the phases that need it:
 
 ```json
 {
   "context": {
-    "budget": "minimal",
-    "required": ["core", "project", "testing"],
-    "deferred": ["architecture", "security", "release", "incident"],
-    "triggers": []
+    "budget": "standard",
+    "required": ["project"],
+    "deferred": ["core", "testing", "architecture", "security", "release", "incident"],
+    "triggers": ["project-specific endpoint behavior"]
   }
 }
 ```
 
-The agent loads the project conventions, the orders endpoint and the testing rules. It keeps security, incident, release, architecture deferred: a local, low-risk, no-security filter does not trigger them, and context exclusion is the default. Extended routing would not change this — broader discovery is a permission, never a blanket load.
+The agent loads the project conventions and the orders endpoint. Security, incident, release, architecture and even testing stay deferred: a local, low-risk, no-security filter does not trigger them, and context exclusion is the default. Extended routing would not change this — broader discovery is a permission, never a blanket load, and unused budget capacity is not an instruction to load.
 
 ## 3. No unnecessary question
 
@@ -80,14 +104,14 @@ This is a classification signal: `security: none → relevant`. Per the trigger 
 {
   "context": {
     "budget": "standard",
-    "required": ["core", "project", "testing", "security"],
-    "deferred": ["architecture", "release", "incident"],
-    "triggers": ["authorization-dependent status visibility discovered"]
+    "required": ["project", "security"],
+    "deferred": ["core", "testing", "architecture", "release", "incident"],
+    "triggers": ["project-specific endpoint behavior", "authorization-dependent status visibility discovered"]
   }
 }
 ```
 
-Only the security domain is added — architecture, release and incident stay deferred. Nothing unrelated is reloaded.
+Only the security domain is added — architecture, release and incident stay deferred. When planning reaches validation strategy and the work enters verify, `testing` promotes the same way; nothing unrelated is ever reloaded.
 
 ## 6. Reclassification
 
@@ -139,10 +163,13 @@ Executor → reviewer: the diff, the changed files and the verification evidence
 
 ## The guarantees this example exercised
 
-1. Classification happened before detailed context loading.
-2. Unrequired context started deferred.
-3. Detailed context loaded only through a phase requirement, a trigger or a human request.
+1. Classification happened before detailed context loading, on a bootstrap that carries no project, testing or architecture detail.
+2. Unrequired context started deferred; the trivial scenario never promoted anything.
+3. Detailed context loaded only through a phase requirement, a trigger or a human request — `project` for endpoint behavior, `testing` at verify, `security` on evidence.
 4. Security evidence expanded the manifest incrementally — it did not load everything.
 5. The human decision paused work (`WAITING_FOR_HUMAN`) without faking a `BLOCKED`.
 6. The override changed effective routing with recorded authority and reason, leaving the classification honest.
 7. Handoffs stayed compact and artifact-based.
+8. Mandatory policy (evidence rules) held even where the full testing document was never loaded.
+
+The benchmark in `benchmarks/` measures this contrast structurally: a documented eager baseline against the routed behavior per scenario class.

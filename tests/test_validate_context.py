@@ -634,13 +634,58 @@ class ContextValidatorTest(unittest.TestCase):
         item = self.base_item("FEAT-2013")
         item["routing"] = {"derived": "minimal", "effective": "minimal"}
         manifest = self.valid_manifest("minimal")
-        manifest["required"].remove("core")
-        manifest["deferred"].append("core")
+        manifest["required"] = []
+        manifest["deferred"] = ["core", "project", "testing", "architecture", "security", "release", "incident"]
         item["context"] = manifest
         self.write_item(root, item, ["discovery.md", "spec.md"])
-        validator = Validator(root, strict=True)
-        self.assertEqual(validator.run(), 1)
-        self.assertTrue(any("mandatory domain" in error for error in validator.errors))
+        self.assertEqual(Validator(root, strict=True).run(), 0)
+
+    def test_core_only_manifest_remains_valid(self):
+        temp, root = self.make_repo()
+        self.addCleanup(temp.cleanup)
+        item = self.base_item("FEAT-2018")
+        item["routing"] = {"derived": "minimal", "effective": "minimal"}
+        manifest = self.valid_manifest("minimal")
+        manifest["required"] = ["core"]
+        item["context"] = manifest
+        self.write_item(root, item, ["discovery.md", "spec.md"])
+        self.assertEqual(Validator(root, strict=True).run(), 0)
+
+    def test_legacy_three_domain_manifest_remains_valid(self):
+        temp, root = self.make_repo()
+        self.addCleanup(temp.cleanup)
+        item = self.base_item("FEAT-2019")
+        item["routing"] = {"derived": "minimal", "effective": "minimal"}
+        item["context"] = self.valid_manifest("minimal")
+        self.write_item(root, item, ["discovery.md", "spec.md"])
+        self.assertEqual(Validator(root, strict=True).run(), 0)
+
+    def test_project_and_testing_promotion_validates(self):
+        temp, root = self.make_repo()
+        self.addCleanup(temp.cleanup)
+        item = self.base_item("FEAT-2020", risk="medium")
+        item["classification"] = {"complexity": "low", "impact": "module", "security": "none", "confidence": "high"}
+        item["routing"] = {"derived": "standard", "effective": "standard"}
+        manifest = self.valid_manifest("standard")
+        manifest["required"] = ["project", "testing"]
+        manifest["deferred"] = ["core", "architecture", "security", "release", "incident"]
+        manifest["triggers"] = ["project-specific validation behavior", "implementing code that needs tests"]
+        item["context"] = manifest
+        self.write_item(root, item, ["discovery.md", "spec.md"])
+        self.assertEqual(Validator(root, strict=True).run(), 0)
+
+    def test_routing_is_independent_of_context_count(self):
+        temp, root = self.make_repo()
+        self.addCleanup(temp.cleanup)
+        item = self.base_item("FEAT-2021", risk="medium")
+        item["classification"] = {"complexity": "high", "impact": "cross-module", "security": "none", "confidence": "high"}
+        item["routing"] = {"derived": "extended", "effective": "extended"}
+        manifest = self.valid_manifest("extended")
+        manifest["required"] = ["core"]
+        manifest["deferred"] = ["project", "testing", "architecture", "security", "release", "incident"]
+        item["context"] = manifest
+        self.write_item(root, item, ["discovery.md", "spec.md"])
+        self.assertEqual(Validator(root, strict=True).run(), 0)
 
     def test_context_budget_must_match_effective_routing(self):
         temp, root = self.make_repo()
@@ -682,20 +727,35 @@ class ContextValidatorTest(unittest.TestCase):
 
     def test_minimal_classification_default_domains_regression(self):
         calm = {"complexity": "low", "impact": "local", "security": "none", "confidence": "high"}
-        domains = default_required_domains(calm)
-        self.assertEqual(domains, {"core", "project", "testing"})
-        unrelated = {"security", "incident", "release", "architecture"}
-        self.assertEqual(domains & unrelated, set())
+        self.assertEqual(default_required_domains(calm), set())
+        self.assertEqual(default_required_domains(calm, "feature", "specify"), set())
+
+        promoted = default_required_domains(calm, "feature", "execute")
+        self.assertEqual(promoted, {"testing"})
+
+        verified = default_required_domains(calm, "bug", "verify")
+        self.assertEqual(verified, {"testing"})
 
         loud = {"complexity": "medium", "impact": "cross-module", "security": "relevant", "confidence": "high"}
-        expanded = default_required_domains(loud, "feature")
-        self.assertIn("security", expanded)
-        self.assertIn("architecture", expanded)
-        self.assertNotIn("incident", expanded)
-        self.assertNotIn("release", expanded)
+        expanded = default_required_domains(loud, "feature", "plan")
+        self.assertEqual(expanded, {"security", "architecture"})
+
+        incident = default_required_domains(loud, "incident", "triage")
+        self.assertEqual(incident, {"security", "architecture", "incident"})
 
         self.assertEqual(derive_routing(calm, "low"), "minimal")
         self.assertEqual(derive_routing(loud, "medium"), "extended")
+
+    def test_bootstrap_is_separate_from_context_domains(self):
+        from benchmarks.run import BASELINE_FILES, BOOTSTRAP_FILES
+
+        self.assertIn("AGENTS.md", BOOTSTRAP_FILES)
+        self.assertIn(".context/INDEX.md", BOOTSTRAP_FILES)
+        self.assertFalse(any(path.startswith(".context/project/") for path in BOOTSTRAP_FILES))
+        self.assertNotIn(".context/policies/core/testing.md", BOOTSTRAP_FILES)
+        self.assertNotIn(".context/policies/core/security-privacy.md", BOOTSTRAP_FILES)
+        self.assertTrue(any(path.startswith(".context/project/") for path in BASELINE_FILES))
+        self.assertIn(".context/policies/core/testing.md", BASELINE_FILES)
 
     def test_context_domains_come_from_catalog(self):
         temp, root = self.make_repo()

@@ -2,6 +2,9 @@
 
 ## 0.2.0 — Unreleased
 
+- Separated the minimal bootstrap from context domains: entrypoint and index files belong to the bootstrap, the `core` domain narrowed to post-bootstrap governance, and no domain is mandatory in every manifest (trivial tasks may run on an empty manifest).
+- Made `project` lazy and `testing` phase/task driven through explicit promotion triggers, with targeted discovery distinguished from domain loading and mandatory policy separated from mandatory full-document loading.
+- Added the reproducible, vendor-neutral context benchmark (`benchmarks/`): five scenario classes, documented eager baseline versus routed behavior, deterministic context-size metrics, optional runtime-token slots, no fabricated numbers and not a release gate.
 - Added the context-routing layer (`.context/context-routing/`): catalog of context domains, structural budgets, explicit triggers and the context manifest, with validator enforcement of manifest structure, domain names and budget consistency.
 - Added immediate-classification ordering and progressive disclosure: classification precedes detailed context loading, context inclusion requires purpose, extended routing never means loading everything, and handoffs are compact artifacts instead of conversation history.
 - Split decision authority from progress: decision categories (`DISCOVERABLE`, `REVERSIBLE_AGENT_DECISION`, `ASSUMPTION_ALLOWED`, `HUMAN_DECISION_REQUIRED`, `CRITICAL_HUMAN_GATE`) now carry an explicit execution state (`CONTINUE`, `WAITING_FOR_HUMAN`, `BLOCKED`) with formal precedence.

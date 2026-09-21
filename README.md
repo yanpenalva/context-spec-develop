@@ -12,7 +12,8 @@ An agent-neutral, conversation-first development kit—from context to verified 
 - Support work: triage, diagnosis, bugs, incidents, hotfixes, deployment, observation and postmortems.
 - A common set of gates, prompts and artifacts for humans and coding agents.
 - Declarative work classification (complexity, impact, security, confidence) with deterministic routing depth and a canonical human↔agent interaction protocol.
-- Context routing with progressive disclosure: classification first, then only the minimum sufficient canonical context per phase, with compact handoffs. See [`docs/examples/end-to-end-context-routing.md`](docs/examples/end-to-end-context-routing.md).
+- Context routing with progressive disclosure: a minimal bootstrap, immediate classification, then only the minimum sufficient canonical context per phase — project and testing domains load lazily, when triggered. See [`docs/examples/end-to-end-context-routing.md`](docs/examples/end-to-end-context-routing.md).
+- A reproducible, vendor-neutral benchmark measuring structural context size (eager baseline versus routed) across five scenario classes: [`benchmarks/`](benchmarks/).
 - A dependency-free Python validator for structure, metadata, workflow state and required evidence.
 
 ## Quick start
@@ -115,7 +116,8 @@ The repository is published at [github.com/yanpenalva/context-spec-develop](http
 - [`.context/policies/`](.context/policies/) — normative core policies.
 - [`.context/classification/`](.context/classification/) — classification dimensions and routing depth.
 - [`.context/interaction/`](.context/interaction/) — questioning, decision categories, uncertainty and escalation protocol.
-- [`.context/context-routing/`](.context/context-routing/) — context domains, budgets, triggers and the manifest.
+- [`.context/context-routing/`](.context/context-routing/) — bootstrap, context domains, budgets, triggers and the manifest.
+- [`benchmarks/`](benchmarks/) — reproducible context-size benchmark (eager baseline versus routed).
 - [`docs/examples/end-to-end-context-routing.md`](docs/examples/end-to-end-context-routing.md) — worked example of the full flow.
 - [`adapters/`](adapters/) — thin entry points for compatible agents.
 - [`examples/acme-orders/`](examples/acme-orders/) — complete Product and Support examples.

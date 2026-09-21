@@ -83,7 +83,7 @@ CLASSIFICATION_DIMENSIONS_CURRENT = ("complexity", "impact", "security", "confid
 ROUTING_DEPTHS = ("minimal", "standard", "extended")
 ROUTING_ORDER = {"minimal": 0, "standard": 1, "extended": 2}
 BUDGET_MAX_REQUIRED = {"minimal": 3, "standard": 5, "extended": 7}
-MANDATORY_CONTEXT_DOMAINS = {"core"}
+PHASES_PROMOTING_TESTING = {"execute", "verify"}
 DECISION_CATEGORIES = {
     "DISCOVERABLE",
     "REVERSIBLE_AGENT_DECISION",
@@ -153,15 +153,22 @@ def derive_routing(classification: dict[str, Any], risk: Any) -> str | None:
     return "standard"
 
 
-def default_required_domains(classification: dict[str, Any], item_type: str | None = None) -> set[str]:
-    """Deterministic default context manifest per .context/context-routing/triggers.md."""
-    domains = {"core", "project", "testing"}
+def default_required_domains(classification: dict[str, Any], item_type: str | None = None, phase: str | None = None) -> set[str]:
+    """Deterministic default promotion per .context/context-routing/triggers.md.
+
+    The bootstrap carries governance, so no domain is mandatory by default;
+    domains appear only when a classification signal, task type or phase
+    promotes them.
+    """
+    domains: set[str] = set()
     if classification.get("security") in {"relevant", "sensitive"}:
         domains.add("security")
     if classification.get("impact") in {"cross-module", "system"}:
         domains.add("architecture")
     if item_type in {"incident", "hotfix"}:
         domains.add("incident")
+    if phase in PHASES_PROMOTING_TESTING:
+        domains.add("testing")
     return domains
 
 
@@ -802,9 +809,6 @@ class Validator:
         if overlap:
             self.error(
                 f"{directory.name}: context domains cannot be required and deferred: {sorted(overlap)}")
-        if MANDATORY_CONTEXT_DOMAINS - set(required):
-            self.error(
-                f"{directory.name}: context required must include the mandatory domain(s) {sorted(MANDATORY_CONTEXT_DOMAINS)}")
         if budget in BUDGET_MAX_REQUIRED and len(set(required)) > BUDGET_MAX_REQUIRED[budget]:
             self.error(
                 f"{directory.name}: context budget {budget} allows at most {BUDGET_MAX_REQUIRED[budget]} required domains")
