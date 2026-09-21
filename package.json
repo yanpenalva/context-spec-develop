@@ -1,0 +1,43 @@
+{
+  "name": "@yanpenalva/context-spec-develop",
+  "version": "0.3.0",
+  "description": "Installable, agent-neutral context and delivery workflow for AI coding agents.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yanpenalva/context-spec-develop.git"
+  },
+  "homepage": "https://yanpenalva.github.io/context-spec-develop/",
+  "publishConfig": {
+    "access": "public"
+  },
+  "type": "module",
+  "bin": {
+    "csd": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "skill",
+    "assets",
+    "registry",
+    "catalog",
+    "LICENSE",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "tsc && node scripts/build-assets.mjs",
+    "build:registry": "node scripts/generate-registry.mjs",
+    "build:catalog": "node scripts/generate-catalog.mjs",
+    "check": "npm run build && npm run build:registry && npm run build:catalog",
+    "test": "npm run build && node --test tests/node/*.test.mjs",
+    "prepack": "npm run check",
+    "prepare": "npm run build"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "typescript": "^5.8.3"
+  }
+}

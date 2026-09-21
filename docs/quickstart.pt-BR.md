@@ -4,17 +4,23 @@ Este guia é a porta de entrada do `context-spec-develop`. As políticas e contr
 
 ## 1. Instale o kit
 
-Use o repositório como template do GitHub ou copie `.context/`, `AGENTS.md` e o adapter do seu agente para o projeto. Mantenha os arquivos canônicos versionados com o projeto.
+Instale o pacote publicado:
+
+```bash
+npx @yanpenalva/context-spec-develop install
+```
+
+Por padrão a instalação é global. Use `--scope project` para versionar a skill no repositório e `--agents codex,claude-code,cursor,copilot,gemini,opencode` para selecionar os harnesses sem o assistente interativo. O instalador cria lockfile, recusa conflitos sem `--force` explícito e oferece `update`, `remove` e `doctor`.
 
 ## 2. Primeira vez: inicialize o contexto do projeto
 
-Aponte o agente para o `AGENTS.md` e peça, em linguagem natural:
+Ative `/csd` (ou `$csd` no Codex) e peça, em linguagem natural:
 
 ```text
 Inicialize o context-spec-develop neste projeto.
 ```
 
-Não há frase obrigatória; a intenção é inicializar o contexto do projeto. O agente segue o contrato canônico [`initialize-project.md`](../.context/prompts/initialize-project.md):
+A skill mostra primeiro uma prévia do bootstrap. Após uma confirmação, materializa `.context/` e uma integração idempotente no `AGENTS.md`; depois segue o contrato canônico [`initialize-project.md`](../.context/prompts/initialize-project.md):
 
 - inspeciona o repositório (linguagens, frameworks, testes, CI, estrutura);
 - preenche o contexto descobrível em [`.context/project/`](../.context/project/) e `.context/config.json`;

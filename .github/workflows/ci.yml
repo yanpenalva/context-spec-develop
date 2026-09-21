@@ -1,0 +1,24 @@
+name: Validate CSD
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run check
+      - run: git diff --exit-code -- registry catalog
+      - run: python3 -m unittest discover -s tests
+      - run: python3 scripts/validate_context.py --strict --examples

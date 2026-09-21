@@ -2,17 +2,23 @@
 
 ## 1. Install the kit
 
-Use this repository as a template or copy `.context/`, `AGENTS.md` and the adapter relevant to your coding agent. Codex reads the root `AGENTS.md`; Claude, Copilot and Gemini use their thin adapters. Keep the canonical files versioned with the project.
+Install the published package for the harnesses you use:
+
+```bash
+npx @yanpenalva/context-spec-develop install
+```
+
+The default is global installation. Use `--scope project` to version the skill with the repository, and `--agents codex,claude-code,cursor,copilot,gemini,opencode` to avoid the interactive selection. The installer writes a lockfile, refuses conflicting files unless `--force` is explicit, and supports `update`, `remove` and `doctor`.
 
 ## 2. Initialize the project context
 
-Point your agent at `AGENTS.md` and ask, in plain language:
+Activate `/csd` (or `$csd` in Codex) and ask, in plain language:
 
 ```text
 Initialize context-spec-develop for this repository.
 ```
 
-There is no required magic phrase; the intent is "initialize the project context". The agent follows `.context/prompts/initialize-project.md`: bounded repository discovery, populating `.context/config.json` and `.context/project/` with discovered facts, recording everything else as `NOT FOUND`, and asking you only the non-discoverable questions that are material to configuration, governance or workflow (for example production owner or release authority — facts a repository cannot prove).
+The skill first previews the bootstrap. After one confirmation it materializes `.context/` and an idempotent CSD entry in `AGENTS.md`, then follows `.context/prompts/initialize-project.md`: bounded repository discovery, populating `.context/config.json` and `.context/project/` with discovered facts, recording everything else as `NOT FOUND`, and asking you only the non-discoverable questions that are material to configuration, governance or workflow (for example production owner or release authority — facts a repository cannot prove).
 
 Manual fallback: complete `.context/config.json` and `.context/project/` yourself, replacing placeholders with facts, links or `NOT FOUND`. Do not copy secrets.
 

@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "compatibility": {
+    "nativeSlashCommand": [
+      "claude-code",
+      "cursor",
+      "gemini",
+      "opencode"
+    ],
+    "explicitSkill": [
+      "oas",
+      "codex"
+    ],
+    "customAgent": [
+      "copilot"
+    ]
+  },
+  "skills": [
+    {
+      "name": "csd",
+      "description": "Start the Context Spec Develop workflow: initialize a project's canonical context, classify the request, route the minimum sufficient context, and carry work through verified delivery. Use when the user invokes /csd, $csd, asks to start CSD, initialize context-spec-develop, or wants the governed feature/bug workflow. Do not use for unrelated coding questions that do not require the CSD delivery lifecycle.",
+      "license": "MIT",
+      "version": "0.3.0",
+      "files": [
+        {
+          "path": "SKILL.md",
+          "sha256": "242a1e4a52f8a4801f89ad00fdea71073668938a9afe477a7a429f3456d39d0b",
+          "bytes": 2550
+        }
+      ]
+    }
+  ]
+}

@@ -603,7 +603,7 @@ class Validator:
                         "H" "U", "Lar" "avel", "V" "ue")
         markers = re.compile(r"\b(?:" + "|".join(marker_words[:2] + (
             marker_words[3], marker_words[4])) + r"|" + marker_words[2] + r"\d+)\b", re.IGNORECASE)
-        excluded = {".git", "__pycache__"}
+        excluded = {".git", "__pycache__", "node_modules", "dist", "assets", "registry", "catalog"}
         for path in self.root.rglob("*"):
             if not path.is_file() or any(part in excluded for part in path.parts):
                 continue
@@ -614,7 +614,10 @@ class Validator:
                     f"project-specific marker found in public package: {path.relative_to(self.root)}")
 
     def markdown_files(self) -> list[Path]:
-        return [path for path in self.root.rglob("*.md") if ".git" not in path.parts]
+        return [
+            path for path in self.root.rglob("*.md")
+            if not any(part in {".git", "node_modules", "dist", "assets"} for part in path.parts)
+        ]
 
     def check_links(self) -> None:
         link_pattern = re.compile(r"\]\(([^)]+)\)")
@@ -641,7 +644,7 @@ class Validator:
         if not self.strict:
             return
         marker = re.compile(r"<[A-Z][A-Z0-9_ /.-]*>")
-        excluded = {".context/templates", "examples", ".ai"}
+        excluded = {".context/templates", "examples", ".ai", "assets/template", "node_modules", "dist"}
         for path in self.root.rglob("*"):
             if not path.is_file() or path.suffix not in {".md", ".json"}:
                 continue

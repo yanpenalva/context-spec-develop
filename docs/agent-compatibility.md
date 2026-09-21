@@ -2,6 +2,8 @@
 
 The canonical contract is Markdown and JSON in `.context/`. Tool-specific files should only explain how an agent discovers and loads that source.
 
+For new projects, the npm package installs the `csd` skill and native activation files. Use `npx @yanpenalva/context-spec-develop install`; run `csd update` when a newer package is available. Hosts with custom command files receive `/csd`; Codex receives `$csd`; Copilot receives the `csd` custom agent. Harnesses outside this matrix can load the standard `.agents/skills/csd/SKILL.md` directly.
+
 | Agent family                          | Adapter                                    |
 | ------------------------------------- | ------------------------------------------ |
 | Codex and other AGENTS.md-aware tools | root `AGENTS.md`                           |

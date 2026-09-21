@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0",
+  "id": "FEAT-9013",
+  "title": "Package CSD as an installable multi-harness skill",
+  "track": "product",
+  "type": "feature",
+  "phase": "verify",
+  "status": "active",
+  "risk": "high",
+  "owner": "yanpenalva",
+  "conversation_profile": "senior-software-engineer",
+  "git_finalization_mode": "confirm_each",
+  "classification": {
+    "complexity": "high",
+    "impact": "system",
+    "security": "relevant",
+    "confidence": "high"
+  },
+  "routing": {
+    "derived": "extended",
+    "effective": "extended"
+  },
+  "context": {
+    "budget": "extended",
+    "required": ["core", "project", "testing", "security"],
+    "deferred": ["incident"],
+    "triggers": ["npm publishing", "multi-harness installation", "supply-chain integrity"]
+  },
+  "reclassification": [],
+  "last_updated": "2026-09-21",
+  "phase_history": ["discover", "specify", "plan", "preflight", "execute", "verify"],
+  "policy_exceptions": []
+}

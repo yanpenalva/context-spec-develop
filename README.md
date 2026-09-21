@@ -6,6 +6,18 @@ An agent-neutral, conversation-first development kit—from context to verified 
 
 > Choose the collaborator. Describe the outcome. The orchestrator builds the path. Agents execute bounded work. Humans approve risk and production.
 
+## Install as a reusable skill
+
+The package can install the CSD skill and the native activation entrypoint for the current agent setup:
+
+```bash
+npx @yanpenalva/context-spec-develop install
+```
+
+Choose `global` to use CSD across repositories or `project` to version the skill with one repository. You can select explicit targets with `--agents codex,claude-code,cursor,copilot,gemini,opencode`.
+
+After installation, use `/csd` in hosts with custom commands, `$csd` in Codex, or select the `csd` custom agent in Copilot. The first invocation previews the project bootstrap and asks for one confirmation before creating `.context/`.
+
 ## What it covers
 
 - Product work: discovery, specification, planning, implementation, verification, release and learning.
@@ -23,11 +35,12 @@ An agent-neutral, conversation-first development kit—from context to verified 
 INSTALL ONCE  →  INITIALIZE PROJECT  →  WORK NORMALLY
 ```
 
-1. Use this repository as a GitHub template or copy it into a project.
-2. Point your agent at `AGENTS.md` and say: **"Initialize context-spec-develop for this repository."** The agent discovers repository facts, populates [`.context/project/`](.context/project/), records unknowns as `NOT FOUND` and asks only non-discoverable material questions. Filling the files by hand remains a valid manual fallback.
-3. Review only the unresolved material decisions the agent reports.
-4. Run `python3 scripts/validate_context.py --strict`.
-5. Describe the work in plain language. Read [`docs/getting-started.md`](docs/getting-started.md); Portuguese-speaking teams can start with [`docs/quickstart.pt-BR.md`](docs/quickstart.pt-BR.md).
+1. Install the package with `npx @yanpenalva/context-spec-develop install`, or use this repository as a GitHub template when you want to inspect or customize the canonical source.
+2. Activate CSD in the installed harness. The skill previews and, after confirmation, bootstraps `AGENTS.md` and [`.context/`](.context/) into the project.
+3. Point your agent at `AGENTS.md` and say: **"Initialize context-spec-develop for this repository."** The agent discovers repository facts, populates [`.context/project/`](.context/project/), records unknowns as `NOT FOUND` and asks only non-discoverable material questions. Filling the files by hand remains a valid manual fallback.
+4. Review only the unresolved material decisions the agent reports.
+5. Run `python3 scripts/validate_context.py --strict`.
+6. Describe the work in plain language. Read [`docs/getting-started.md`](docs/getting-started.md); Portuguese-speaking teams can start with [`docs/quickstart.pt-BR.md`](docs/quickstart.pt-BR.md).
 
 ## Start a conversation
 
