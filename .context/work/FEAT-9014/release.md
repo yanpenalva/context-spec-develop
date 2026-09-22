@@ -37,8 +37,8 @@
 - Validation summary and exact commands: `npm test` (28 pass, 0 fail); `python3 scripts/validate_context.py --strict --examples` (pass); `npm run check` (exit 0) — 2026-09-21.
 - Proposed commit message: `feat(mcp): add stdio MCP adapter exposing the CSD workflow to MCP clients`
 - Commit approval: `APPROVED`
-- Commit hash: recorded after execution.
+- Commit hash: `45ad741`
 - Push target: origin default branch
 - Push approval: `APPROVED`
-- Push result: recorded after execution.
+- Push result: pushed to `origin/main` (`595c67d..45ad741`) on 2026-09-21.
 - Tag approval/result (if applicable): none.
