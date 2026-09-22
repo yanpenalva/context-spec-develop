@@ -227,11 +227,12 @@ def check_classification_fixture(case: dict[str, Any], domains: set[str]) -> lis
 
 
 class Validator:
-    def __init__(self, root: Path, strict: bool, mode: str | None = None, include_examples: bool = False) -> None:
+    def __init__(self, root: Path, strict: bool, mode: str | None = None, include_examples: bool = False, as_json: bool = False) -> None:
         self.root = root
         self.strict = strict
         self.mode_override = mode
         self.include_examples = include_examples
+        self.as_json = as_json
         self.mode = "starter"
         self.available_agent_profiles: set[str] = set()
         self.context_domains: set[str] = set()
@@ -274,6 +275,13 @@ class Validator:
         self.check_classification_fixtures()
         if self.include_examples:
             self.check_examples(config)
+        if self.as_json:
+            print(json.dumps({
+                "ok": len(self.errors) == 0,
+                "errors": self.errors,
+                "warnings": self.warnings,
+            }))
+            return 1 if self.errors else 0
         for warning in self.warnings:
             print(f"WARNING: {warning}")
         for error in self.errors:
@@ -1101,15 +1109,23 @@ def main(argv: list[str] | None = None) -> int:
                         help="override configured governance mode")
     parser.add_argument("--examples", action="store_true",
                         help="validate example work items")
+    parser.add_argument("--json", action="store_true",
+                        help="emit a structured JSON report instead of text")
     args = parser.parse_args(argv)
     root = args.root.resolve()
     if not root.is_dir():
-        print(f"ERROR: root is not a directory: {root}")
+        if args.json:
+            print(json.dumps({"ok": False, "errors": [f"root is not a directory: {root}"], "warnings": []}))
+        else:
+            print(f"ERROR: root is not a directory: {root}")
         return 2
     try:
-        return Validator(root, args.strict, args.mode, args.examples).run()
+        return Validator(root, args.strict, args.mode, args.examples, args.json).run()
     except OSError as exc:
-        print(f"ERROR: unable to read repository: {exc}")
+        if args.json:
+            print(json.dumps({"ok": False, "errors": [f"unable to read repository: {exc}"], "warnings": []}))
+        else:
+            print(f"ERROR: unable to read repository: {exc}")
         return 2
 
 

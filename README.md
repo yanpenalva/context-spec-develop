@@ -123,6 +123,16 @@ Point the agent to `AGENTS.md` or the adapter for its tool, then provide the cur
 
 Use optional guidance in [`.context/tooling/`](.context/tooling/) for RTK, AI-memory, code-review graphs and subtask waves. These tools reduce noise or improve coordination; they never replace canonical artifacts or validation.
 
+## MCP clients (ChatGPT and any MCP host)
+
+`csd mcp` starts an official MCP server (stdio) over a local repository, so MCP clients can drive CSD without installing a per-host skill:
+
+```bash
+csd mcp --root /absolute/path/to/repository
+```
+
+The server exposes seven tools — `csd_inspect`, `csd_context`, `csd_work_item`, `csd_write_artifact`, `csd_validate`, `csd_bootstrap_preview`, `csd_bootstrap_apply` — as a transport and access boundary only: `.context/` stays canonical, durable state stays in `.context/work/<id>/`, and a task started by ChatGPT over MCP is continued by Codex, Claude or any other adapter from the same files. See [`docs/mcp.md`](docs/mcp.md).
+
 ## Validate and update
 
 ```bash
@@ -145,6 +155,7 @@ The repository is published at [github.com/yanpenalva/context-spec-develop](http
 - [`docs/standards-and-references.md`](docs/standards-and-references.md) — external reference mapping.
 - [`docs/operating-model.md`](docs/operating-model.md) — roles, gates and decision ownership.
 - [`docs/artifacts-and-gates.md`](docs/artifacts-and-gates.md) — artifact contract by phase.
+- [`docs/mcp.md`](docs/mcp.md) — MCP server: tools, security model and cross-agent handoff.
 - [`docs/agent-compatibility.md`](docs/agent-compatibility.md) — adapter behavior and boundaries.
 - [`.context/profiles/`](.context/profiles/) — conversation roles and startup questions.
 - [`.context/orchestration/config.json`](.context/orchestration/config.json) — who orchestrates, plans, executes, reviews and approves.

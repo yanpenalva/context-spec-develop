@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { resolve } from 'node:path'
 import { activationTable, parseAgents } from './adapters.js'
 import { bootstrap, inspect, install, PACKAGE_NAME, PACKAGE_VERSION, remove } from './installer.js'
 import type { Scope } from './types.js'
@@ -13,7 +14,7 @@ interface CliOptions {
 }
 
 function usage(): string {
-  return `CSD ${PACKAGE_VERSION}\n\nUsage:\n  csd install [--agents <ids>] [--scope global|project] [--root <path>] [--force]\n  csd update [--scope global|project] [--root <path>]\n  csd remove [--scope global|project] [--root <path>] [--force]\n  csd list\n  csd doctor [--scope global|project] [--root <path>]\n  csd bootstrap --root <project> [--force]\n\nAgents:\n${activationTable()}\n`
+  return `CSD ${PACKAGE_VERSION}\n\nUsage:\n  csd install [--agents <ids>] [--scope global|project] [--root <path>] [--force]\n  csd update [--scope global|project] [--root <path>]\n  csd remove [--scope global|project] [--root <path>] [--force]\n  csd list\n  csd doctor [--scope global|project] [--root <path>]\n  csd bootstrap --root <project> [--force]\n  csd mcp [--root <project>]\n\nAgents:\n${activationTable()}\n`
 }
 
 function optionValue(args: string[], name: string): string | undefined {
@@ -65,6 +66,12 @@ async function main(argv: string[]): Promise<number> {
     if (!root) throw new Error('bootstrap requires --root <project>')
     const report = await bootstrap(root, args.includes('--force'))
     process.stdout.write(`CSD bootstrap complete: ${report.created.length} created, ${report.skipped.length} skipped\n`)
+    return 0
+  }
+  if (command === 'mcp') {
+    const root = optionValue(args, '--root')
+    const { startCsdServer } = await import('./mcp/server.js')
+    await startCsdServer(root ? resolve(root) : undefined)
     return 0
   }
 

@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.0",
+  "id": "FEAT-9014",
+  "title": "CSD MCP adapter: stdio server exposing inspect, context, work-item, artifact, validate and gated bootstrap tools",
+  "track": "product",
+  "type": "feature",
+  "phase": "release",
+  "status": "active",
+  "risk": "high",
+  "owner": "hiyan",
+  "conversation_profile": "senior-software-engineer",
+  "git_finalization_mode": "confirm_each",
+  "classification": {
+    "complexity": "high",
+    "impact": "system",
+    "security": "relevant",
+    "confidence": "high"
+  },
+  "routing": {
+    "derived": "extended",
+    "effective": "extended"
+  },
+  "context": {
+    "budget": "extended",
+    "required": [
+      "core",
+      "project",
+      "testing",
+      "security"
+    ],
+    "deferred": [
+      "incident"
+    ],
+    "triggers": [
+      "MCP protocol integration",
+      "filesystem access boundary",
+      "third-party SDK dependency"
+    ]
+  },
+  "reclassification": [],
+  "last_updated": "2026-09-21",
+  "phase_history": [
+    "discover",
+    "specify",
+    "plan",
+    "preflight",
+    "execute",
+    "verify",
+    "release"
+  ],
+  "policy_exceptions": []
+}
