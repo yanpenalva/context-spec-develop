@@ -1,6 +1,6 @@
 # AI Governance Context
 
-The normative baseline is in `.context/policies/core/ai-governance.md`. This file records the organization's approved operating boundaries.
+The normative baseline is in `.context/policies/core/ai-governance.md`. This repository provides workflows for AI coding agents, but no organization-wide agent or data policy is documented.
 
 - Approved agents, models and accounts: `NOT FOUND`
 - Allowed data classifications: `NOT FOUND`

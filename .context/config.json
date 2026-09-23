@@ -2,8 +2,8 @@
   "schema_version": "1.0",
   "kit_version": "1.0.0",
   "project": {
-    "name": "Adopting project",
-    "repository": "organization/repository"
+    "name": "@owlcodium/context-spec-develop",
+    "repository": "yanpenalva/context-spec-develop"
   },
   "tracks": ["product", "support"],
   "governance_mode": "starter",
@@ -29,7 +29,7 @@
   "quality": {
     "baseline": "no-regression",
     "static_analysis_command": "NOT FOUND",
-    "test_command": "NOT FOUND",
+    "test_command": "npm test",
     "cognitive_complexity_max": null,
     "cyclomatic_complexity_max": null,
     "changed_code_coverage_min": null,

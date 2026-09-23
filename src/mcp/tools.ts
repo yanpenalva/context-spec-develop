@@ -22,16 +22,16 @@ const rootSchema = z.string().describe('Absolute path to the repository root')
 export const toolSchemas = {
   csd_inspect: {
     title: 'Inspect CSD repository',
-    description: 'Inspect a repository for CSD readiness: AGENTS.md, .context/, installation health, whether bootstrap or onboarding is needed, and existing work items. Read-only.',
+    description: 'Inspect a repository for CSD readiness: AGENTS.md, context-layout discovery, installation health, whether bootstrap or onboarding is needed, and existing work items. Read-only.',
     inputSchema: { root: rootSchema.optional() },
   },
   csd_context: {
     title: 'Load canonical CSD context',
-    description: 'Return the canonical CSD bootstrap (front door, classification, interaction, routing catalog) plus references and open work items. Classification and routing remain the agent\'s job per the .context/ contracts. Optionally read up to 20 explicit paths under .context/. Read-only.',
+    description: 'Return the canonical CSD bootstrap (front door, classification, interaction, routing catalog) plus references and open work items. Classification and routing remain the agent\'s job per the .context/ contracts. Optionally read up to 20 explicit paths under the selected context root. Read-only.',
     inputSchema: {
       root: rootSchema.optional(),
       request: z.string().max(4000).optional().describe('The user request this context is for (recorded in the response, not interpreted)'),
-      paths: z.array(z.string().max(512)).max(20).optional().describe('Explicit additional paths to read, relative to .context/'),
+      paths: z.array(z.string().max(512)).max(20).optional().describe('Explicit additional paths to read, relative to the selected context root'),
     },
   },
   csd_work_item: {
@@ -44,7 +44,7 @@ export const toolSchemas = {
   },
   csd_write_artifact: {
     title: 'Persist CSD work item artifact',
-    description: 'Persist one allowlisted artifact (e.g. spec.md, plan.md, progress.md, verification.md, work-item.json) inside .context/work/<workItem>/. Writes outside the work item are impossible; work-item.json content is structurally validated.',
+    description: "Persist one allowlisted artifact (e.g. spec.md, plan.md, progress.md, verification.md, work-item.json) inside the selected layout work-item root. Writes outside the work item are impossible; work-item.json content is structurally validated.",
     inputSchema: {
       root: rootSchema.optional(),
       workItem: z.string().min(1).max(64).describe('Work item id (e.g. FEAT-1234)'),
@@ -67,10 +67,11 @@ export const toolSchemas = {
   },
   csd_bootstrap_apply: {
     title: 'Apply CSD bootstrap',
-    description: 'Materialize the CSD canonical context in a repository. Requires the exact token returned by csd_bootstrap_preview for the current repository state; a silent one-call bootstrap is intentionally impossible.',
+    description: 'Materialize the configured CSD context layout. Requires the exact current preview token and confirmed: true after reviewing the preview.',
     inputSchema: {
       root: rootSchema.optional(),
       token: z.string().min(16).max(128).describe('Token returned by csd_bootstrap_preview'),
+      confirmed: z.literal(true).describe('Explicit confirmation after reviewing the preview'),
     },
   },
 } as const
@@ -135,6 +136,6 @@ async function handleTool(name: ToolName, args: Record<string, unknown>, context
     case 'csd_bootstrap_preview':
       return bootstrapPreview(root)
     case 'csd_bootstrap_apply':
-      return bootstrapApply(root, String(args['token'] ?? ''))
+      return bootstrapApply(root, String(args['token'] ?? ''), args['confirmed'] === true)
   }
 }

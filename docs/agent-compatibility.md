@@ -1,6 +1,6 @@
 # Agent Compatibility
 
-The canonical contract is Markdown and JSON in `.context/`. Tool-specific files should only explain how an agent discovers and loads that source.
+For a new repository, .context/ is the default canonical layout. Before bootstrap, CSD discovers valid .context/, .ai/, .agents/, docs/context/, and context/ layouts and uses the selected one. Tool-specific files should only explain how an agent discovers and loads that source.
 
 For new projects, the npm package installs the `csd` skill and native activation files. Use `npx @owlcodium/context-spec-develop install`; run `csd update` when a newer package is available. Hosts with custom command files receive `/csd`; Codex receives `$csd`; Copilot receives the `csd` custom agent. Harnesses outside this matrix can load the standard `.agents/skills/csd/SKILL.md` directly.
 
@@ -16,4 +16,6 @@ For new projects, the npm package installs the `csd` skill and native activation
 
 When an adapter cannot express a capability, the canonical workflow still wins. Do not maintain separate copies of the methodology.
 
-All agents follow the same startup route: read `AGENTS.md`; if the project context is not yet initialized, run project onboarding per `.context/prompts/initialize-project.md` (no work item); otherwise select a conversation profile, classify Product/Support during intake, classify the work and derive routing depth per `.context/classification/`, build the context manifest per `.context/context-routing/` and load only the required domains, apply the interaction protocol from `.context/interaction/` to every question and escalation, open the work item, decompose the plan into waves and then follow the current phase contract. None of these steps requires harness-specific rules; an adapter only teaches where the entrypoint lives. A tool that never reads `AGENTS.md` or an adapter is outside the kit's reach: the protocol binds compatible harnesses, it cannot force discovery.
+All agents follow the same startup route: read AGENTS.md; inspect and select the repository's context layout; if project context is not initialized, use that layout's onboarding sources (no work item), inspect configured module-documentation roots and ask once about the generic scaffold when no structure exists; otherwise select a conversation profile, classify Product/Support during intake, derive routing depth, build the context manifest and load only required domains, apply the interaction protocol to questions and escalations, open the work item under the normalized work root, decompose the plan into waves and follow the current phase contract.
+
+See [context discovery](context-discovery.md) for layout markers, precedence and bootstrap confirmation.

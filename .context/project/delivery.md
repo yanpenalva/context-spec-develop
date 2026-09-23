@@ -2,7 +2,7 @@
 
 ## Release readiness
 
-Define required approvals, change windows, migrations, feature flags, backups, communication and rollback evidence.
+The npm release workflow runs on `v*.*.*` tags, installs dependencies on Node.js 24, runs `npm run check` and `npm test`, then publishes with npm provenance. The catalog workflow publishes `catalog/` to GitHub Pages on `main` changes or manual dispatch. Release approver and environment protection rules: `NOT FOUND`.
 
 ## Rollback
 

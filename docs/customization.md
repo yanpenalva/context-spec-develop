@@ -2,10 +2,19 @@
 
 Start with the core and change project context before changing workflow policy. Add a project-specific rule only when it is evidenced, owned and testable.
 
+## Code quality defaults
+
+CSD's framework-neutral code-quality policy applies to new production code and production code changed by a work item. It is intentionally opinionated: it sets defaults for control flow, immutability, types, domain boundaries, naming, documentation, error handling, suppressions, size and complexity. Examples include no `else`/`elseif`, at most three returns per function, 15 methods per class and per file, seven parameters, and analyzer-independent review ceilings for function/file size and complexity. See `.context/policies/core/code-quality.md` for the complete baseline.
+
+These values are CSD review defaults, not SonarQube defaults or proof that an analyzer is configured. Teams adopting CSD may permanently tailor their local baseline by editing `.context/policies/core/code-quality.md` in a reviewed change, with the reason and owner recorded in project context. Keep analyzer commands and thresholds actually configured by the project in `.context/project/quality.md`; leave unknown settings as `NOT FOUND`. Use `.context/policies/exceptions.md` for a scoped, one-work-item deviation when the project baseline itself remains unchanged. Stack-specific idioms belong in project conventions and must not be presented as framework-neutral CSD rules.
+
 ## Safe customization
+
+Set discovery preferences in repository-root `csd.config.json` when the default adapters or precedence order do not fit. Marker, protected and module search paths are validated as repository-relative paths. Existing valid layouts are selected without migration; see [context discovery](context-discovery.md).
 
 - Replace placeholders in `.context/project/`.
 - Add domain context under `.context/project/` or a documented subdirectory.
+- Configure optional module documentation with `contextDiscovery.moduleContext`: set `enabled: false` to disable it, `prompt_policy: "never"` to suppress questions, or provide bounded `search_roots` to narrow discovery. Do not use it to mirror `.context/` and `.ai/`.
 - Add templates under an explicit overlay and document when they apply.
 - Add or remove conversation profiles in `.context/profiles/`, then update `agent_profiles.available` and its default in `config.json`.
 - Add project-owned tool notes under `.context/tooling/` when an RTK, memory or review-graph integration has a defined owner and boundary.

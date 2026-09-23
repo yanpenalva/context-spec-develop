@@ -26,9 +26,29 @@ A skill mostra primeiro uma prévia do bootstrap. Após uma confirmação, mater
 - preenche o contexto descobrível em [`.context/project/`](../.context/project/) e `.context/config.json`;
 - marca ausências como `NOT FOUND`;
 - pergunta somente decisões materiais que não pode descobrir (por exemplo, quem aprova produção);
+- verifica também raízes opcionais de documentação de módulos, preservando estruturas existentes em `.context/` ou `.ai/`;
+- se não encontrar estrutura, pergunta uma única vez se deve criar um scaffold genérico e independente de framework; aprovação cria somente índice/template, recusa persistente não pergunta novamente;
 - valida a instalação.
 
 Preencher os arquivos manualmente continua sendo um caminho válido. O passo é idempotente: fatos confirmados são preservados e fatos organizacionais pertencem a humanos, nunca são inferados.
+
+Para inspecionar ou aplicar essa parte explicitamente:
+
+```bash
+csd modules --root /caminho/absoluto --preview
+csd modules --root /caminho/absoluto --yes
+csd modules --root /caminho/absoluto --decline
+```
+
+Para atualizar o pacote instalado e, separadamente, o snapshot do contexto:
+
+```bash
+csd update --scope project --root /caminho/absoluto
+csd update --scope project --root /caminho/absoluto --context --dry-run
+csd update --scope project --root /caminho/absoluto --context --yes
+```
+
+Arquivos modificados localmente geram conflito e não são sobrescritos sem `--force` explícito.
 
 ## 3. Uso diário: descreva o resultado
 

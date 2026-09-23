@@ -2,6 +2,8 @@
 
 Projects consume a tagged snapshot of `context-spec-develop`; they do not load the central repository at runtime.
 
+The installed harness files and the project context snapshot are updated through separate commands. This keeps local project context, module documentation and active work items outside the package-file update path.
+
 ## Record the version
 
 Keep `kit_version` in `.context/config.json`. A project must know which policy and schema it is using before reviewing an upgrade.
@@ -16,6 +18,23 @@ Keep `kit_version` in `.context/config.json`. A project must know which policy a
 6. Re-run starter/managed/enterprise validation as configured.
 7. Migrate conversation profiles, intake routing, subtask/wave guidance and adapter changes deliberately; do not overwrite local deployment configuration.
 8. Update `kit_version`, record exceptions affected and obtain the normal project approvals.
+
+For an installed package, run the command from the repository that owns the project installation:
+
+```bash
+csd update --scope project --root /absolute/path/to/repository
+```
+
+This updates skill and command files tracked by `.agents/.csd-lock.json`. It compares hashes against the previous lock and refuses locally modified files unless `--force` is explicitly supplied. Files no longer shipped are preserved and reported; update never deletes them automatically.
+
+To update the CSD context snapshot after reviewing the package release:
+
+```bash
+csd update --scope project --root /absolute/path/to/repository --context --dry-run
+csd update --scope project --root /absolute/path/to/repository --context --yes
+```
+
+The context update requires one selected layout and uses `.csd-bootstrap.json` ownership hashes. New protocol files are created and unchanged CSD-owned protocol files are updated. Project-owned files under `project/`, module roots and the work root are preserved; `config.json` receives only a controlled `kit_version` merge. Local or unknown protocol changes become conflicts. It never migrates `.ai/` to `.context/`, deletes module documentation, rewrites work items or creates a second layout.
 
 For the `0.2.0` upgrade, add the required `git.finalization_mode`, `git.ask_before_commit`, `git.ask_before_push`, `git.allow_force_push`, `git.require_clean_worktree`, `git.commit_message_style` and `git.tag_requires_explicit_approval` fields to the orchestration configuration. Add `git_finalization_mode` to new work items and ask for it at startup. Existing work items must add the `Subtasks and waves` section before execution or closure.
 

@@ -28,6 +28,7 @@ After installation, use `/csd` in hosts with custom commands, `$csd` in Codex, o
 - Agent-assisted project onboarding: one prompt initializes the canonical project context from repository evidence; humans answer only what cannot be discovered.
 - A reproducible, vendor-neutral benchmark measuring structural context size (eager baseline versus routed) across five scenario classes: [`benchmarks/`](benchmarks/), plus a golden-dataset benchmark for classification quality and safety: [`benchmarks/classification/`](benchmarks/classification/).
 - A dependency-free Python validator for structure, metadata, workflow state and required evidence.
+- An intentionally opinionated, framework-neutral code-quality baseline that teams can adapt to their own language, tooling and risk profile.
 
 ## Quick start
 
@@ -36,10 +37,13 @@ INSTALL ONCE  →  INITIALIZE PROJECT  →  WORK NORMALLY
 ```
 
 1. Install the package with `npx @owlcodium/context-spec-develop install`, or use this repository as a GitHub template when you want to inspect or customize the canonical source.
-2. Activate CSD in the installed harness. The skill previews and, after confirmation, bootstraps `AGENTS.md` and [`.context/`](.context/) into the project.
-3. Point your agent at `AGENTS.md` and say: **"Initialize context-spec-develop for this repository."** The agent discovers repository facts, populates [`.context/project/`](.context/project/), records unknowns as `NOT FOUND` and asks only non-discoverable material questions. Filling the files by hand remains a valid manual fallback.
+2. Activate CSD in the installed harness. The skill inspects existing context first, then previews the configured layout before bootstrapping it after confirmation.
+3. Point your agent at `AGENTS.md` and say: **"Initialize context-spec-develop for this repository."** The agent discovers repository facts, populates the selected project context, checks optional module-documentation roots, records unknowns as `NOT FOUND` and asks only non-discoverable material questions. If no module documentation exists, it asks once before creating the generic scaffold. Filling the files by hand remains a valid manual fallback.
 4. Review only the unresolved material decisions the agent reports.
 5. Run `python3 scripts/validate_context.py --strict`.
+
+Context discovery, optional module documentation and supported layouts are described in [docs/context-discovery.md](docs/context-discovery.md).
+
 6. Describe the work in plain language. Read [`docs/getting-started.md`](docs/getting-started.md); Portuguese-speaking teams can start with [`docs/quickstart.pt-BR.md`](docs/quickstart.pt-BR.md).
 
 ## Start a conversation
@@ -131,7 +135,7 @@ Use optional guidance in [`.context/tooling/`](.context/tooling/) for RTK, AI-me
 csd mcp --root /absolute/path/to/repository
 ```
 
-The server exposes seven tools — `csd_inspect`, `csd_context`, `csd_work_item`, `csd_write_artifact`, `csd_validate`, `csd_bootstrap_preview`, `csd_bootstrap_apply` — as a transport and access boundary only: `.context/` stays canonical, durable state stays in `.context/work/<id>/`, and a task started by ChatGPT over MCP is continued by Codex, Claude or any other adapter from the same files. See [`docs/mcp.md`](docs/mcp.md).
+The server exposes seven tools — `csd_inspect`, `csd_context`, `csd_work_item`, `csd_write_artifact`, `csd_validate`, `csd_bootstrap_preview`, `csd_bootstrap_apply` — as a transport and access boundary only: the selected context layout stays canonical, durable state stays under its normalized work root, and a task started by ChatGPT over MCP is continued by Codex, Claude or any other adapter from the same files. See [`docs/mcp.md`](docs/mcp.md).
 
 ## Validate and update
 
@@ -140,7 +144,7 @@ python3 scripts/validate_context.py --strict --examples
 python3 -m unittest discover -s tests
 ```
 
-Projects using the central kit record `kit_version` in `.context/config.json` and update it through a reviewed pull request. See [`docs/upgrading.md`](docs/upgrading.md).
+Projects using the central kit record `kit_version` in `.context/config.json` and update it through a reviewed pull request. Installed harness files update with `csd update`; the context snapshot updates separately with `csd update --context` after a preview. See [`docs/upgrading.md`](docs/upgrading.md).
 
 The repository is published at [github.com/yanpenalva/context-spec-develop](https://github.com/yanpenalva/context-spec-develop).
 
@@ -203,6 +207,14 @@ The kit does not decide branch names, hosting rules or deployment commands. The 
 - Context is maintained as a product of the repository, not as a giant prompt.
 
 See [`docs/methodology.md`](docs/methodology.md) for the model, [`docs/customization.md`](docs/customization.md) for adaptation and [`docs/context-maintenance.md`](docs/context-maintenance.md) for ownership.
+
+## Opinionated code-quality defaults
+
+CSD takes a clear position on maintainable code instead of leaving every quality choice unspecified. Its framework-neutral baseline applies to new production code and production code changed by a work item: it prefers immutable values and explicit types, strict domain boundaries, named constants and closed domain types, focused responsibilities, documented contracts, and guard clauses or exhaustive decisions instead of `else`/`elseif`.
+
+The structural review defaults include at most 15 declared methods per class and per production file, 150 lines per function (aim for fewer than 30 and review extraction above 50), 500 lines per file, three returns and seven parameters per function, cognitive complexity 15, cyclomatic complexity 10, and at most three meaningful nesting levels (one is the preferred target). These are CSD review standards, not claims about SonarQube defaults or analyzer settings configured in a consuming project.
+
+The baseline is meant to be customized. In an adopting repository, change its canonical `.context/policies/core/code-quality.md` in a reviewed change and record the rationale and owner in project context; keep actual analyzer commands and configured thresholds in `.context/project/quality.md`. Use a scoped exception for a one-off deviation while leaving the baseline in place. See [`docs/customization.md`](docs/customization.md) for the customization boundary and [`code-quality.md`](.context/policies/core/code-quality.md) for the full standard.
 
 ## License
 

@@ -14,7 +14,7 @@ Triggers are explicit signals that promote a deferred domain to required. They a
 | Enter `verify` with security-relevant diff | `security` | workflow phase |
 | Enter `plan` or `execute` under `extended` routing | `architecture` | routing depth |
 | Project-specific behavior, conventions, stack or implementation work | `project` | task nature |
-| Planning validation strategy, implementing code that needs tests, entering `verify`, reviewing test evidence, or the task itself concerns tests | `testing` | task/phase |
+| Planning or executing production code, reviewing a code diff, planning validation, entering verify, reviewing test evidence, or a task that concerns tests | `testing` | task/phase |
 | Governance, precedence or policy-interpretation question during a gate | `core` | workflow gate |
 | Explicit human request for a domain | requested domain | human decision |
 

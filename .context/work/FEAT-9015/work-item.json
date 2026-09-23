@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0",
+  "id": "FEAT-9015",
+  "title": "Make CSD context discovery idempotent and framework-agnostic",
+  "track": "product",
+  "type": "feature",
+  "phase": "verify",
+  "status": "active",
+  "risk": "high",
+  "owner": "hiyan",
+  "conversation_profile": "senior-software-engineer",
+  "classification": {
+    "complexity": "high",
+    "impact": "system",
+    "security": "relevant",
+    "confidence": "high"
+  },
+  "routing": {
+    "derived": "extended",
+    "effective": "extended"
+  },
+  "reclassification": [],
+  "last_updated": "2026-09-23",
+  "phase_history": [
+    "discover",
+    "specify",
+    "plan",
+    "preflight",
+    "execute",
+    "verify"
+  ],
+  "policy_exceptions": []
+}

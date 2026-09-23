@@ -4,7 +4,8 @@ import { readdir, readFile } from 'node:fs/promises'
 import { dirname, join, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { absoluteRoot, atomicWriteInside, exists, listFiles, readInside, readJson, realInside, sha256 } from '../fs.js'
-import { bootstrap, PACKAGE_VERSION, templateRoot } from '../installer.js'
+import { PACKAGE_VERSION } from '../installer.js'
+import { bootstrapApply as applyContextBootstrap, bootstrapPreview as createContextBootstrapPreview, discoverContext, inspectContextPath, readContextFile, writeContextFile, validateWorkItemPattern, type DiscoveryResult } from '../context.js'
 import { CsdToolError, Codes, repositoryNotFound } from './errors.js'
 
 /** Artifacts a client may persist inside `.context/work/<id>/`. Closed allowlist. */
@@ -84,6 +85,8 @@ export function resolveRoot(root: string | undefined, pinnedRoot: string | undef
 
 export interface RepositoryInspection {
   root: string
+  discovery: DiscoveryResult
+  contextLayout?: string
   exists: boolean
   hasAgentsMd: boolean
   hasContext: boolean
@@ -115,24 +118,40 @@ export interface WorkItemDetail {
 }
 
 async function workItemIdPattern(root: string): Promise<RegExp> {
-  const config = await readJson<{ work_item_id_pattern?: string }>(join(root, '.context', 'config.json'))
-  return new RegExp(config?.work_item_id_pattern ?? '^[A-Z]+-[0-9]+$')
+  const discovery = await discoverContext(root)
+  if (discovery.status !== 'resolved' || !discovery.paths) return /^[A-Z]+-[0-9]+$/
+  const info = await inspectContextPath(root, discovery.paths.config)
+  if (info.unsafe) throw new CsdToolError(Codes.PathEscape, info.unsafe)
+  if (!info.exists) return /^[A-Z]+-[0-9]+$/
+  if (info.kind !== 'file') throw new CsdToolError(Codes.ContentInvalid, 'Selected adapter config is not a regular file')
+  const config = JSON.parse(await readContextFile(root, discovery.paths.config)) as { work_item_id_pattern?: string }
+  return validateWorkItemPattern(config.work_item_id_pattern)
 }
 
-async function workItemsRoot(root: string): Promise<string> {
-  return realInside(root, join('.context', 'work'))
+function matchesWorkItemId(pattern: RegExp, id: string): boolean {
+  if (id.length === 0 || id.length > 64) return false
+  return pattern.exec(id)?.[0] === id
+}
+
+async function workItemsRoot(root: string): Promise<{ path: string; relativePath: string } | undefined> {
+  const discovery = await discoverContext(root)
+  if (discovery.status !== 'resolved' || !discovery.paths) return undefined
+  const relativePath = discovery.paths.work.replace(/\/$/, '')
+  const info = await inspectContextPath(root, relativePath)
+  if (info.unsafe) throw new CsdToolError(Codes.PathEscape, info.unsafe)
+  return { path: join(root, relativePath), relativePath }
 }
 
 export async function inspectRepository(root: string): Promise<RepositoryInspection> {
   const resolved = absoluteRoot(root, process.cwd())
   if (!(await exists(resolved))) throw repositoryNotFound(resolved)
   const real = await realInside(resolved, '.')
-
+  const discovery = await discoverContext(real)
   const hasAgentsMd = await exists(join(real, 'AGENTS.md'))
-  const hasContext = await exists(join(real, '.context'))
-  const hasIndex = await exists(join(real, '.context', 'INDEX.md'))
-  const hasConfig = await exists(join(real, '.context', 'config.json'))
-  const needsBootstrap = !(hasContext && hasIndex && hasConfig)
+  const hasContext = discovery.status === 'resolved'
+  const hasIndex = discovery.status === 'resolved' && discovery.capabilities.index
+  const hasConfig = discovery.status === 'resolved'
+  const needsBootstrap = discovery.status !== 'resolved'
 
   const lock = await readJson<{ version?: string; files?: { path: string; sha256: string }[] }>(join(real, '.agents', '.csd-lock.json'))
   const installationProblems: string[] = []
@@ -140,24 +159,17 @@ export async function inspectRepository(root: string): Promise<RepositoryInspect
     for (const file of lock.files ?? []) {
       const target = join(real, file.path)
       if (!(await exists(target))) {
-        installationProblems.push(`missing: ${file.path}`)
+        installationProblems.push('missing: ' + file.path)
         continue
       }
-      if ((await sha256(await readFile(target))) !== file.sha256) installationProblems.push(`modified: ${file.path}`)
+      if ((await sha256(await readFile(target))) !== file.sha256) installationProblems.push('modified: ' + file.path)
     }
-  }
-
-  let needsOnboarding = false
-  if (!needsBootstrap) {
-    const config = await readJson<{ project?: { name?: string; repository?: string } }>(join(real, '.context', 'config.json'))
-    const overview = await readInsideOrNull(real, join('.context', 'project', 'overview.md'))
-    needsOnboarding = config?.project?.name === 'Adopting project'
-      || overview === null
-      || overview.includes('NOT FOUND')
   }
 
   return {
     root: real,
+    discovery,
+    ...(discovery.layout ? { contextLayout: discovery.layout } : {}),
     exists: true,
     hasAgentsMd,
     hasContext,
@@ -165,7 +177,7 @@ export async function inspectRepository(root: string): Promise<RepositoryInspect
     csdInstalled: lock !== undefined,
     installationProblems,
     needsBootstrap,
-    needsOnboarding,
+    needsOnboarding: discovery.onboarding_required,
     workItems: await listWorkItems(real),
     csdVersion: lock?.version,
   }
@@ -173,7 +185,7 @@ export async function inspectRepository(root: string): Promise<RepositoryInspect
 
 async function readInsideOrNull(root: string, relative: string): Promise<string | null> {
   try {
-    return await readInside(root, relative)
+    return await readContextFile(root, relative)
   } catch {
     return null
   }
@@ -188,13 +200,18 @@ async function readJsonOrNull<T>(path: string): Promise<T | undefined> {
 }
 
 export async function listWorkItems(root: string): Promise<WorkItemSummary[]> {
-  const workRoot = await workItemsRoot(root)
+  const work = await workItemsRoot(root)
+  if (!work) return []
   const pattern = await workItemIdPattern(root)
-  const entries = await readdir(workRoot, { withFileTypes: true }).catch(() => [])
+  const entries = await readdir(work.path, { withFileTypes: true }).catch(() => [])
   const summaries: WorkItemSummary[] = []
   for (const entry of entries) {
-    if (!entry.isDirectory() || !pattern.test(entry.name)) continue
-    const metadata = await readJsonOrNull<Record<string, unknown>>(join(workRoot, entry.name, 'work-item.json'))
+    if (!entry.isDirectory() || !matchesWorkItemId(pattern, entry.name)) continue
+    const directoryRelative = work.relativePath + '/' + entry.name
+    const directoryInfo = await inspectContextPath(root, directoryRelative)
+    if (!directoryInfo.exists || directoryInfo.kind !== 'directory' || directoryInfo.unsafe) continue
+    let metadata: Record<string, unknown> | undefined
+    try { metadata = JSON.parse(await readContextFile(root, directoryRelative + '/work-item.json')) as Record<string, unknown> } catch { metadata = undefined }
     summaries.push({
       id: entry.name,
       title: typeof metadata?.['title'] === 'string' ? metadata['title'] as string : entry.name,
@@ -210,21 +227,27 @@ export async function listWorkItems(root: string): Promise<WorkItemSummary[]> {
 export async function readWorkItem(root: string, id: string): Promise<WorkItemDetail> {
   const resolved = absoluteRoot(root, process.cwd())
   if (!(await exists(resolved))) throw repositoryNotFound(resolved)
+  const discovery = await discoverContext(resolved)
+  if (discovery.status !== 'resolved' || !discovery.paths) throw new CsdToolError(Codes.NotACsdRepository, 'No valid context layout is selected')
   const pattern = await workItemIdPattern(resolved)
-  if (!pattern.test(id)) throw new CsdToolError(Codes.WorkItemInvalid, `Work item id does not match ${pattern.source}: ${id}`)
-  const directory = await realInside(resolved, join('.context', 'work', id))
-  if (!(await exists(directory))) {
-    throw new CsdToolError(Codes.WorkItemNotFound, `Work item does not exist: ${id}`)
-  }
-  const metadataPath = join(directory, 'work-item.json')
-  const metadata = await readJsonOrNull<Record<string, unknown>>(metadataPath)
+  if (!matchesWorkItemId(pattern, id)) throw new CsdToolError(Codes.WorkItemInvalid, 'Work item id does not match ' + pattern.source + ': ' + id)
+  const directoryRelative = discovery.paths.work.replace(/\/$/, '') + '/' + id
+  const directoryInfo = await inspectContextPath(resolved, directoryRelative)
+  if (directoryInfo.unsafe) throw new CsdToolError(Codes.PathEscape, directoryInfo.unsafe)
+  if (!directoryInfo.exists || directoryInfo.kind !== 'directory') throw new CsdToolError(Codes.WorkItemNotFound, 'Work item does not exist: ' + id)
+  const directory = join(resolved, directoryRelative)
+  const metadataPath = directoryRelative + '/work-item.json'
+  let metadata: Record<string, unknown> | undefined
+  try { metadata = JSON.parse(await readContextFile(resolved, metadataPath)) as Record<string, unknown> } catch { metadata = undefined }
+  const metadataInfo = await inspectContextPath(resolved, metadataPath)
+  if (metadataInfo.unsafe) throw new CsdToolError(Codes.PathEscape, metadataInfo.unsafe)
   const validationErrors = metadata === undefined
-    ? [await exists(metadataPath) ? 'work-item.json is not valid JSON' : 'work-item.json is missing or unreadable']
+    ? [metadataInfo.exists ? 'work-item.json is not valid JSON' : 'work-item.json is missing or unreadable']
     : validateWorkItemShape(id, metadata)
   const artifactFiles = (await listFiles(directory)).map((file) => file.slice(directory.length + sep.length))
   return {
     id,
-    path: join('.context', 'work', id),
+    path: directoryRelative,
     valid: validationErrors.length === 0,
     validationErrors,
     metadata,
@@ -280,48 +303,34 @@ export interface ArtifactWriteResult {
 export async function writeArtifact(root: string, workItemId: string, artifact: string, content: string): Promise<ArtifactWriteResult> {
   const resolved = absoluteRoot(root, process.cwd())
   if (!(await exists(resolved))) throw repositoryNotFound(resolved)
-  if (!(await exists(join(resolved, '.context', 'work')))) {
-    throw new CsdToolError(Codes.NotACsdRepository, 'This repository has no `.context/work/`; run onboarding or bootstrap first')
+  const discovery = await discoverContext(resolved)
+  if (discovery.status !== 'resolved' || !discovery.paths) throw new CsdToolError(Codes.NotACsdRepository, 'No valid context layout is selected')
+  const workRoot = discovery.paths.work.replace(/\/$/, '')
+  const workInfo = await inspectContextPath(resolved, workRoot)
+  if (workInfo.unsafe) throw new CsdToolError(Codes.PathEscape, workInfo.unsafe)
+  if (!workInfo.exists || workInfo.kind !== 'directory') {
+    throw new CsdToolError(Codes.NotACsdRepository, 'This repository has no selected work-item directory; run onboarding or bootstrap first')
   }
   if (!ARTIFACT_ALLOWLIST.includes(artifact)) {
-    throw new CsdToolError(Codes.ArtifactNotAllowed, `Artifact is not allowlisted: ${artifact}`, { allowed: ARTIFACT_ALLOWLIST })
+    throw new CsdToolError(Codes.ArtifactNotAllowed, 'Artifact is not allowlisted: ' + artifact, { allowed: ARTIFACT_ALLOWLIST })
   }
-  if (typeof content !== 'string' || content.length === 0) {
-    throw new CsdToolError(Codes.ContentInvalid, 'Content must be a non-empty string')
-  }
-  if (content.length > 512 * 1024) {
-    throw new CsdToolError(Codes.ContentInvalid, 'Content exceeds the 512 KiB artifact limit')
-  }
+  if (typeof content !== 'string' || content.length === 0) throw new CsdToolError(Codes.ContentInvalid, 'Content must be a non-empty string')
+  if (content.length > 512 * 1024) throw new CsdToolError(Codes.ContentInvalid, 'Content exceeds the 512 KiB artifact limit')
   const pattern = await workItemIdPattern(resolved)
-  if (!pattern.test(workItemId)) {
-    throw new CsdToolError(Codes.WorkItemInvalid, `Work item id does not match ${pattern.source}: ${workItemId}`)
-  }
-
+  if (!matchesWorkItemId(pattern, workItemId)) throw new CsdToolError(Codes.WorkItemInvalid, 'Work item id does not match ' + pattern.source + ': ' + workItemId)
   if (artifact === 'work-item.json') {
-    // Creating or replacing work-item.json is the allowlisted way to open a work
-    // item, so existence is not required here — but structure is.
     let parsed: Record<string, unknown>
-    try {
-      parsed = JSON.parse(content) as Record<string, unknown>
-    } catch {
-      throw new CsdToolError(Codes.ContentInvalid, 'work-item.json content is not valid JSON')
-    }
+    try { parsed = JSON.parse(content) as Record<string, unknown> } catch { throw new CsdToolError(Codes.ContentInvalid, 'work-item.json content is not valid JSON') }
     const shapeErrors = validateWorkItemShape(workItemId, parsed)
-    if (shapeErrors.length > 0) {
-      throw new CsdToolError(Codes.WorkItemInvalid, 'work-item.json failed structural validation', { errors: shapeErrors })
-    }
+    if (shapeErrors.length > 0) throw new CsdToolError(Codes.WorkItemInvalid, 'work-item.json failed structural validation', { errors: shapeErrors })
   } else {
     const detail = await readWorkItem(resolved, workItemId)
-    if (!detail.artifacts.includes('work-item.json')) {
-      throw new CsdToolError(Codes.WorkItemNotFound, `Work item has no work-item.json; create it before writing ${artifact}`)
-    }
+    if (!detail.artifacts.includes('work-item.json')) throw new CsdToolError(Codes.WorkItemNotFound, 'Work item has no work-item.json; create it before writing ' + artifact)
   }
-
-  const target = join(resolved, '.context', 'work', workItemId, artifact)
-  const written = await atomicWriteInside(resolved, target, content)
-  const relative = join('.context', 'work', workItemId, artifact)
+  const relativePath = workRoot + '/' + workItemId + '/' + artifact
+  await writeContextFile(resolved, relativePath, content)
   return {
-    path: relative,
+    path: relativePath,
     bytes: Buffer.byteLength(content, 'utf8'),
     sha256: await sha256(content),
     workItem: workItemId,
@@ -370,41 +379,77 @@ export async function collectContext(root: string, request?: string, paths?: str
   const resolved = absoluteRoot(root, process.cwd())
   if (!(await exists(resolved))) throw repositoryNotFound(resolved)
   const inspection = await inspectRepository(resolved)
-  if (inspection.needsBootstrap) {
-    throw new CsdToolError(Codes.NotACsdRepository, 'Repository is not initialized for CSD; bootstrap is required first', {
-      needsBootstrap: true,
+  const discovery = inspection.discovery
+  if (discovery.status !== 'resolved' || !discovery.paths) {
+    throw new CsdToolError(Codes.NotACsdRepository, 'Repository has no uniquely selected CSD context layout', {
+      discovery: discovery.status,
+      conflicts: discovery.conflicts,
     })
   }
-
+  const base = discovery.paths.root
+  const bootstrapPaths = [
+    'AGENTS.md',
+    discovery.paths.index,
+    discovery.paths.workflow,
+    discovery.paths.config,
+    discovery.paths.routing + '/README.md',
+    discovery.paths.routing + '/catalog.md',
+    base + '/classification/README.md',
+    base + '/interaction/README.md',
+    base + '/policies/README.md',
+    ...discovery.paths.onboardingSources,
+  ]
   const bootstrap: { path: string; content: string }[] = []
-  for (const relative of BOOTSTRAP_FILES) {
-    const content = await readInsideOrNull(resolved, relative)
-    if (content !== null) bootstrap.push({ path: relative, content })
+  for (const relativePath of [...new Set(bootstrapPaths)]) {
+    const content = await readInsideOrNull(resolved, relativePath)
+    if (content !== null) bootstrap.push({ path: relativePath, content })
   }
-
+  const references = [...REFERENCES]
+  if (discovery.mode !== 'native') {
+    const compatibilityReferences: typeof REFERENCES[number][] = []
+    for (const reference of REFERENCES) {
+      if (reference.path.startsWith('.context/prompts/')) continue
+      let target = reference.path.replaceAll('.context', base)
+      if (reference.path === '.context/INDEX.md') target = discovery.paths.index
+      else if (reference.path === '.context/config.json') target = discovery.paths.config
+      else if (reference.path.startsWith('.context/context-routing/')) target = discovery.paths.routing + reference.path.slice('.context/context-routing'.length)
+      else if (reference.path.startsWith('.context/routing/')) target = discovery.paths.routing + reference.path.slice('.context/routing'.length)
+      else if (reference.path === '.context/workflows/core.md') target = discovery.paths.workflow
+      else if (reference.path.startsWith('.context/work/')) target = discovery.paths.work + reference.path.slice('.context/work'.length)
+      else if (reference.path.startsWith('.context/templates/')) target = discovery.paths.templates + reference.path.slice('.context/templates'.length)
+      else if (reference.path.startsWith('.context/scripts/')) target = discovery.paths.scripts + reference.path.slice('.context/scripts'.length)
+      const info = await inspectContextPath(resolved, target)
+      if (info.exists && info.kind === 'file' && !info.unsafe) compatibilityReferences.push({ ...reference, path: target })
+    }
+    for (const onboardingPath of discovery.paths.onboardingSources) {
+      if (!compatibilityReferences.some((reference) => reference.path === onboardingPath)) compatibilityReferences.push({ path: onboardingPath, purpose: 'Selected adapter workflow and onboarding source' })
+    }
+    for (const routingPath of [discovery.paths.routing + '/README.md', discovery.paths.routing + '/catalog.md']) {
+      const info = await inspectContextPath(resolved, routingPath)
+      if (info.exists && info.kind === 'file' && !info.unsafe && !compatibilityReferences.some((reference) => reference.path === routingPath)) compatibilityReferences.push({ path: routingPath, purpose: 'Selected adapter routing guidance' })
+    }
+    references.splice(0, references.length, ...compatibilityReferences)
+  }
   const additional: { path: string; content: string }[] = []
   if (paths && paths.length > 0) {
-    if (paths.length > MAX_EXPLICIT_PATHS) {
-      throw new CsdToolError(Codes.ContentInvalid, `At most ${MAX_EXPLICIT_PATHS} explicit paths per call`)
-    }
-    const contextRoot = await realInside(resolved, '.context')
+    if (paths.length > MAX_EXPLICIT_PATHS) throw new CsdToolError(Codes.ContentInvalid, 'At most ' + MAX_EXPLICIT_PATHS + ' explicit paths per call')
     for (const requested of paths) {
-      const target = resolve(contextRoot, requested)
-      if (!target.startsWith(`${contextRoot}${sep}`)) {
-        throw new CsdToolError(Codes.PathEscape, `Path escapes .context/: ${requested}`)
+      const normalized = requested.replaceAll('\\', '/')
+      if (normalized.startsWith('/') || normalized.split('/').some((part) => part === '.' || part === '..' || part === '')) {
+        throw new CsdToolError(Codes.PathEscape, 'Requested path must stay under ' + base + '/: ' + requested)
       }
-      const content = await readInsideOrNull(resolved, join('.context', requested))
-      if (content === null) {
-        throw new CsdToolError(Codes.ContentInvalid, `Requested path does not exist under .context/: ${requested}`)
-      }
-      additional.push({ path: join('.context', requested), content })
+      const relativePath = base + '/' + normalized
+      const info = await inspectContextPath(resolved, relativePath)
+      if (info.unsafe) throw new CsdToolError(Codes.PathEscape, info.unsafe)
+      if (!info.exists || info.kind !== 'file') throw new CsdToolError(Codes.ContentInvalid, 'Requested path does not exist under ' + base + '/: ' + requested)
+      const content = await readContextFile(resolved, relativePath)
+      additional.push({ path: relativePath, content })
     }
   }
-
   return {
     root: resolved,
     bootstrap,
-    references: [...REFERENCES],
+    references,
     openWorkItems: inspection.workItems.filter((item) => item.open),
     additional,
     request,
@@ -484,57 +529,27 @@ function parseValidatorJson(stdout: string): { ok?: boolean; errors?: string[]; 
 
 export interface BootstrapPlan {
   root: string
-  files: { path: string; action: 'create' | 'overwrite' | 'skip' | 'merge' }[]
+  discovery: DiscoveryResult
+  files: { path: string; action: 'create' | 'merge' | 'skip' | 'conflict' | 'protected'; owner?: string | undefined; sha256?: string | undefined; reason?: string | undefined }[]
+  conflicts: string[]
   token: string
   summary: string
 }
 
-/** Read-only mirror of `installer.bootstrap()` used to build the gate token. */
 export async function bootstrapPreview(root: string): Promise<BootstrapPlan> {
   const resolved = absoluteRoot(root, process.cwd())
   if (!(await exists(resolved))) throw repositoryNotFound(resolved)
-  const source = await templateRoot()
-  const contextSource = join(source, '.context')
-  const sourceFiles = (await listFiles(contextSource)).filter(
-    (file) => !file.slice(contextSource.length + 1).startsWith(`work${sep}`) && file.slice(contextSource.length + 1) !== 'work',
-  )
-  const files: BootstrapPlan['files'] = []
-  const digest = createHash('sha256')
-  for (const file of sourceFiles) {
-    const relativePath = file.slice(contextSource.length + 1)
-    const target = join(resolved, '.context', relativePath)
-    const action = (await exists(target)) ? 'skip' : 'create'
-    files.push({ path: join('.context', relativePath), action })
-    digest.update(`${relativePath}:${await sha256(await readFile(file, 'utf8'))}:${action}`)
-  }
-  const agentTarget = join(resolved, 'AGENTS.md')
-  if (!(await exists(agentTarget))) {
-    files.push({ path: 'AGENTS.md', action: 'create' })
-    digest.update('AGENTS.md:create')
-  } else {
-    const current = await readFile(agentTarget, 'utf8')
-    const action = current.includes('<!-- CSD:BEGIN -->') ? 'skip' : 'merge'
-    files.push({ path: 'AGENTS.md', action })
-    digest.update(`AGENTS.md:${action}:${await sha256(current)}`)
-  }
-  const token = digest.digest('hex')
-  const creates = files.filter((file) => file.action !== 'skip').length
-  return {
-    root: resolved,
-    files,
-    token,
-    summary: `${creates} file(s) to create or merge, ${files.length - creates} already present. Nothing was written. Call csd_bootstrap_apply with this token to materialize.`,
-  }
+  return createContextBootstrapPreview(resolved)
 }
 
-export async function bootstrapApply(root: string, token: string): Promise<{ created: string[]; skipped: string[] }> {
-  const preview = await bootstrapPreview(root)
-  if (!token || token !== preview.token) {
-    throw new CsdToolError(Codes.BootstrapGate, 'Bootstrap apply requires the exact token returned by csd_bootstrap_preview for the current repository state', {
-      expectedState: preview.summary,
-    })
+export async function bootstrapApply(root: string, token: string, confirmed = true): Promise<{ created: string[]; skipped: string[]; conflicts: string[] }> {
+  const resolved = absoluteRoot(root, process.cwd())
+  if (!(await exists(resolved))) throw repositoryNotFound(resolved)
+  try {
+    return await applyContextBootstrap(resolved, token, confirmed)
+  } catch (error) {
+    throw new CsdToolError(Codes.BootstrapGate, error instanceof Error ? error.message : String(error))
   }
-  return bootstrap(absoluteRoot(root, process.cwd()), false)
 }
 
 export const CSD_VERSION = PACKAGE_VERSION

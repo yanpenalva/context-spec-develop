@@ -82,6 +82,8 @@ documented architecture, repository conventions
 
 Populate the existing canonical contracts — `.context/project/overview.md`, `stack.md`, `architecture.md`, `conventions.md`, `testing.md`, `quality.md` (commands and thresholds that are discoverable), `security.md` (controls that exist in the repository, e.g. a `SECURITY.md`), `.context/config.json` (`project.name`, `project.repository`, discoverable `quality` commands) — and the delivery/observability/ai-governance files where the repository actually evidences them. Never create a parallel onboarding database; the canonical files are the only destination.
 
+After bounded discovery, inspect only the configured module-context roots. The default roots are `.context/project/modules/`, `.context/project/domains/`, `.context/project/bounded-contexts/`, `.context/modules/`, `.context/domains/`, `.ai/modules/`, `.ai/domains/`, and `.ai/bounded-contexts/`; projects may narrow or replace them in `csd.config.json`. If module documentation or an index exists, report its paths and preserve it. If no structure exists and module-context discovery is enabled, ask once whether to create the generic framework-neutral scaffold. Apply the scaffold only after explicit approval; if declined, persist the decline in the selected context layout and do not ask again. This step documents domains, not architecture: never invent module boundaries, create module-specific files or copy a compatibility layout.
+
 Anything not found is recorded as `NOT FOUND`. Never invent a fact, owner, command, threshold or procedure.
 
 ## 3. Organizational facts are never inferred

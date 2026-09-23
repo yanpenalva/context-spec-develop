@@ -1,6 +1,6 @@
 # Context Index
 
-`.context/` is the canonical, versioned source of truth for this delivery template.
+`.context/` is the canonical, versioned source of truth for this delivery template. A compatibility layout such as `.ai/` may be selected explicitly, but is never an automatic backup or mirror.
 
 ## Read first
 

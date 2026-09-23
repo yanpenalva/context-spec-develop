@@ -1,9 +1,10 @@
 import { homedir } from 'node:os'
-import { dirname, join, relative, resolve, sep } from 'node:path'
+import { dirname, join, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { readFile, rm } from 'node:fs/promises'
 import { ADAPTERS, getAdapter } from './adapters.js'
-import { absoluteRoot, atomicWrite, exists, listFiles, readJson, sha256, writeJson } from './fs.js'
+import { bootstrapApply as applyContextBootstrap, bootstrapPreview as createContextBootstrapPreview, discoverContext } from './context.js'
+import { absoluteRoot, atomicWrite, exists, readJson, sha256, writeJson } from './fs.js'
 import type { Adapter, AgentId, InstallOptions, InstalledFile, LockFile, OperationReport, PlannedFile, Scope } from './types.js'
 
 export const PACKAGE_NAME = '@owlcodium/context-spec-develop'
@@ -140,6 +141,100 @@ export async function install(options: InstallOptions): Promise<OperationReport>
   return { scope: options.scope, root, agents, files: installed, skipped, warnings }
 }
 
+export interface UpdatePlan {
+  scope: Scope
+  root: string
+  agents: AgentId[]
+  files: { path: string; action: 'create' | 'update' | 'skip' | 'conflict' | 'preserved'; reason?: string }[]
+  conflicts: string[]
+  warnings: string[]
+  summary: string
+}
+
+export async function updatePreview(scope: Scope, requestedRoot?: string, force = false): Promise<UpdatePlan> {
+  const root = installRoot(scope, requestedRoot)
+  const previous = await loadLock(scope, root)
+  if (!previous) throw new Error('CSD is not installed in this scope')
+  const plans = await plannedFiles(previous.agents, scope)
+  const previousFiles = new Map(previous.files.map((file) => [file.path, file]))
+  const files: UpdatePlan['files'] = []
+  const conflicts: string[] = []
+  const warnings: string[] = []
+  for (const plan of plans) {
+    const target = ownedPath(root, plan.relativePath)
+    const old = previousFiles.get(plan.relativePath)
+    if (!(await exists(target))) {
+      files.push({ path: plan.relativePath, action: 'create', reason: 'installed file is missing' })
+      continue
+    }
+    const currentHash = await sha256(await readFile(target))
+    const digest = await sha256(plan.content)
+    if (currentHash === digest) {
+      files.push({ path: plan.relativePath, action: 'skip', reason: 'already matches package content' })
+      continue
+    }
+    if (old && currentHash === old.sha256) {
+      files.push({ path: plan.relativePath, action: 'update', reason: 'CSD-owned file has a package update' })
+      continue
+    }
+    if (force) {
+      files.push({ path: plan.relativePath, action: 'update', reason: 'force explicitly allows local overwrite' })
+      warnings.push(`Would overwrite locally modified file: ${plan.relativePath}`)
+      continue
+    }
+    files.push({ path: plan.relativePath, action: 'conflict', reason: 'file was modified after installation' })
+    conflicts.push(plan.relativePath)
+  }
+  const stale = previous.files.filter((file) => !plans.some((plan) => plan.relativePath === file.path)).map((file) => file.path)
+  if (stale.length > 0) {
+    warnings.push(`Preserved files no longer packaged: ${stale.join(', ')}`)
+    for (const path of stale) files.push({ path, action: 'preserved', reason: 'file is no longer packaged; update never deletes it' })
+  }
+  const writes = files.filter((file) => file.action === 'create' || file.action === 'update').length
+  return {
+    scope,
+    root,
+    agents: previous.agents,
+    files,
+    conflicts,
+    warnings,
+    summary: writes + ' file(s) to create or update, ' + (files.length - writes) + ' skipped/preserved/conflicting. Nothing was written.',
+  }
+}
+
+export async function update(scope: Scope, requestedRoot?: string, force = false): Promise<OperationReport> {
+  const preview = await updatePreview(scope, requestedRoot, force)
+  const root = preview.root
+  const previous = await loadLock(scope, root)
+  if (!previous) throw new Error('CSD is not installed in this scope')
+  const plans = await plannedFiles(previous.agents, scope)
+  const skipped = preview.files.filter((file) => file.action === 'skip').map((file) => file.path)
+  const warnings = [...preview.warnings]
+  const installed: InstalledFile[] = []
+  if (preview.conflicts.length > 0) throw new Error(`Refusing to update locally modified files: ${preview.conflicts.join(', ')}. Use --force after reviewing them.`)
+
+  for (const plan of plans) {
+    const target = ownedPath(root, plan.relativePath)
+    const digest = await sha256(plan.content)
+    const current = await exists(target) ? await readFile(target, 'utf8') : undefined
+    if (current === plan.content) continue
+    await atomicWrite(target, plan.content)
+    if (!installed.some((file) => file.path === plan.relativePath)) installed.push({ path: plan.relativePath, sha256: digest })
+  }
+
+  const lock: LockFile = {
+    schemaVersion: 1,
+    package: PACKAGE_NAME,
+    version: PACKAGE_VERSION,
+    scope,
+    installedAt: new Date().toISOString(),
+    agents: previous.agents,
+    files: mergeFiles(previous.files, installed),
+  }
+  await writeJson(lockPath(scope, root), lock)
+  return { scope, root, agents: previous.agents, files: installed, skipped, warnings }
+}
+
 export async function inspect(scope: Scope, requestedRoot?: string): Promise<{ lock?: LockFile; problems: string[] }> {
   const root = installRoot(scope, requestedRoot)
   const lock = await loadLock(scope, root)
@@ -181,36 +276,16 @@ export async function remove(scope: Scope, requestedRoot?: string, force = false
 }
 
 export async function bootstrap(targetRoot: string, force = false): Promise<{ created: string[]; skipped: string[] }> {
-  const destination = resolve(targetRoot)
-  const source = await templateRoot()
-  const created: string[] = []
-  const skipped: string[] = []
-  const sourceFiles = (await listFiles(join(source, '.context'))).filter((file) => {
-    const relativePath = relative(join(source, '.context'), file)
-    return relativePath !== 'work' && !relativePath.startsWith('work/')
-  })
-  for (const file of sourceFiles) {
-    const relativePath = relative(join(source, '.context'), file)
-    const target = join(destination, '.context', relativePath)
-    if (await exists(target) && !force) {
-      skipped.push(join('.context', relativePath))
-      continue
-    }
-    await atomicWrite(target, await readFile(file, 'utf8'))
-    created.push(join('.context', relativePath))
+  void force
+  const preview = await createContextBootstrapPreview(targetRoot)
+  if (preview.discovery.status === 'resolved') return { created: [], skipped: ['AGENTS.md'] }
+  if (preview.discovery.status !== 'bootstrap_required' || preview.conflicts.length > 0) {
+    throw new Error('Bootstrap is blocked: ' + preview.conflicts.join('; '))
   }
-  const agentTarget = join(destination, 'AGENTS.md')
-  const agentSource = join(source, 'AGENTS.md')
-  if (await exists(agentTarget)) {
-    const current = await readFile(agentTarget, 'utf8')
-    const marker = '<!-- CSD:BEGIN -->'
-    if (!current.includes(marker)) {
-      await atomicWrite(agentTarget, `${current.trimEnd()}\n\n<!-- CSD:BEGIN -->\nThis repository uses context-spec-develop. Read \`.context/INDEX.md\` before operational work and follow the canonical front door.\n<!-- CSD:END -->\n`)
-      created.push('AGENTS.md (CSD integration)')
-    } else skipped.push('AGENTS.md')
-  } else {
-    await atomicWrite(agentTarget, await readFile(agentSource, 'utf8'))
-    created.push('AGENTS.md')
-  }
-  return { created, skipped }
+  const result = await applyContextBootstrap(targetRoot, preview.token, true)
+  const agentPlan = preview.files.find((file) => file.path === 'AGENTS.md')
+  const created = result.created.map((path) => path === 'AGENTS.md' && agentPlan?.action === 'merge' ? 'AGENTS.md (CSD integration)' : path)
+  return { created, skipped: result.skipped }
 }
+
+export { discoverContext }

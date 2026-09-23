@@ -18,11 +18,11 @@ Activate `/csd` (or `$csd` in Codex) and ask, in plain language:
 Initialize context-spec-develop for this repository.
 ```
 
-The skill first previews the bootstrap. After one confirmation it materializes `.context/` and an idempotent CSD entry in `AGENTS.md`, then follows `.context/prompts/initialize-project.md`: bounded repository discovery, populating `.context/config.json` and `.context/project/` with discovered facts, recording everything else as `NOT FOUND`, and asking you only the non-discoverable questions that are material to configuration, governance or workflow (for example production owner or release authority — facts a repository cannot prove).
+The skill inspects supported context layouts first. A valid existing layout is used in place. When no layout is valid, it previews the configured canonical layout; after confirmation it materializes that layout and an idempotent CSD entry in AGENTS.md. Native .context/ onboarding follows .context/prompts/initialize-project.md; compatibility layouts use their available onboarding sources. Discovery and configuration are described in context-discovery.md.
 
-Manual fallback: complete `.context/config.json` and `.context/project/` yourself, replacing placeholders with facts, links or `NOT FOUND`. Do not copy secrets.
+Manual fallback: complete the selected layout's config and project context yourself, replacing placeholders with facts, links or NOT FOUND. Do not copy secrets.
 
-The step is idempotent: re-running onboarding preserves confirmed facts, proposes evidence-backed updates, and never overwrites human-owned organizational facts automatically. If the project context is already populated, onboarding recognizes it and becomes a refresh.
+The step is idempotent: re-running onboarding preserves confirmed facts, proposes evidence-backed updates, and never overwrites human-owned organizational facts automatically. If the project context is already populated, onboarding recognizes it and becomes a refresh. During first onboarding, CSD also checks configured module-documentation roots. Existing `.context/project/modules/` or compatible `.ai/modules/` documentation is preserved. If none exists, CSD asks once whether to create a generic framework-neutral scaffold; approval creates only an index and template, while decline records a persistent opt-out.
 
 ## 3. Review unresolved decisions
 

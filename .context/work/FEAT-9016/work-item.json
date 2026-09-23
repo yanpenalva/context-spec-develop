@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0",
+  "id": "FEAT-9016",
+  "title": "Make code quality standards CSD defaults",
+  "track": "product",
+  "type": "feature",
+  "phase": "verify",
+  "status": "active",
+  "risk": "high",
+  "owner": "hiyan",
+  "conversation_profile": "senior-software-engineer",
+  "classification": {
+    "complexity": "high",
+    "impact": "system",
+    "security": "relevant",
+    "confidence": "high"
+  },
+  "routing": {
+    "derived": "extended",
+    "effective": "extended"
+  },
+  "context": {
+    "budget": "extended",
+    "required": ["core", "project", "testing", "architecture", "security"],
+    "deferred": ["release", "incident"],
+    "triggers": [
+      "The request changes normative engineering policies and distributed defaults.",
+      "The policies will govern future production code and its verification."
+    ]
+  },
+  "reclassification": [],
+  "last_updated": "2026-09-23",
+  "phase_history": ["discover", "specify", "plan", "preflight", "execute", "verify"],
+  "policy_exceptions": []
+}

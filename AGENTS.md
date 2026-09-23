@@ -10,6 +10,7 @@ Conversation startup:
 4. After the front door, resolve remaining decisions on demand per `.context/interaction/README.md`: reuse explicit user choices and recorded preferences; apply safe configured defaults (conversation profile: `agent_profiles.default` in `config.json`, stated briefly); defer decisions irrelevant to the current phase; inspect discoverable facts; ask only material unresolved decisions. Resolve `git_finalization_mode` before the first Git finalization action — never at startup by default — and treat an unresolved mode as no authorization: the safe fallback when resolution is required is `confirm_each`. Use orchestration role assignments as configured; ask about overrides only when the user requests one or an assignment is invalid or materially unsuitable.
 5. Apply `.context/interaction/README.md` before any question, assumption, decision or escalation.
 6. Read only relevant `.context/project/`, policy, workflow and work-item files.
+   For code changes, load and follow `.context/policies/core/code-quality.md` and `.context/project/quality.md` during planning, execution and review.
 7. Specify and plan before execution. Split work into small subtasks and dependency-safe waves; use subagents only with explicit scope and least privilege.
 8. Work only inside the current work item and follow its approved artifacts.
 9. Run `python3 scripts/validate_context.py --strict --examples` before handoff or release.

@@ -6,4 +6,6 @@ Define the signals that prove a release is healthy and the signals that trigger 
 | --- | --- | --- | --- | --- |
 | `NOT FOUND` | `NOT FOUND` | `NOT FOUND` | `NOT FOUND` | `NOT FOUND` |
 
+GitHub Pages deployment reports a deployment URL through the workflow, but no post-release health threshold, observation window or escalation owner is documented.
+
 Every release must name a smoke test, an observation window and an escalation path. If a signal does not exist, write `NOT FOUND` and treat the gap as release risk.
