@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.2.0 — 2026-09-23
+
+- Added the official stdio MCP adapter with seven tools for repository inspection, context loading, work-item access, artifact persistence, validation and gated bootstrap.
+- Added normalized discovery for `.context/`, `.ai/`, `.agents/`, `docs/context/` and `context/`, including marker validation, adapter precedence, compatibility routing, path safety and symlink protection.
+- Added read-only bootstrap previews, explicit confirmation, ownership hashes, retry support, collision detection and protected-path handling.
+- Added optional framework-neutral module documentation discovery with existing `.context`/`.ai` preservation, generic scaffold preview, persistent decline and bounded configurable search roots.
+- Added safe package and context update flows: `csd update`, `csd update --dry-run`, `csd update --context`, and protected project-owned context handling with controlled `kit_version` merge.
+- Added an opinionated language- and framework-neutral code-quality baseline covering immutability, explicit types, domain boundaries, no-`else` control flow, structural thresholds, error handling and documentation.
+- Added CLI, MCP, filesystem-safety, compatibility-layout, module-context, update and validator coverage; regenerated distribution registry and catalog artifacts.
+
 ## 1.0.0 — 2026-09-21
 
 - First stable release of the installable, agent-neutral Context Spec Develop workflow for Codex, Claude Code, Cursor, Copilot, Gemini, OpenCode and Open Agent Skills.
