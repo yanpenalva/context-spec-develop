@@ -1,6 +1,6 @@
 {
   "name": "@owlcodium/context-spec-develop",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Installable, agent-neutral context and delivery workflow for AI coding agents.",
   "license": "MIT",
   "repository": {

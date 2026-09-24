@@ -8,7 +8,7 @@ import { absoluteRoot, atomicWrite, exists, readJson, sha256, writeJson } from '
 import type { Adapter, AgentId, InstallOptions, InstalledFile, LockFile, OperationReport, PlannedFile, Scope } from './types.js'
 
 export const PACKAGE_NAME = '@owlcodium/context-spec-develop'
-export const PACKAGE_VERSION = '1.2.0'
+export const PACKAGE_VERSION = '1.2.1'
 
 function packageRoot(): string {
   return resolve(dirname(fileURLToPath(import.meta.url)), '..')

@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "kit_version": "1.2.0",
+  "kit_version": "1.2.1",
   "project": {
     "name": "@owlcodium/context-spec-develop",
     "repository": "yanpenalva/context-spec-develop"

@@ -141,10 +141,11 @@ test('a collision is rejected before any adapter file is written', async () => {
 test('global adapters use host global command locations', async () => {
   const temp = await mkdtemp(join(tmpdir(), 'csd-global-'))
   try {
-    await install({ scope: 'global', agents: ['copilot', 'opencode'], root: temp, force: false })
+    await install({ scope: 'global', agents: ['copilot', 'opencode', 'gemini'], root: temp, force: false })
     await stat(join(temp, '.copilot', 'agents', 'csd.md'))
     await stat(join(temp, '.config', 'opencode', 'commands', 'csd.md'))
     await stat(join(temp, '.config', 'opencode', 'skills', 'csd', 'SKILL.md'))
+    await stat(join(temp, '.gemini', 'config', 'skills', 'csd', 'SKILL.md'))
   } finally {
     await rm(temp, { recursive: true, force: true })
   }

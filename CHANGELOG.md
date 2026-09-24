@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.1 — 2026-09-24
+
+- Fixed global Gemini CLI / Antigravity skill discovery path by routing global adapter installs to `.gemini/config/skills/csd/SKILL.md` (while preserving local project installs at `.agents/skills/csd/SKILL.md`).
+- Regenerated distribution registry and catalog artifacts.
+
 ## 1.2.0 — 2026-09-23
 
 - Added the official stdio MCP adapter with seven tools for repository inspection, context loading, work-item access, artifact persistence, validation and gated bootstrap.

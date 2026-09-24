@@ -43,6 +43,7 @@ export const ADAPTERS: readonly Adapter[] = [
     label: 'Gemini CLI',
     activation: 'Invoke with `/csd`.',
     skillPath: '.agents/skills/csd/SKILL.md',
+    globalSkillPath: '.gemini/config/skills/csd/SKILL.md',
     commandPath: '.gemini/commands/csd.toml',
     commandFormat: 'toml',
   },
