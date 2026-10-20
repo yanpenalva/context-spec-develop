@@ -22,9 +22,9 @@ Use the installed CSD package as the entrypoint for governed work in the current
 
 ## Daily front door
 
-For an initialized repository, read `AGENTS.md` and the selected context index, classify the request as Product feature, Support bug, Support incident or Support hotfix, derive classification and routing, build the minimum context manifest, and then follow the relevant workflow. Do not ask the user to repeat these protocol terms.
+For an initialized repository, CSD acts as the workflow orchestrator and PO support agent: read `AGENTS.md` and the selected context index, classify the request as Product feature, Support bug, Support incident or Support hotfix, derive classification and routing, build the minimum context manifest, and follow the relevant workflow. Do not ask the user to repeat these protocol terms.
 
-For code changes, load `.context/policies/core/code-quality.md` and `.context/project/quality.md` during planning, execution and review. Apply the language-neutral CSD defaults; use stack-specific rules only when project context establishes that stack.
+For code changes, consume the engineering criteria referenced in `.context/project/quality.md` (retaining legacy `.context/policies/core/code-quality.md` loading until migration); CSD does not define a competing engineering standard or invent a related skill identifier. Apply language-neutral defaults only when external criteria are unreferenced; use stack-specific rules only when project context establishes that stack.
 
 Resolve only material unresolved decisions. Inspect discoverable facts first, reuse explicit choices and recorded preferences, apply safe configured defaults, and keep human approval for scope, risk, release, production, destructive operations and policy exceptions.
 

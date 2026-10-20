@@ -22,6 +22,8 @@ This document gives people and agents one vocabulary for the delivery system.
 
 **Gate** is a decision point that must be satisfied before the next phase. A gate may return work to an earlier phase.
 
+**Single owner per stage** establishes one authoritative decision owner per stage: CSD owns intake, classification, deterministic routing, context routing, specification gating and durable evidence; native project documentation ([`.context/project/`](../.context/project/)) owns domain facts and accepted architecture; external engineering owners (referenced via [`.context/project/quality.md`](../.context/project/quality.md)) own implementation and code-review criteria; configured toolchains own check execution; ai-memory ([`.context/tooling/ai-memory.md`](../.context/tooling/ai-memory.md)) supplies continuity only without execution authority; humans own scope approval, risk acceptance, production authorization and incident closure.
+
 ## Lifecycle terms
 
 **Project onboarding** is the agent-assisted initialization of the canonical project context in an adopting repository, per `.context/prompts/initialize-project.md`: bounded repository discovery populates `.context/project/` and `config.json`; unknowns become `NOT FOUND`; only non-discoverable material questions reach the human. Onboarding is distinct from daily work and creates no work item. **Daily work** is every operational request after initialization; it enters through the front door below. `PROJECT ONBOARDING != DAILY WORKFLOW`, and `ONBOARDING DISCOVERY != TASK DISCOVERY`: onboarding may inspect the repository more broadly because its output is the reusable canonical context, but stays fact-oriented and never dumps the repository into context.
@@ -35,6 +37,8 @@ This document gives people and agents one vocabulary for the delivery system.
 **Discovery** explains a product problem, audience, evidence, hypothesis and measurable success before committing to a solution.
 
 **Specification** states the desired behavior, scope, rules, contracts, security impact and acceptance criteria.
+
+**PO support** captures product problem, audience, expected outcome, business rules, acceptance criteria, constraints and pending decisions without replacing human approval; humans approve product scope and accept risk.
 
 **Plan** defines the smallest viable implementation, test approach, risks and rollback.
 

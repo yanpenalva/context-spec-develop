@@ -1,6 +1,6 @@
 # Context Index
 
-`.context/` is the canonical, versioned source of truth for this delivery template. A compatibility layout such as `.ai/` may be selected explicitly, but is never an automatic backup or mirror.
+`.context/` is the canonical, versioned source of truth for this delivery workflow. The adopting project's accepted native documentation (ADRs, module docs, architecture) retains authoritative ownership of domain facts and architectural decisions. External engineering criteria are referenced via the engineering-source entry in [`project/quality.md`](project/quality.md). A compatibility layout such as `.ai/` may be selected explicitly, but is never an automatic backup or mirror.
 
 ## Read first
 

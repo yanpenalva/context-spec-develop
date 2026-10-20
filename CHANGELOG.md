@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.2.2 — Unreleased
+
+- Clarified workflow, product ownership (PO) support, and engineering criterion boundaries: CSD owns delivery workflow and PO support; native project documentation owns domain facts and architectural decisions; external engineering criteria (such as strict-code) are consumed without replacing CSD workflow or duplicating rules.
+- Clarified that bundled opinionated code-quality defaults are transitional legacy material pending a planned distribution migration (Wave 4) to link-only references; starter assets retain existing policy copies during this compatibility patch.
+- Added generic engineering-source prose pointer support (`Engineering source: <path|url|id>; owner: <owner>; revision: <rev>`) in `.context/project/quality.md` with `NOT FOUND` permitted.
+- Verified upstream prompt safety provenance in `.context/prompts/start-conversation.md`: an unresolved Git finalization mode is a deferred decision and never authorizes automatic commit or push.
+
 ## 1.2.1 — 2026-09-24
 
 - Fixed global Gemini CLI / Antigravity skill discovery path by routing global adapter installs to `.gemini/config/skills/csd/SKILL.md` (while preserving local project installs at `.agents/skills/csd/SKILL.md`).

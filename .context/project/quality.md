@@ -4,8 +4,9 @@ The normative, framework-neutral baseline for all code work is .context/policies
 
 ## Gates
 
-Coverage and duplication limits are percentages (80 means 80%); complexity limits are analyzer-specific numeric thresholds. The values below record this repository's configured tools and analyzer gates, not the CSD policy baseline.
+Coverage and duplication limits are percentages (80 means 80%); complexity limits are analyzer-specific numeric thresholds. The values below record this repository's configured tools and analyzer gates, not the CSD policy baseline. External engineering criteria may be referenced via the generic prose pointer below; local commands and thresholds remain local.
 
+- Engineering source: NOT FOUND; owner: NOT FOUND; revision: NOT FOUND
 - Static analysis tool and command: NOT FOUND
 - Formatter/linter and command: NOT FOUND
 - Test command: npm test; CI additionally runs python3 -m unittest discover -s tests and python3 scripts/validate_context.py --strict --examples.

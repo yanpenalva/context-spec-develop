@@ -2,7 +2,7 @@
 
 An agent-neutral, conversation-first development kit—from context to verified production change.
 
-`context-spec-develop` is a copyable repository for teams using AI-assisted development. An orchestrator starts the conversation, asks for profile and work classification, creates the required directories and artifacts, delegates small waves to selected agents, and keeps decisions and evidence versioned instead of leaving them in chat history. Deployment infrastructure remains project-owned; this kit records readiness, approval, rollback and observation, then teams use their normal `git add`, `git commit` and `git push` flow.
+`context-spec-develop` is a copyable repository for teams using AI-assisted development. CSD owns workflow orchestration and product ownership (PO) support; it defers engineering criteria to authoritative engineering standards or project-native documentation. An orchestrator starts the conversation, asks for profile and work classification, creates the required directories and artifacts, delegates small waves to selected agents, and keeps decisions and evidence versioned instead of leaving them in chat history. Deployment infrastructure remains project-owned; this kit records readiness, approval, rollback and observation, then teams use their normal `git add`, `git commit` and `git push` flow.
 
 > Choose the collaborator. Describe the outcome. The orchestrator builds the path. Agents execute bounded work. Humans approve risk and production.
 
@@ -210,7 +210,7 @@ See [`docs/methodology.md`](docs/methodology.md) for the model, [`docs/customiza
 
 ## Opinionated code-quality defaults
 
-CSD takes a clear position on maintainable code instead of leaving every quality choice unspecified. Its framework-neutral baseline applies to new production code and production code changed by a work item: it prefers immutable values and explicit types, strict domain boundaries, named constants and closed domain types, focused responsibilities, documented contracts, and guard clauses or exhaustive decisions instead of `else`/`elseif`.
+CSD takes a clear position on maintainable code instead of leaving every quality choice unspecified. These defaults serve as legacy bundled criteria pending a planned distribution migration to official-source pointers, not a second competing standard. Projects referencing an authoritative external engineering standard (such as strict-code) defer engineering criteria to that source via `.context/project/quality.md`. Its framework-neutral baseline applies to new production code and production code changed by a work item: it prefers immutable values and explicit types, strict domain boundaries, named constants and closed domain types, focused responsibilities, documented contracts, and guard clauses or exhaustive decisions instead of `else`/`elseif`.
 
 The structural review defaults include at most 15 declared methods per class and per production file, 150 lines per function (aim for fewer than 30 and review extraction above 50), 500 lines per file, three returns and seven parameters per function, cognitive complexity 15, cyclomatic complexity 10, and at most three meaningful nesting levels (one is the preferred target). These are CSD review standards, not claims about SonarQube defaults or analyzer settings configured in a consuming project.
 

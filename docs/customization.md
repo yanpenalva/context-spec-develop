@@ -13,7 +13,9 @@ These values are CSD review defaults, not SonarQube defaults or proof that an an
 Set discovery preferences in repository-root `csd.config.json` when the default adapters or precedence order do not fit. Marker, protected and module search paths are validated as repository-relative paths. Existing valid layouts are selected without migration; see [context discovery](context-discovery.md).
 
 - Replace placeholders in `.context/project/`.
-- Add domain context under `.context/project/` or a documented subdirectory.
+- Add domain context under `.context/project/` or a documented subdirectory; index native project documentation (accepted ADRs, module docs, architecture) rather than duplicating domain facts in workflow files.
+- Reference external engineering standards through generic prose pointers in `.context/project/quality.md` (`Engineering source: <path|url|id>; owner: <owner>; revision: <rev>`) with `NOT FOUND` permitted when unconfigured; keep local analyzer commands and thresholds local.
+- Recognize official-source/link-only intent: official CSD distribution aims for link-only references to authoritative sources, while existing starter assets retain legacy bundled policy copies during this transitional phase pending an explicit distribution migration (Wave 4).
 - Configure optional module documentation with `contextDiscovery.moduleContext`: set `enabled: false` to disable it, `prompt_policy: "never"` to suppress questions, or provide bounded `search_roots` to narrow discovery. Do not use it to mirror `.context/` and `.ai/`.
 - Add templates under an explicit overlay and document when they apply.
 - Add or remove conversation profiles in `.context/profiles/`, then update `agent_profiles.available` and its default in `config.json`.
