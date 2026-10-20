@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.2.2 — Unreleased
+## 1.2.2 — 2026-10-20
 
 - Clarified workflow, product ownership (PO) support, and engineering criterion boundaries: CSD owns delivery workflow and PO support; native project documentation owns domain facts and architectural decisions; external engineering criteria (such as strict-code) are consumed without replacing CSD workflow or duplicating rules.
 - Clarified that bundled opinionated code-quality defaults are transitional legacy material pending a planned distribution migration (Wave 4) to link-only references; starter assets retain existing policy copies during this compatibility patch.
