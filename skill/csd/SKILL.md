@@ -4,7 +4,7 @@ description: Start the Context Spec Develop workflow: initialize a project's can
 license: MIT
 metadata:
   author: yanpenalva
-  version: 1.2.2
+  version: 1.2.3
 ---
 
 # Context Spec Develop

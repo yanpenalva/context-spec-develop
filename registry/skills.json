@@ -20,11 +20,11 @@
       "name": "csd",
       "description": "Start the Context Spec Develop workflow: initialize a project's canonical context, classify the request, route the minimum sufficient context, and carry work through verified delivery. Use when the user invokes /csd, $csd, asks to start CSD, initialize context-spec-develop, or wants the governed feature/bug workflow. Do not use for unrelated coding questions that do not require the CSD delivery lifecycle.",
       "license": "MIT",
-      "version": "1.2.2",
+      "version": "1.2.3",
       "files": [
         {
           "path": "SKILL.md",
-          "sha256": "71fcf574dabbe4d2db58a365da6c0d3b28d20985b1ff7a5b12f27641bb68a56c",
+          "sha256": "f5d4fb61a5a4fa6b9a1795f70b1c6aded830006163cf98e06bf64fdad10dab0a",
           "bytes": 3615
         }
       ]

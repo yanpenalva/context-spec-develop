@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.3 — 2026-10-21
+
+- Fixed the v1.2.2 release missing the hardcoded `PACKAGE_VERSION` sync in `src/installer.ts`: the built CLI reported, installed and locked as 1.2.1. No functional changes beyond the version sync.
+
 ## 1.2.2 — 2026-10-20
 
 - Clarified workflow, product ownership (PO) support, and engineering criterion boundaries: CSD owns delivery workflow and PO support; native project documentation owns domain facts and architectural decisions; external engineering criteria (such as strict-code) are consumed without replacing CSD workflow or duplicating rules.
